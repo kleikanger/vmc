@@ -3,6 +3,8 @@ Variational Monte Carlo class. Containing data only about the states (updated sl
 Doing operations on the slater matrixes. eg: finding determinants, calculating energies, ect.
  */
 
+#include "./orbital/orbital.h"
+
 class slaterMatrix {
 
 	private:
@@ -15,6 +17,8 @@ class slaterMatrix {
 		////Containing the positions to all patricles. (iNumPart x 3) matrix.
 		//double** ppParticlePositions;
 		
+		orbital* orbital_;
+
 		//Number of particles
 		int iNumPart;
 		//Number of particles each spin orientation

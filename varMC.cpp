@@ -12,7 +12,7 @@
 using std::cout;
 
 //constructor
-slaterMatrix::slaterMatrix(int a,int b) { //Call should contain iNumPart, iCutoff, ...
+slaterMatrix::slaterMatrix(int a,int b) {
 	/*//startvimfold*/
 
 	//More elegant way to initialize class variables?
@@ -31,7 +31,19 @@ slaterMatrix::slaterMatrix(int a,int b) { //Call should contain iNumPart, iCutof
 			spinDownMatrix[i][j]=0.0;
 		}
 	}
+
+	/*
 	
+	orbital* orbital_[iNumPart];
+	
+	orbital_[0] = new orbital(1,0,true);//n=1,l=0,spin up.
+	orbital_[1] = new orbital(2,0,true);//n=2,l=0,spin up.
+	orbital_[2] = new orbital(1,0.false);//n=1,l=0,spin down.
+	orbital_[3] = new orbital(2,0,false);//n=2,l=0,spin down.
+	
+	orbital_[i]->valueWF(a)
+		
+	   */
 
 }//end constructor varMC()
 /*//endvimfold*/
@@ -140,7 +152,7 @@ double slaterMatrix::orbitals(int iN,  double* dR, double alpha){
 	case 3:
 			return b*psi_10+a*psi_20;	
 	default:
-			cout<<"Warning: Fatal error. Non-matching quantum-number in function varMC::orbitals().";
+			cout<<"error: Non-matching quantum-number in function varMC::orbitals().";
 			exit(1); 
 	}
 }//End varMC::orbitals()
@@ -183,7 +195,7 @@ double slaterMatrix::jastrow(double** r, double alpha){
 int main(){
 //startvimfold
 	
-	//variational parameter
+	//variational parameter. Start value.
 	double alpha=1.0;
 	//Number of variations
 	double number_of_alpha_variations=10;
@@ -245,8 +257,8 @@ int main(){
 	int iNumber_of_iterations=10;
 	int iAccepted_jumps=0;
 
-	
-	while (iIteration_count < iNumber_of_iterations)
+	int iIteration_count=0;	
+	while (iIteration_count < iNumber_of_iterations){
 		iIteration_count++;
 
 		for (int i=0; i<iNumPart; i++){

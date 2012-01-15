@@ -3,7 +3,7 @@
    -Generalize to more dimensions.
    -Include Jastrow factor.
    -Make classes?
-
+		
    */
 
 //Define USE_MPI true if using MPI.
@@ -33,13 +33,24 @@ ofstream ofile;
 void  mc_sampling(int, int, int, int, int, int, int, int, double *, double *);
 
 // The variational wave function 
-double  wave_function(double **, double, double, int, int);
+double  wave_function(double **, double, int, int);
 
 // The local energy 
-double  local_energy(double **, double,double, double,  int, int);
+double  local_energy(double **, double, double,  int, int);
 
 // prints to screen the results of the calculations  
 void  output(int, int, int, double *, double *);
+
+// generates gaussian distributed random numbers
+double gaussian_random(long *idum);
+
+//calculates the quantum force for the importance sampling
+double calculate_qforce(double**, double**, double, double, int, int);
+
+//Calculates the determinant
+
+
+
 
 // Begin of main program   
 
@@ -53,7 +64,12 @@ int main(int argc, char* argv[]){
    	double *local_cum_e,* local_cum_e2;
    	int numprocs, my_rank, number_cycles;  
    	double local_sum;
-   
+   	
+#if (!USE_MPI)
+	my_rank=0;	
+	numprocs=1;
+#endif
+
 	//Initital values
    	number_particles = 3;
    	charge = 3;
@@ -67,7 +83,7 @@ int main(int argc, char* argv[]){
    	local_cum_e2 = new double[max_variations];
 
    	//   MPI initializations
-	#if USE_MPI
+#if USE_MPI
    	MPI_Init (&argc, &argv);
    	MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
    	MPI_Comm_rank (MPI_COMM_WORLD, &my_rank);
@@ -76,7 +92,7 @@ int main(int argc, char* argv[]){
    	// Read from screen a possible new vaue of n
    	// Read in output file, abort if there are too few command-line arguments
    	if(my_rank == 0){
-	#endif
+#endif
    		if( argc <= 1 ){
     		cout << "Bad Usage: " << argv[0] <<  " read also output file on same line" << endl; 
         	exit(1); 
@@ -84,64 +100,65 @@ int main(int argc, char* argv[]){
 		} else {
 	
     		outfilename=argv[1];
-       		ofile.open(outfilename);
+      		ofile.open(outfilename);
        		cout << "# MC steps= ";
       		cin >> number_cycles;
 			//cout << "steplength= ";
         	//cin >> ;
 		}
-	#if USE_MPI 
+#if USE_MPI 
 	}
-	#endif	
-
-   	thermalization = 0.10 * number_cycles;
-  	
-	#if USE_MPI
   	//broadcast
   	MPI_Bcast (&number_cycles, 1, MPI_INT, 0, MPI_COMM_WORLD);
-	#endif
+#endif
+   	
+	thermalization = 0.10 * number_cycles;
 
   	//  Do the mc sampling  
 	mc_sampling(my_rank, numprocs, dimension, number_particles, charge, 
               max_variations, thermalization, number_cycles, cumulative_e, cumulative_e2);
   	
-	#if USE_MPI
+#if USE_MPI
   	// Calculations are done. Time to send and recive. First cumulative_e
   	if (my_rank==0) {
-      
     	for (int i=1; i<numprocs; i++) {
        		MPI_Recv(local_cum_e, max_variations,MPI_DOUBLE,MPI_ANY_SOURCE,500,MPI_COMM_WORLD,&status);
-  			for(int n=0;n < max_variations; n++){
+#endif 	
+			for(int n=0;n < max_variations; n++){
    				cumulative_e[n] += local_cum_e[n];
   			}
+#if USE_MPI			
     	}
    	} else {
     	MPI_Send(cumulative_e,max_variations,MPI_DOUBLE,0,500,MPI_COMM_WORLD);
   	}
 
- //Sending and reciving cumulative_e2
-  if (my_rank==0) {
-    for (int i=1; i<numprocs; i++) {
-       MPI_Recv(local_cum_e2,max_variations,MPI_DOUBLE,MPI_ANY_SOURCE,501,MPI_COMM_WORLD,&status);
-  for(int n=0; n < max_variations; n++){
-   cumulative_e2[n] += local_cum_e2[n];
-  }
-    }
+ 	//Sending and reciving cumulative_e2
+  	if (my_rank==0) {
+    	for (int i=1; i<numprocs; i++) {
+       	MPI_Recv(local_cum_e2,max_variations,MPI_DOUBLE,MPI_ANY_SOURCE,501,MPI_COMM_WORLD,&status);
+#endif
+		for(int n=0; n < max_variations; n++){
+   			cumulative_e2[n] += local_cum_e2[n];
+  		}
+#if USE_MPI
+	}
+#endif
     output(max_variations, number_cycles, charge, cumulative_e, cumulative_e2);
-  }
-  else {
+#if USE_MPI
+  } else {
       MPI_Send(cumulative_e2,max_variations,MPI_DOUBLE,0,501,MPI_COMM_WORLD);
   //    cout << my_rank << " : done!" << endl;
   }
-  #endif
+#endif
 
   delete [] cumulative_e; delete [] cumulative_e2; 
   delete [] local_cum_e; delete [] local_cum_e2;
   ofile.close();  // close output file
   
-	#if USE_MPI  
+#if USE_MPI  
   	MPI_Finalize ();
-  	#endif
+#endif
   return 0;
 }
 //endvimfold
@@ -159,8 +176,9 @@ void mc_sampling(int my_rank,
   	double ideal_step;
 
   	beta = 1.25;
-  	alpha = 2.75;                                                               //0.5*charge;
-  	idum=-(my_rank * time(NULL) + 1);
+  	alpha = 2.75;
+
+  	idum=-((my_rank +1) * time(NULL) + 1); // my_rank+1<-my_rank (MC sampl orig. prog.)
   	// allocate matrices which contain the position of the particles  
   	r_old = (double **) matrix( number_particles, dimension, sizeof(double));
   	r_new = (double **) matrix( number_particles, dimension, sizeof(double));
@@ -182,71 +200,76 @@ void mc_sampling(int my_rank,
    
     	//  initial trial position, note calling with alpha 
     	//  and in three dimensions 
+
     	for (i = 0; i < number_particles; i++) { 
       		for ( j=0; j < dimension; j++) {
  				r_old[i][j] = ideal_step*(ran1(&idum) -0.5);
       		}
     	}
 
-		//XXX
-
-   	wfold = wave_function(r_old, alpha, beta, dimension, number_particles);
-    // loop over monte carlo cycles 
-    for (cycles = 1; cycles <= number_cycles+thermalization; cycles++){ 
-      	// new position 
-      	for (i = 0; i < number_particles; i++) { 
- 			for ( j=0; j < dimension; j++) {
-   				r_new[i][j] = r_old[i][j]+ideal_step*(ran1(&idum) -0.5);
- 			}
-      	}
-	//XXX
+   		wfold = wave_function(r_old, beta, dimension, number_particles);
+    	
+		// loop over monte carlo cycles 
+    	for (cycles = 1; cycles <= number_cycles+thermalization; cycles++){ 
+      		// new position 
+      		for (i = 0; i < number_particles; i++) { 
+ 				for ( j=0; j < dimension; j++) {
+   					//r_new[i][j] = r_old[i][j]+ideal_step*(ran1(&idum) -0.5);
+   					r_new[i][j] = r_old[i][j]+gaussian_random(&idum); //XXX + qforce
+ 				}
+      		}
+			//XXX
       
-	wfnew = wave_function(r_new, alpha, beta, dimension, number_particles); 
+			wfnew = wave_function(r_new, beta, dimension, number_particles); 
 
-   	// Metropolis test 
-    if(ran1(&idum) <= wfnew*wfnew/wfold/wfold ) { 
- 		for (i = 0; i < number_particles; i++) { 
-   			for ( j=0; j < dimension; j++) {
-     			r_old[i][j]=r_new[i][j];
-   			}
- 		}
-	wfold = wfnew;
- 	accept = accept+1;
-  	}
+   			// Metropolis test 
+    		if(ran1(&idum) <= wfnew*wfnew/wfold/wfold ) { 
+ 				for (i = 0; i < number_particles; i++) { 
+   					for ( j=0; j < dimension; j++) {
+     					r_old[i][j]=r_new[i][j];
+   					}
+ 				}
+			wfold = wfnew;
+ 			accept = accept+1;
+  			}
 
- 	// compute local energy  
+ 			// compute local energy  
  
-    if ( cycles > thermalization ) {
- 		delta_e = local_energy(r_old, alpha,beta, wfold, dimension, 
-                               number_particles);
+   	 		if ( cycles > thermalization ) {
+ 				delta_e = local_energy(r_old, beta, wfold, dimension, number_particles);
 
-	// update energies  
-        energy += delta_e;
-        energy2 += delta_e*delta_e;
-      }
-    }   // end of loop over MC trials   
+				// update energies  
+        		energy += delta_e;
+        		energy2 += delta_e*delta_e;
+      		}
+    	}   // end of loop over MC trials   
 
 	cout << "variational parameter= " << beta 
     << " accepted steps= " << accept << endl;
     // Calculations are done. Time to send and recive. First cumulative_e
     
-	if (my_rank==0) { //??
+	if (my_rank==0) {
     	// update the energy average and its squared 
     	cumulative_e[variate] = energy / number_cycles   /numprocs;
     	cumulative_e2[variate] = energy2/ number_cycles /numprocs;
 	}
-  	}    // end of loop over variational  steps 
+  }    // end of loop over variational  steps 
+  
   free_matrix((void **) r_old); // free memory
   free_matrix((void **) r_new); // free memory
+
 }// end mc_sampling function  
 //endvimfold
 
 // Function to compute the (unsquared) wave function, simplest form 
-double  wave_function(double **r, double alpha,double beta,int dimension, int number_particles){
+double  wave_function(double **r,// double alpha,
+		double beta,int dimension, int number_particles){
 /*//startvimfold*/
 int i, j, k;                                
 double  wf_1=0, wf_2=0 ,wf_3=0, toS=0, toP=0, toQ=0;
 double  r_p1=0, r_p2=0, r_p3=0, r_ento=0, r_totre=0, r_entre=0;
+
+double alpha=2.75;
 
 //Find r_p1,r_p2, length of vectors
 	for (j = 0; j < dimension; j++) { 
@@ -295,9 +318,9 @@ double  r_p1=0, r_p2=0, r_p3=0, r_ento=0, r_totre=0, r_entre=0;
 /*//endvimfold*/
 
 // Function to calculate the local energy 
-double  local_energy(double **r, double alpha,double beta , double wfold, int dimension, 
-                        int number_particles)
-{
+double  local_energy(double **r,
+		double beta , double wfold, int dimension, 
+                        int number_particles){
 /*//startvimfold*/
 int charge =3;
 
@@ -305,7 +328,9 @@ int charge =3;
   double e_local, wfminus, wfplus, e_kinetic, e_potential, r_12, 
     r_single_particle;
   double **r_plus, **r_minus;
- 
+ 	
+ // double alpha = 2.75; //XX to be removed
+
   // allocate matrices which contain the position of the particles  
   // the function matrix is defined in the progam library 
   r_plus = (double **) matrix( number_particles, dimension, sizeof(double));
@@ -321,8 +346,8 @@ int charge =3;
     for (j = 0; j < dimension; j++) { 
       r_plus[i][j] = r[i][j]+h;
       r_minus[i][j] = r[i][j]-h;
-      wfminus = wave_function(r_minus, alpha,beta,dimension, number_particles); 
-      wfplus  = wave_function(r_plus, alpha,beta,dimension, number_particles); 
+      wfminus = wave_function(r_minus,beta,dimension, number_particles); 
+      wfplus  = wave_function(r_plus,beta,dimension, number_particles); 
       e_kinetic -= (wfminus+wfplus-2*wfold);
       r_plus[i][j] = r[i][j];
       r_minus[i][j] = r[i][j];
@@ -381,5 +406,58 @@ void output(int max_variations, int number_cycles, int charge,
 }  // end of function output         
 //endvimfold
 
+//returns gaussian distributed random numbers XXX what const?
+double gaussian_random(long *idum){
+//startvimfold	
+	//double pi_sqrt = 1.7724538509055160;//sqrt(3.1415926535897932);
+	//any nr ok
+	double random=ran3(idum)-0.5;
+	
+	// (general gaussian  exp(-x^2/(2*pi*s^2)) / (sqrt(pi)* s) ))
+	if (random<0){
+		return exp(-random*random)/1.8;
+	} else {
+		return -exp(-random*random)/1.8;
+	}
+
+}//end: function gaussian_random()
+//endvimfold
+
+//Finds Quantum-force (del Psi) / Psi
+double calculate_qforce(double** r, double** q_force, double beta, double wf, int dimension, int number_particles){
+//startvimfold
+	double** r_plus;
+   	double** r_minus;
+  	r_plus = (double **) matrix(number_particles, dimension, sizeof(double));
+	r_minus = (double **) matrix(number_particles, dimension, sizeof(double));
+ 	
+	double wf_plus, wf_minus;
+	double alpha=2.75;
+
+	//int number_particles=3; //SHOULD ONYL BE NECC. TO DECLARE AT ONE PLACE
+	//int dimension=3;
+	
+	//Moving only one particle at a time:
+	for (int i=0; i<number_particles; i++){
+		for (int j=0; j<number_particles; j++){
+			r_minus[i][j] = r[i][j];
+			r_plus[i][j] = r[i][j];
+		}
+	}
+
+	for (int i=0; i<number_particles; i++){
+		for (int j=0; j<number_particles; j++){
+			r_plus[i][j]=r[i][j]+h;
+			r_minus[i][j]=r[i][j]-h;
+			wf_plus = wave_function(r_plus, beta, dimension, number_particles);
+			wf_minus =  wave_function(r_minus, beta, dimension, number_particles);
+			q_force[i][j]= 2*(wf_plus-wf_minus)/(h*wf);
+			r_minus[i][j] = r[i][j];
+			r_plus[i][j] = r[i][j];
+		} 
+	}
+}//end function calculate_qforce();
+//endvimfold
+
 // For vim users: Defining vimfolds.
-// vim:fdm=marker:fmr=//startvimfold,//endvimfold
+// vim:fdm=marker:fmr=//startvimfold//endvimfold
