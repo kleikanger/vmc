@@ -1,6 +1,7 @@
 /*
 Implementation of class orbitals
-   */
+Number of dimensions should be included.
+ 	*/
 
 #include "orbital.h"
 #include <cmath>
@@ -9,8 +10,11 @@ Implementation of class orbitals
 
 using std::cout;
 
-orbital::orbital(int el,int am, bool su){
+//Constructors
+orbital::orbital(){}
 
+orbital::orbital(int el,int am, bool su){
+//startvimfold
 	energy_level=el;
 	angular_momentum=am;
 	spin_up=su;	
@@ -18,40 +22,70 @@ orbital::orbital(int el,int am, bool su){
 	if (energy_level<0) {
 	cout<<"\nerror: energy_level must be a positive integer.\n";
 	exit(1);
+	} else if (energy_level<angular_momentum) {
+	cout<<"\nerror: angular_momentum smaller then energy_level.\n";
+	exit(1);
 	} else {
 	cout<<"particle initialized: energy_level: "<<energy_level
 				<<", angular momentum: "<<angular_momentum
 				<<", spin_up: "<<spin_up<<"\n"; 
 	}
 }
+//endvimfold
+
+void orbital::setValues(int el,int am, bool su){
+//startvimfold
+	energy_level=el;
+	angular_momentum=am;
+	spin_up=su;	
+
+	if (energy_level<0) {
+	cout<<"\nerror: energy_level must be a positive integer.\n";
+	exit(1);
+	} else if (energy_level<angular_momentum) {
+	cout<<"\nerror: angular_momentum smaller then energy_level.\n";
+	exit(1);
+	} else {
+	cout<<"particle initialized: energy_level: "<<energy_level
+				<<", angular momentum: "<<angular_momentum
+				<<", spin_up: "<<spin_up<<"\n"; 
+	}
+}
+//endvimfold
 
 //using const for better opimalization
 //Functions that returns different object properties
 const int orbital::angularMomentum(){
+//startvimfold
 	return angular_momentum;
 }
+//endvimfold
 
 const int orbital::energyLevel(){
+//startvimfold
 	return energy_level;
 }
+//endvimfold
 
 //returns true if spin up
 const bool orbital::spinUp(){
+//startvimfold
 	return spin_up;
 }
+//endvimfold
 
 const double orbital::valueWF(double* dR){
+//startvimfold
 	return orbitalWavefunctions(dR);
 }
+//endvimfold
 
  /***********************************************
-  * This function contains all wavefunctions 	*
-  * 	Basis can be changed here.  			*
+  * 			 wavefunctions. 				*
   * 											*
   ***********************************************/ 
-
 double orbital::orbitalWavefunctions(double* dR){
-
+//startvimfold
 	
 	//Constants found in HF simulation. More decimals?
 	double a=0.9955496248;
@@ -67,7 +101,7 @@ double orbital::orbitalWavefunctions(double* dR){
 	//n=1,l=0
 	double psi_10 = 16.0*exp(-4.0*dAbsR);	//not normalized
 	//n=2,l=0
-	double psi_20 = 2.82842712474619*(1-dAbsR)*exp(-2.0*dAbsR); 	
+	double psi_20 = 2.82842712474619*(2.0-4.0*dAbsR)*exp(-2.0*dAbsR); 	
 
 	//Angular momentum can also be included.
 	if (spin_up) {
@@ -94,20 +128,26 @@ double orbital::orbitalWavefunctions(double* dR){
 					exit(1);
 		}
 	}	
-}
+}//end of orbitalWavefunctions::orbitalWavefunctions()
+//endvimfold
 
+
+//Implementation example
+//startvimfold
 /*
 int main(){
 
-//implementation example;
-
 	orbital* B[4];
+	orbital* C;
+	
+	C = new orbital[4];
 
 	//orbital* pointer;
 	for (int i = 0; i<4; i++){
 		//pointer = new orbital(0,i,false);
 		//B[i] = pointer; 
-		B[i] = new orbital(i,2,false);
+		B[i] = new orbital(i,2,false);	
+		C[i].setValues(i,2,false);
 	}
 	
 	double* a = new double[3];
@@ -116,6 +156,7 @@ int main(){
 	for (int i = 0; i<2; i++){
 		cout<<"\n"<<B[i]->angularMomentum()<<"\n";
 		cout<<"\n"<<B[i]->valueWF(a)<<"\n";
+		cout<<"\n"<<C[i].valueWF(a)<<"\n";
 		
 	}
 
@@ -126,3 +167,7 @@ int main(){
 	 delete a;
 }
 */
+//endvimfold
+
+// For vim users: Defining vimfolds.
+// vim:fdm=marker:fmr=//startvimfold,//endvimfold

@@ -1,9 +1,9 @@
-vmc: lib/lib.cpp lib/lib.h vmc.cpp
-	c++ -o vmc.out lib/lib.cpp vmc.cpp
+vmc: lib/lib.cpp lib/lib.h vmc_be.cpp slaterMatrix/slaterMatrix.h slaterMatrix/slaterMatrix.cpp orbital/orbital.h orbital/orbital.cpp 
+	c++ -o vmc_be.out -Wall vmc_be.cpp slaterMatrix/slaterMatrix.cpp slaterMatrix/slaterMatrix.h orbital/orbital.h orbital/orbital.cpp lib/lib.cpp 
 
-wall: vmc 
-	c++ -o vmc.out -Wall lib/lib.cpp vmc.cpp
-
+clang: vmc 
+	clang -o vmc_be slaterMatrix/slaterMatrix.cpp slaterMatrix/slaterMatrix.h orbital/orbital.h orbital/orbital.cpp lib/lib.cpp 
+	
 run: vmc
-	make vmc &&	./vmc.out
+	./vmc_be.out
 
