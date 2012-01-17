@@ -99,17 +99,20 @@ double orbital::orbitalWavefunctions(double* dR){
 	dAbsR=sqrt(dAbsR);
 	
 	//n=1,l=0
-	double psi_10 = 16.0*exp(-4.0*dAbsR);	//not normalized
+	double psi_10 = exp(-4.0*dAbsR);	//not normalized
 	//n=2,l=0
-	double psi_20 = 2.82842712474619*(2.0-4.0*dAbsR)*exp(-2.0*dAbsR); 	
+	double psi_20 = (2.0-4.0*dAbsR)*exp(-2.0*dAbsR); 	
 
 	//Angular momentum can also be included.
 	if (spin_up) {
 
 		switch (energy_level) {
 			case 1: return a*psi_10-b*psi_20;
-			case 2: return -b*psi_10-a*psi_20;	
-			
+			case 2:	return -b*psi_10-a*psi_20;	
+			//XXX:Testing for larger systems
+			case 3: return -b*psi_20+sin(psi_10);
+			case 4: return a*psi_10-2*cos(psi_10);
+
 			default: 
 					cout<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
@@ -119,8 +122,11 @@ double orbital::orbitalWavefunctions(double* dR){
 	} else {
 
 		switch (energy_level) {
-			case 0: return -a*psi_10+b*psi_20;	
-			case 1: return b*psi_10+a*psi_20;	
+			case 1:	return -a*psi_10+b*psi_20;	
+			case 2:	return b*psi_10+a*psi_20;	
+			//XXX:Testing for larger systems
+			case 3: return -b*psi_20+sin(psi_10);
+			case 4: return a*psi_10-2*cos(psi_10);
 			
 			default:
 					cout<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
