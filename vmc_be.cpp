@@ -11,31 +11,51 @@
 
 using std::cout;
 
+
+
+
+
+
+
+
 //Will include: MC sampling, statistics, write to outfile, paralellization.
 //Calculates the local energy
-double  localEnergy(double**,double, double,slaterMatrix*,int, int);
+double  localEnergy(double**,double, slaterMatrix*,int, int);
 
 #define H 0.001
-#define H2 1000000
+#define H2 100000
 
 int main(){
 //startvimfold
-
-	//variational parameter. Start value.
-	double alpha=1.0;
+	
+	//Number of variational parameters
+	int iNumber_of_variational_parameters = 1;
+	//Variational parameters
+	double variational_parameters[iNumber_of_variational_parameters];
 	//Number of variations
-	double number_of_alpha_variations=10;
+	int number_of_variations[iNumber_of_variational_parameters];
+	//Increasing the variational parameter with
+	double variational_parameter_increase[iNumber_of_variational_parameters];
+	
+	//variational parameter. Start value.
+	variational_parameters[0]=0.08; //alpha_1 minima -14.5 at 0.13
+		//variational_parameter[1]=...;
+	//Number of variations
+	number_of_variations[0]=10;
 	//increasing alpha with
-	double alpha_increase=0.05;
+	variational_parameter_increase[0]=0.01;
+	
 	//number of particles
 	int iNumPart=4;	
-	//number of particles for separate spins.
+	//number of particles each spin direction.
 	int iCutoff=2;
 	//length of random walker step
 	double ideal_step=0.6;
+	//Number of iterations in mc sampling
 	int iNumber_of_iterations=500000;
+	//Length of thermalization phase
 	int iThermalization=(int)iNumber_of_iterations*.3;
-
+	
 	//allocating positions of the particles assuming 3 dimensions.
 	//First <iCutoff> indexes: pos. of spin up particles. 
 	//Next  <iCutoff> indexes: pos. of spin down particles.
@@ -50,46 +70,52 @@ int main(){
 			newPartPos[i][j]=0.0;
 		}
 	}
-	
-	//Ecumulative: will be needed when parallellizing code.
-	double cumulative_energy;
-	double local_energy;
-	//initialize slaterMatrix object
-	slaterMatrix slater_Matrix(iNumPart,iCutoff);
-	//
-	double wfnew, wfold;
 
 	long idum;
   	idum= - (1 +  time(NULL));//time(NULL)*(myrank));
 	
-	for (int iTemp=0; iTemp < number_of_alpha_variations; iTemp++){
-	
-		cumulative_energy=0;
-		local_energy=0;
+	//XXX: The variables below must be changed to an array containing the 
+	//energies from all the runs. Cumulative energy isn't needed before MC
+	//sampling is introduced.
+	double cumulative_energy;
+	double local_energy;
+	//initialize slaterMatrix object
+	slaterMatrix slater_Matrix(iNumPart,iCutoff,iNumber_of_variational_parameters);
+	//variables to store calculated energies
+	double wfnew, wfold;
+			
+
+	//Loop over variational parameters	
+	for (int iTemp=0; iTemp < number_of_variations[0]; iTemp++){
 	
 		//''random'' startposition 
     	for (int i = 0; i < iNumPart; i++) { 
     		for (int j=0; j < 3; j++) {
  				partPos[i][j] = ideal_step*(ran2(&idum) -0.5);
-    	  	}
+      		}
     	}
-
-		//Variational parameter alpha is used to variate the jastrow factor
-		wfold=slater_Matrix.waveFunction(partPos,alpha);	
 	
+		//Initializing startposition.
+		slater_Matrix.updateVariationalParameters(variational_parameters);
+		slater_Matrix.updateSlaterMatrix(partPos);
+		wfold=slater_Matrix.waveFunction()*slater_Matrix.jastrow(partPos);
+	
+		//XXX: The variables below must be changed to an array containing the 
+		//energies from all the runs. Cumulative energy isn't needed before MC
+		//sampling is introduced.
+		cumulative_energy=0;
+		local_energy=0;
+
 		//mc sampling loop
 		int iAccepted_jumps=0;
 		int iIteration_count=0;
 
 		cout<<"\nnumber of iterations = "<<iNumber_of_iterations;
 
-		//cout<<"\n\niterations (.), accepted jumps (+):\n";
-
 		while (iIteration_count < iNumber_of_iterations){
 			iIteration_count++;
 
 			int i,j;
-
 			//Suggesting random step.
     		for (i = 0; i < iNumPart; i++) { 
       			for ( j=0; j < 3; j++) {
@@ -98,8 +124,8 @@ int main(){
     		}
 
 			//Updating slatermatrix and finding wf (determinant*jastrow factor) in new position.
-			slater_Matrix.updateSlaterMatrix(newPartPos,alpha);
-			wfnew=slater_Matrix.waveFunction(newPartPos,alpha);
+			slater_Matrix.updateSlaterMatrix(newPartPos);
+			wfnew=slater_Matrix.waveFunction()*slater_Matrix.jastrow(newPartPos);
 		
 			//Metropolis algorithm
 			if (wfnew*wfnew/wfold/wfold >= ran2(&idum)){
@@ -112,25 +138,34 @@ int main(){
 				wfold=wfnew;
 				//Updating energy if system is thermalized.
 				if (iIteration_count>iThermalization){
-					local_energy+=localEnergy(partPos,alpha,wfnew,&slater_Matrix,3,iNumPart);
+					local_energy+=localEnergy(partPos,wfnew,&slater_Matrix,3,iNumPart);
 					iAccepted_jumps+=1;
 				}
 			}
-		}//End while,
+		}//End while, (MC sampling)
 
 	cout << "\n";
+	cout << "alpha_1="<<variational_parameters[0]<<"\n";
 	cout << "Energy = " << local_energy/(double)iAccepted_jumps<<"\n";
 	cout << "Acceptance rate = " << iAccepted_jumps/(double)(iNumber_of_iterations-iThermalization)<<"\n";
 
-	alpha+=alpha_increase;
+	//Changing variational parameter.
+	variational_parameters[0]+=variational_parameter_increase[0];
 	}//end for loop over variational parameters
 
 
 }//End main()
 //endvimfold
 
+//XXX for larger systems (larger slatermatrixes then 3x3, the derivatives 
+//should be taken by using the cofactor elements. Then we dont have to to 
+//calculate the 'determinant' more then once (losely speaking.))
+//O(n^4)+O(n)*n instead of O(n^4)*n!
+//double derivative()
+//double doublederivative()
+
 // Function to calculate the local energy 
-double  localEnergy(double **r,	double beta , double wfold, 
+double  localEnergy(double **r, double wfold, 
 					slaterMatrix* slater_Matrix, int dimension, int number_particles){
 /*//startvimfold*/
 int charge = 4;
@@ -154,11 +189,14 @@ int charge = 4;
     for (j = 0; j < dimension; j++) { 
       r_plus[i][j] = r[i][j]+H;
       r_minus[i][j] = r[i][j]-H;
-	  slater_Matrix->updateSlaterMatrix(r_minus,beta);
-	  wfminus = slater_Matrix->waveFunction(r_minus,beta);
-	  slater_Matrix->updateSlaterMatrix(r_plus,beta); 
-      wfplus  = slater_Matrix->waveFunction(r_plus,beta); 
-      e_kinetic -= (wfminus+wfplus-2*wfold);
+	  
+	  slater_Matrix->updateSlaterMatrix(r_minus);
+	  wfminus = (slater_Matrix->waveFunction())*(slater_Matrix->jastrow(r_minus));
+	  
+	  slater_Matrix->updateSlaterMatrix(r_plus); 
+      wfplus  = (slater_Matrix->waveFunction())*(slater_Matrix->jastrow(r_plus)); 
+      
+	  e_kinetic -= (wfminus+wfplus-2*wfold);
       r_plus[i][j] = r[i][j];
       r_minus[i][j] = r[i][j];
     }

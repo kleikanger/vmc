@@ -27,12 +27,14 @@
 using std::cout;
 
 //constructor
-slaterMatrix::slaterMatrix(int a,int b) {
+slaterMatrix::slaterMatrix(int iNp,int iCo,int iNovp) {
 	/*//startvimfold*/
 
 	//More elegant way to initialize class variables?
-	iNumPart=a;
-	iCutoff=b;
+	iNumPart=iNp;
+	iCutoff=iCo;
+	variational_parameters = new double[iNovp];
+	iNumber_of_variational_parameters=iNovp;
 	
 	//Allocating new matrices
 	spinUpMatrix = new double*[iCutoff];
@@ -91,10 +93,10 @@ slaterMatrix::slaterMatrix(int a,int b) {
 	//Use cofactormatrix only if determinantmatrix are bigger than (2x2)
 	if (iCutoff<3){
 		bUse_cofactors=false;
-		cout<<"\nSlatermatrix: iCutoff<3. Cofactormatrixes not initialized.\n";
+		cout<<"\nSlatermatrix: iCutoff<3. Cofactormatrixes not allocated.\n";
 	} else {
 		bUse_cofactors=true;
-		cout<<"\nSlatermatrix: iCutoff>2. Initializing cofactormatrixes.\n";
+		cout<<"\nSlatermatrix: iCutoff>2. Allocating cofactormatrixes.\n";
 	}
 
 	//if matrix>2x2. We use cofactors to calculate the determinants 
@@ -121,7 +123,7 @@ slaterMatrix::slaterMatrix(int a,int b) {
 
 //Sets up the slater determinant matrixes: spinUpMatrix** and spinUpMatrix**.
 //Calls the varMC::orbitals() function find the matrix elements.
-void slaterMatrix::updateSlaterMatrix(double** partPos, double dAlpha){
+void slaterMatrix::updateSlaterMatrix(double** partPos){
 	/*//startvimfold*/
 	
 	int i,j;
@@ -135,7 +137,8 @@ void slaterMatrix::updateSlaterMatrix(double** partPos, double dAlpha){
 			spinDownMatrix[i][j] = orbital_[i+iCutoff].valueWF(partPos[j+iCutoff]); //(i,pParticlePositions[j+iCutoff],dAlpha);
 		}
 	}
-	//Update cofactor matrixes (maybe not necc. to do this each update, only if accepted?)
+	//Update cofactor matrixes (maybe not necc. to do this each update, 
+	//only if MC jump accepted and we need to take derivatives??)
 	if (bUse_cofactors){
 	 	updateCofactors(cofactorMatrix_up,spinUpMatrix,iCutoff);
 	 	updateCofactors(cofactorMatrix_down,spinDownMatrix,iCutoff);
@@ -150,7 +153,6 @@ void slaterMatrix::updateCofactors(double** cofactor_matrix, double** determinan
 	//Keeping track of the determinants det_up,det_down (spin up and spin down) 
 	//so that we dont have to calculate any determinants more than once. 
 	//Using variables in waveFunction(double*,double,int).
-	bDet_up=bDet_down=false;	
 	
 	int i,j,k,l;
 	double sign;
@@ -187,8 +189,27 @@ void slaterMatrix::updateCofactors(double** cofactor_matrix, double** determinan
 		cofactor_matrix[i][j]=sign*determinant(minorMatrix,(iDim_determinant-1));	
 		}
 	}
+		//Need'nt calculate both determinants each time. eg: when calculating derivatives.
+		//XXX: Smart to always take determinant along first row?
+		det_up=0.0;
+		for (i=0;i<iCutoff;i++){
+			det_up+=spinUpMatrix[0][i]*cofactorMatrix_up[0][i];
+		}
+		det_down=0.0;
+		for (i=0;i<iCutoff;i++){
+			det_down+=spinDownMatrix[0][i]*cofactorMatrix_down[0][i];
+		}
+
 	//delete minor matrix XXX XXX
 }//End function slatermatrix::updateCofactors()
+//endvimfold
+
+void slaterMatrix::updateVariationalParameters(double* vp){
+//startvimfold
+	for (int i=0;i<iNumber_of_variational_parameters;i++){
+		variational_parameters[i]=vp[i];
+	}
+}
 //endvimfold
 
 //Calculates determinant of (iNxiN) matrix by recursion.
@@ -234,19 +255,23 @@ double slaterMatrix::determinant(double** ppM, int iN){
 //Calculates wf including jastrow factor with variational parameter alpha.
 //Brute force calculation of the determinants.
 //slatermatrixes already calculated. (updateSlaterMatrix())
-double slaterMatrix::waveFunction(double ** dR, double alpha){
+double slaterMatrix::waveFunction(){
 //startvimfold
-	//XXX remove this line (update ...). Make update public.
-	//updateSlaterMatrix(dR,1.0);
 	//cout<<"\nJastrow not included\n";
-	return determinant(spinDownMatrix,iCutoff)*determinant(spinUpMatrix,iCutoff);//*jastrow(dR,alpha);
+	//updateSlaterMatrix(r);
+	if (!bUse_cofactors){
+		return determinant(spinDownMatrix,iCutoff)*determinant(spinUpMatrix,iCutoff);//*jastrow(r);
+	} else {
+		return det_down*det_up;
+	}
 }
 //endvimfold
 
 //Overloading the func.
 //Using the cofactors to determine the determinant
 //can be done without changing cofactorMatrix if only one r_i is changed.
-double slaterMatrix::waveFunction(double * dR, double alpha, int iCofac_column){
+//input: dR: position of particle nr. I in determinant. alpha: wariational parameter. iCofac_column:I.
+double slaterMatrix::waveFunction(double * dR, int iCofac_column){
 	//startvimfold
 	if (!bUse_cofactors){
 		cout<< "\nerror in waveFunction(). Since iCutoff=2 the determinant must be calculated directly."
@@ -255,6 +280,7 @@ double slaterMatrix::waveFunction(double * dR, double alpha, int iCofac_column){
 	}
 	
 	int i;
+#if 0
 	//Need'nt calculate both determinants each time. eg: when calculating derivatives.
 	//For every update, set bDet_up = bDet_down = false.
 	//XXX: Smart to always take determinant along first row?
@@ -262,8 +288,6 @@ double slaterMatrix::waveFunction(double * dR, double alpha, int iCofac_column){
 		det_up=0.0;
 		for (i=0;i<iCutoff;i++){
 			det_up+=spinUpMatrix[0][i]*cofactorMatrix_up[0][i];
-			//cout<<"sUM"<<spinUpMatrix[i][0]<<"\n";
-			//cout<<"cM"<<cofactorMatrix_up[i][0]<<"\n";
 		}
 		bDet_up=true;
 	}
@@ -274,7 +298,8 @@ double slaterMatrix::waveFunction(double * dR, double alpha, int iCofac_column){
 		}
 		bDet_down=true;
 	}
-	//Calculating the determinants.
+#endif
+	//Calculating the changed determinant using the cofactors and the new coordinates.
 	double temp=0.0;
 	if (iCofac_column<iCutoff){//evt if(orbital_[iCofac_column].spinUp();)
 		for (i=0;i<iCutoff;i++){
@@ -294,10 +319,13 @@ double slaterMatrix::waveFunction(double * dR, double alpha, int iCofac_column){
 //endvimfold
 
 //Calculates the jastrow-factor
-double slaterMatrix::jastrow(double** r, double alpha){
+double slaterMatrix::jastrow(double** r){
 //startvimfold
 	double length;
 	int a;
+	
+	//variational parameter.
+	double alpha = variational_parameters[0];
 
     double argument = 0;
     for (int i = 0; i < iNumPart - 1; i++) {
@@ -332,8 +360,8 @@ double slaterMatrix::jastrow(double** r, double alpha){
 #include <iomanip>
 int main(){
 
-	int iNumPart=8;
-	int iCutoff=4;
+	int iNumPart=4;
+	int iCutoff=2;
 	
 	double** partPos = new double*[iNumPart];
 	double** newPartPos = new double*[iNumPart];
@@ -347,8 +375,8 @@ int main(){
 		}
 	}
 
+	slaterMatrix slater_Matrix(iNumPart,iCutoff,1);
 
-	slaterMatrix slater_Matrix(iNumPart,iCutoff);
 	
 	double wfnew, wfold;
 	double ideal_step=2.0;
@@ -362,7 +390,7 @@ int main(){
 		//local_energy=0;
 	
 		//''random'' startposition 
-	for (int g=0; g<20; g++){   
+	for (int g=0; g<1; g++){   
 
 		for (int i = 0; i < iNumPart; i++) { 
    			for (int j=0; j < 3; j++) {
@@ -370,10 +398,14 @@ int main(){
    		  	}
    		}
 		
-		slater_Matrix.updateSlaterMatrix(partPos,1.);	
+		double  ar[1];
+	   	ar[0]=0.13;	
+		
+		slater_Matrix.updateVariationalParameters(ar);
+		slater_Matrix.updateSlaterMatrix(partPos);	
 		for (int i=0; i<iNumPart;i++){
-			cout<<setw(8)<<setprecision(16)<<"WF direct:"<<slater_Matrix.waveFunction(partPos,1.)<<"\n";
-			cout<<setw(8)<<setprecision(16)<<"WF cofactor:"<<slater_Matrix.waveFunction(partPos[i],1,i)<<"\n";
+			cout<<setw(8)<<setprecision(16)<<"WF direct:"<<slater_Matrix.waveFunction()<<"\n";
+			cout<<setw(8)<<setprecision(16)<<"WF cofactor:"<<slater_Matrix.waveFunction(partPos[i],i)<<"\n";
 		}
 	}
 

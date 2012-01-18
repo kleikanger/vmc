@@ -99,7 +99,7 @@ double orbital::orbitalWavefunctions(double* dR){
 	dAbsR=sqrt(dAbsR);
 	
 	//n=1,l=0
-	double psi_10 = exp(-4.0*dAbsR);	//not normalized
+	double psi_10 = exp(-4.0*dAbsR);//Correct?
 	//n=2,l=0
 	double psi_20 = (2.0-4.0*dAbsR)*exp(-2.0*dAbsR); 	
 

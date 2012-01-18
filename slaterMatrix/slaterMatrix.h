@@ -37,12 +37,15 @@ class slaterMatrix {
 		bool bUse_cofactors;
 
 		//keeping track of the determinants of spinUpMatrix and spinDownMatrix.
-		//ensuring that they are not calculated more than one time.
-		bool bDet_up;
-		bool bDet_down;
+		//ensuring that they are not calculated more than once.
+		//bool bDet_up;
+		//bool bDet_down;
 		double det_up;
 		double det_down;
 
+		//Vector containing all the variational parameters
+		double* variational_parameters;
+		int iNumber_of_variational_parameters;
 	//class methods
 		
 
@@ -51,9 +54,6 @@ class slaterMatrix {
 		//Calculates determinant of the slater matrixes	
 		double determinant(double**,int);
 
-		//Calculates jastrowfactor
-		//move to private later
-		double jastrow(double**, double);
 		
 		//Calculate the cofactors
 		void updateCofactors(double**, double**, int);
@@ -63,19 +63,36 @@ class slaterMatrix {
 
 	//class methods
 		
-		//Initializing slater matrix
-		void updateSlaterMatrix(double**, double);
-
 		//constructor
-		slaterMatrix(int, int);		
+		//Input: (number of particles, number of particles in each state (same number assumed),
+		//iNumber_of_variational_parameters ).
+		//Allocating determinant matrixes for spin ud and down states, and the cofactormatrix.
+		//Initializing orbital objects. The list of orbitals (with quantumnumbers) can be changed 
+		//here, wave-functions must be changed in class orbital.
+		slaterMatrix(int, int, int);		
 		
+		//Update all variational parameters. Input: array of length iNumber_of_variational_parameters.
+		void updateVariationalParameters(double*);
+		
+		//Initializing slater matrix. Updating elements of slatermatrix and elements of comatrix.
+		//If the variational parameters are to be updated, call updateVariationalParameters() before
+		//calling this function. This function has to be called before the waveFunction and
+		//the jastrowfactor can be found.
+		void updateSlaterMatrix(double**);
+		
+		//To be removed(?)
 		//input: positions of all particles + variational parameter.
-		//-Calculates wf in point dR (determinants) and multiplies with the jastrow factor with a variational parameter alpha.
-		double waveFunction(double**, double);
+		//Brute force calculation of the determinant.
+		double waveFunction();
 		//Overloading the func.
-		//Using the cofactors to determine the determinant
+		//Input: (position vector of moved particle, number of moved particle).
+		//Using the cofactors to determine the determinant.
 		//calculate determinant without updating cofactorMatrix if only one r_i is changed.
-		double waveFunction(double*, double, int);
+		//NB: Not neccesary to update slatermatrix if only one position r is changed.
+		double waveFunction(double*, int);
+		
+		//Calculates jastrowfactor. Explicit expression for jastrow in function.
+		double jastrow(double**);
 		
 		//Delete matrixes and objects
 		//void calculate_qforce(double** r, double** q_force, double beta){
