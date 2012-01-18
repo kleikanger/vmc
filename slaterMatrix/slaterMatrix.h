@@ -46,18 +46,17 @@ class slaterMatrix {
 		//Vector containing all the variational parameters
 		double* variational_parameters;
 		int iNumber_of_variational_parameters;
+	
 	//class methods
-		
-
-	public:
-		//XXX MOVE TO PRIVATE !!!
 		//Calculates determinant of the slater matrixes	
 		double determinant(double**,int);
-
 		
 		//Calculate the cofactors
 		void updateCofactors(double**, double**, int);
 		//XXX
+		
+
+	public:
 
 	//Class variables
 
@@ -79,6 +78,10 @@ class slaterMatrix {
 		//calling this function. This function has to be called before the waveFunction and
 		//the jastrowfactor can be found.
 		void updateSlaterMatrix(double**);
+		
+		//returns: bool bUse_cofactors. If true (if iCutoff>3), cofactor method is used to
+		//calculate the determinants
+		bool useCofact();
 		
 		//To be removed(?)
 		//input: positions of all particles + variational parameter.

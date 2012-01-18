@@ -26,6 +26,12 @@
 
 using std::cout;
 
+bool slaterMatrix::useCofact(){
+//startvimfold
+	return bUse_cofactors;
+}
+//endvimfold
+	
 //constructor
 slaterMatrix::slaterMatrix(int iNp,int iCo,int iNovp) {
 	/*//startvimfold*/
@@ -148,6 +154,11 @@ void slaterMatrix::updateSlaterMatrix(double** partPos){
 
 //Calculate the elements of the cofactormatrix.
 //Examplecall: updateCofactors(cofactorMatrix_up,spinUpMatrix,iCutoff)
+//XXX XXX XXX XXX
+//CHANGE TO UPDATE INVERSE MATRIX maybe better to uptate inverse matrix
+//NEW METHOD: CALCULATEINVERSEMATRIX: NB d^-1_ij=c_ij/det(d). 
+//?? should inverse be calculated every now and then? is there any accumulative error?
+
 void slaterMatrix::updateCofactors(double** cofactor_matrix, double** determinant_matrix, int iDim_determinant){
 //startvimfold
 	//Keeping track of the determinants det_up,det_down (spin up and spin down) 
@@ -215,7 +226,7 @@ void slaterMatrix::updateVariationalParameters(double* vp){
 //Calculates determinant of (iNxiN) matrix by recursion.
 //Iterative function probably faster
 //O(n^4)(??) For larger matrixes algo with LU decomp. much faster.
-//Better if not in class varMC?
+//XXX XXX XXX XXX IMPLEMENT LU-algo.
 double slaterMatrix::determinant(double** ppM, int iN){
 /*//startvimfold*/
 	//if iN == 2, calculating smallest submatrix and breaking recursion.
