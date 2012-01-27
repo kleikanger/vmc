@@ -12,25 +12,25 @@ class orbital {
 		int angular_momentum;
 		bool spin_up;
 
-	//methods
-		//Contains all the basis wavefunctions. Can easily be changed for a change of basis.
-		double orbitalWavefunctions(double*);
-
 	public:
 	//Constructors
 		orbital();
 		//(int <energy_level>, int <angular_momentum>, bool <spin_up>)
 		orbital(int,int,bool);
 	
-	//methods	
+		//methods	
 		//setValues(int <energy_level>, int <angular_momentum>, bool <spin_up>
 		void setValues(int,int,bool);
 		//Functions that returns different object properties
 		//using const for better opimalization
-		const double valueWF(double*);
 		const int angularMomentum();
 		const int energyLevel();
 		const bool spinUp();
+		double valueWF(double*);
+		//XXX NOT TESTED  XXX
+		double wFDeriv1(double*);
+		double wFDeriv2(double*);
+
 		
 	//Make method that returns the energy of the orbital
 };

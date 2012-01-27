@@ -12,7 +12,6 @@ using std::cout;
 
 //Constructors
 orbital::orbital(){}
-
 orbital::orbital(int el,int am, bool su){
 //startvimfold
 	energy_level=el;
@@ -32,7 +31,6 @@ orbital::orbital(int el,int am, bool su){
 	}
 }
 //endvimfold
-
 void orbital::setValues(int el,int am, bool su){
 //startvimfold
 	energy_level=el;
@@ -52,46 +50,31 @@ void orbital::setValues(int el,int am, bool su){
 	}
 }
 //endvimfold
-
 //using const for better opimalization
-//Functions that returns different object properties
 const int orbital::angularMomentum(){
 //startvimfold
 	return angular_momentum;
 }
 //endvimfold
-
 const int orbital::energyLevel(){
 //startvimfold
 	return energy_level;
 }
 //endvimfold
-
 //returns true if spin up
 const bool orbital::spinUp(){
 //startvimfold
 	return spin_up;
 }
 //endvimfold
-
-const double orbital::valueWF(double* dR){
-//startvimfold
-	return orbitalWavefunctions(dR);
-}
-//endvimfold
-
- /***********************************************
-  * 			 wavefunctions. 				*
-  * 											*
-  ***********************************************/ 
-double orbital::orbitalWavefunctions(double* dR){
+double orbital::valueWF(double* dR){
 //startvimfold
 	
 	//Constants found in HF simulation. More decimals?
 	double a=0.9955496248;
 	double b=0.09423876105;
 	
-	//calculate distance to core
+	//calculate distnce to core
 	double dAbsR=0;
 	for (int i=0;i<3;i++){
 		dAbsR+=dR[i]*dR[i];
@@ -102,6 +85,7 @@ double orbital::orbitalWavefunctions(double* dR){
 	double psi_10 = exp(-4.0*dAbsR);//Correct?
 	//n=2,l=0
 	double psi_20 = (2.0-4.0*dAbsR)*exp(-2.0*dAbsR); 	
+	
 
 	//Angular momentum can also be included.
 	if (spin_up) {
@@ -110,8 +94,8 @@ double orbital::orbitalWavefunctions(double* dR){
 			case 1: return a*psi_10-b*psi_20;
 			case 2:	return -b*psi_10-a*psi_20;	
 			//XXX:Testing for larger systems
-			case 3: return -b*psi_20+sin(psi_10);
-			case 4: return a*psi_10-2*cos(psi_10);
+			case 3: return psi_10+psi_20+(2.0*dAbsR*dAbsR+2-4.0*dAbsR)*exp(-4.0*dAbsR);
+			case 4: return b*psi_10*psi_20*cos(psi_10);
 
 			default: 
 					cout<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
@@ -122,11 +106,11 @@ double orbital::orbitalWavefunctions(double* dR){
 	} else {
 
 		switch (energy_level) {
-			case 1:	return -a*psi_10+b*psi_20;	
-			case 2:	return b*psi_10+a*psi_20;	
+			case 1:	return   a*psi_10-b*psi_20;	
+			case 2:	return -b*psi_10-a*psi_20;	
 			//XXX:Testing for larger systems
-			case 3: return -b*psi_20+sin(psi_10);
-			case 4: return a*psi_10-2*cos(psi_10);
+			case 3: return psi_10+psi_20+(2.0*dAbsR*dAbsR+2-4.0*dAbsR)*exp(-4.0*dAbsR);
+			case 4: return a*psi_10+1*exp(-psi_20);
 			
 			default:
 					cout<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
@@ -136,8 +120,64 @@ double orbital::orbitalWavefunctions(double* dR){
 	}	
 }//end of orbitalWavefunctions::orbitalWavefunctions()
 //endvimfold
+double orbital::wFDeriv1(double* dR){
+//startvimfold
+	//Angular momentum can also be included.
+	if (spin_up) {
 
+		switch (energy_level) {
+			case 1: return 1;
+			case 2:	return 1;	
+			case 3: return 1;
+			case 4: return 1;
+			default: 
+					cout<<"\n error in orbital::wFDeriv1(): energy_level out of bounds\n"
+						<<", energy_level= " <<energy_level<<"\n";
+					exit(1);
+		}
+	} else {
+		switch (energy_level) {
+			case 1:	return 1;	
+			case 2:	return 1;	
+			case 3: return 1;
+			case 4: return 1;
+			default:
+					cout<<"\n error in orbital::wFDeriv1(): energy_level out of bounds\n"
+						<<", energy_level= " <<energy_level<<"\n";
+					exit(1);
+		}
+	}	
+}
+//endvimfold
+double orbital::wFDeriv2(double * dR){
+//startvimfold
+	//Angular momentum can also be included.
+	if (spin_up) {
 
+		switch (energy_level) {
+			case 1: return 1;
+			case 2:	return 1;	
+			case 3: return 1;
+			case 4: return 1;
+			default: 
+					cout<<"\n error in orbital::wFderiv2(): energy_level out of bounds\n"
+						<<", energy_level= " <<energy_level<<"\n";
+					exit(1);
+		}
+	} else {
+		switch (energy_level) {
+			case 1:	return 1;	
+			case 2:	return 1;	
+			case 3: return 1;
+			case 4: return 1;
+			default:
+					cout<<"\n error in orbital::wFDeriv2(): energy_level out of bounds\n"
+						<<", energy_level= " <<energy_level<<"\n";
+					exit(1);
+		}
+	}	
+}
+//endvimfold
 //Implementation example
 //startvimfold
 /*
@@ -174,6 +214,6 @@ int main(){
 }
 */
 //endvimfold
-
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold
+

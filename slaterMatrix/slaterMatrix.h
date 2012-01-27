@@ -18,12 +18,12 @@ class slaterMatrix {
 		//down particles. (iNumPart x iNumPart) matrix.
 		double** spinUpMatrix;
 		double** spinDownMatrix;
-		
+	public:	
 		//cofactormatrixes. cofactors used to speed up calc. of determinants bigger than 2x2.
 		//When one row is changed. Ex: when calculating first and second derivatives.
 		double** cofactorMatrix_up;
 		double** cofactorMatrix_down;
-
+	private:
 		//initializes orbital* array. Each object one orbital with unique wf, quantumnumbers ect.
 		orbital* orbital_;
 
@@ -73,15 +73,20 @@ class slaterMatrix {
 		//Update all variational parameters. Input: array of length iNumber_of_variational_parameters.
 		void updateVariationalParameters(double*);
 		
+		//Use O(N^2) routine to update the inverse matrix when only one
+		//particle r_i is moved. ((Updates det_up, det_down.))
+		void updateInverse(double* dR, int iUp);
+		
 		//Initializing slater matrix. Updating elements of slatermatrix and elements of comatrix.
 		//If the variational parameters are to be updated, call updateVariationalParameters() before
 		//calling this function. This function has to be called before the waveFunction and
 		//the jastrowfactor can be found.
+		//ONLY NEEDED ONCE if we use algo for updating the inverse.
 		void updateSlaterMatrix(double**);
 		
 		//returns: bool bUse_cofactors. If true (if iCutoff>3), cofactor method is used to
 		//calculate the determinants
-		bool useCofact();
+		const bool useCofact();
 		
 		//To be removed(?)
 		//input: positions of all particles + variational parameter.
@@ -91,7 +96,9 @@ class slaterMatrix {
 		//Input: (position vector of moved particle, number of moved particle).
 		//Using the cofactors to determine the determinant.
 		//calculate determinant without updating cofactorMatrix if only one r_i is changed.
-		//NB: Not neccesary to update slatermatrix if only one position r is changed.
+		//NB: Not neccesary to update slatermatrix when calculating derivatives.
+		// Changing func !
+		//double slaterMatrix::waveFunction(double * dR, int iCofac_column, int input_integer){
 		double waveFunction(double*, int);
 		
 		//Calculates jastrowfactor. Explicit expression for jastrow in function.
