@@ -49,45 +49,26 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int iNovp) {
 		inv_up_matr[i] = new double[iCutoff];
 		spin_up_matr[i] = new double[iCutoff];
 		spin_down_matr[i] = new double[iCutoff];
-		for (int j=0;j<iCutoff;j++){
-			inv_up_matr[i][j]=0.0;
-			inv_down_matr[i][j]=0.0;
-			spin_up_matr[i][j]=0.0;
-			spin_down_matr[i][j]=0.0;
-		}
+	//	for (int j=0;j<iCutoff;j++){
+	//		inv_up_matr[i][j]=0.0;
+	//		inv_down_matr[i][j]=0.0;
+	//		spin_up_matr[i][j]=0.0;
+	//		spin_down_matr[i][j]=0.0;
+	//	}
 	}
-	/****************************************
-	 *		Initializing orbital objects.	*
-	 ****************************************/	 
+	
+	//Initializing orbital objects
 	orbital_ = new orbital[iNumPart];
-	// *****************************************
-#if 0		
 	//States 0-(iCutoff-1) enters inv_up_matr. 
 	//States iCutoff-(iNumPart-1) enters inv_down_matr 
-y	orbital_[0].setValues(1,0,true);//n=1,l=0,spin up.
-	orbital_[1].setValues(2,0,true);//n=2,l=0,spin up.
-	orbital_[2].setValues(1,0,false);//n=1,l=0,spin down.
-	orbital_[3].setValues(2,0,false);//n=2,l=0,spin down.
-#endif
-	//testing for larger system
-#if 1
-	orbital_[0].setValues(1,0,true);//n=1,l=0,spin up.
-	orbital_[1].setValues(2,0,true);//n=2,l=0,spin up.
-	orbital_[2].setValues(3,0,true);//n=1,l=0,spin down.
-	//orbital_[3].setValues(4,0,true);//n=2,l=0,spin down.
-	//if (iNumPart>4)
-	orbital_[3].setValues(1,0,false);//n=1,l=0,spin up.
-	//if (iNumPart>5)
-	orbital_[4].setValues(2,0,false);//n=2,l=0,spin up.
-	//if (iNumPart>6)
-	orbital_[5].setValues(3,0,false);//n=3,l=0,spin down.
-	//if (iNumPart>7)
-	//orbital_[6].setValues(4,0,false);//n=4,l=0,spin down.
-#endif
+	for (int i=0; i<iCutoff; i++)
+		orbital_[i].setValues(i+1,0,true);//n=i,l=0,spin up.
+	for (int i=iCutoff; i<iNumPart; i++)
+		orbital_[i].setValues(i-iCutoff+1,0,false);//n=i,l=0,spin down.
 
 }//end constructor varMC()
 /*//endvimfold*/
-void slaterMatrix::updateSlaterMatrix(double** partPos){
+void slaterMatrix::initSlaterMatrix(double** partPos){
 	/*//startvimfold*/
 	int i,j;
 	for (i=0; i<iCutoff; i++){
@@ -95,37 +76,17 @@ void slaterMatrix::updateSlaterMatrix(double** partPos){
 			spin_up_matr[i][j] = orbital_[j].valueWF(partPos[i]); // Transpose
 		}
 	}
-//	for (i=0; i<iCutoff; i++){
-//		for (j=0; j<iCutoff; j++){
-//			inv_up_matr[i][j] = orbital_[i].valueWF(partPos[j]); //orbitals(i,pParticlePositions[j],dAlpha);
-//		}
-//	}
 	for (i=0; i<iCutoff; i++){
 		for (j=0; j<iCutoff; j++){
 			spin_down_matr[i][j] = orbital_[j+iCutoff].valueWF(partPos[i+iCutoff]); //(i,pParticlePositions[j+iCutoff],dAlpha);
 		}
 	}
-//	for (i=0; i<iCutoff; i++){
-//		for (j=0; j<iCutoff; j++){
-//			inv_down_matr[i][j] = orbital_[j+iCutoff].valueWF(partPos[i+iCutoff]); //(i,pParticlePositions[j+iCutoff],dAlpha);
-//		}
-//	}
-
-	//TEST
-	//spin_up_matr[0][0]=1;
-	//spin_up_matr[0][1]=2;
-	//spin_up_matr[1][0]=3;
-	//spin_up_matr[1][1]=4;
-
-	//inv_up_matr[0][0]=1;
-	//inv_up_matr[0][1]=2;
-	//inv_up_matr[1][0]=3;
-	//inv_up_matr[1][1]=4;
 }//End function varMC::DeterminantMatrix()
 /*//endvimfold*/
+//NOT NEEDED ANYMORE.
 void slaterMatrix::updateSlaterMatrix(double* partPos, int i_upd){
 	/*//startvimfold*/
-	int i,j;
+	int i;
 	if (i_upd<iCutoff){
 		for (i=0; i<iCutoff; i++){
 			spin_up_matr[i_upd][i] = orbital_[i].valueWF(partPos); // Transpose
@@ -159,7 +120,7 @@ void slaterMatrix::findInverse(){
 		}
 			
 		dgetrf_(&n,&n,B,&n,ipiv,&info);
-		//We know that the determinant is !=0, (no need to check if matrix is singular?) 
+		//Even if we know that that the determinant is !=0, maybe we should check if matrix is singular or near to...
 		if (info==0) {
 			dgetri_(&n,B,&n,ipiv,work,&lwork,&info);
 			}
@@ -196,7 +157,8 @@ void slaterMatrix::updateInverse(double* d_R, int i_upd){
 		for (k=0;k<iCutoff;k++){
 				d_upd[k]=orbital_[k].valueWF(d_R);
 		}
-		// Blas routine : d_up*inv_up_matr[j][:], remember inverse M are transposed
+		//Updating ingerse Blas routine : d_up*inv_up_matr[j][:], 
+		//remember inverse M are transposed
 		R = cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
 
 		for (j=0;j<iCutoff;j++){
@@ -205,12 +167,10 @@ void slaterMatrix::updateInverse(double* d_R, int i_upd){
 				cblas_daxpy( iCutoff,-temp/R,inv_up_matr[i_upd],1,inv_up_matr[j], 1);
 			}
 		}
-		//for (k=0; k<iCutoff; k++){
-			//temp = 1;//cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
-		//	inv_up_matr[i_upd][k] = inv_up_matr[i_upd][k]/R;
-		//}
 		//inv_up_matr[i_upd][:]<-inv_up_matr[i_upd][:]/R
 		cblas_dscal(iCutoff,1/R,inv_up_matr[i_upd],1);
+		//Copy d_upd to spin_down_matr, updating spinupmatr.
+		cblas_dcopy(iCutoff, d_upd, 1, spin_up_matr[i_upd], 1);
 
 	} else {
 	//Repeat all for SPINDOWN if i_upd>iCutoff.
@@ -225,12 +185,8 @@ void slaterMatrix::updateInverse(double* d_R, int i_upd){
 				cblas_daxpy(iCutoff,-temp/R,inv_down_matr[i_upd-iCutoff],1,inv_down_matr[j],1);
 			}
 		}
-		//for (k=0; k<iCutoff; k++){
-			//temp = 1;//cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd],1);
-		//	inv_down_matr[i_upd][k] = inv_down_matr[i_upd][k]/R;
-		//}
-		//inv_up_matr[i_upd][:]<-inv_up_matr[i_upd][:]/R
 		cblas_dscal(iCutoff,1/R,inv_down_matr[i_upd-iCutoff],1);
+		cblas_dcopy(iCutoff, d_upd, 1, spin_down_matr[i_upd-iCutoff], 1);
 	}	
 }
 //endvimfold

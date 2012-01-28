@@ -40,13 +40,11 @@ int main(){
 	for (int i = 0; i < iNumPart; i++) { 
 		for (int j=0; j < 3; j++) {
 			partPos[i][j] += ideal_step*(ran2(&idum) -0.5);
-			cout<<partPos[i][j];
 		}
 	}
 	for (int i = 0; i < iNumPart; i++) { 
 		for (int j=0; j < 3; j++) {
 			partPos[i][j] += ideal_step*(ran2(&idum) -0.5);
-			cout<<partPos[i][j];
 		}
 	}
 	double  ar[1];
@@ -55,8 +53,8 @@ int main(){
 	slaterMatrix a(iNumPart,iCutoff,1);
 	slaterMatrix b(iNumPart,iCutoff,1);
 	
-	a.updateSlaterMatrix(partPos);	
-	b.updateSlaterMatrix(partPos);	
+	a.initSlaterMatrix(partPos);	
+	b.initSlaterMatrix(partPos);	
 	
 	a.updateVariationalParameters(ar);
 	b.updateVariationalParameters(ar);
@@ -64,22 +62,23 @@ int main(){
 	a.findInverse();
 	b.findInverse();
 
-#if 0	
-	for (int g=0; g<1; g++){   
+#if 1	
+	for (int g=0; g<10000000; g++){   
 		
 		double* test_qa = new double[3];
-		int changed_part=4;
+		int changed_part=0;
 		for (int j = 0; j < 3; j++) { 
 	 		partPos[changed_part][j] += ideal_step*(ran2(&idum) -0.5);
 		}
 		//a:probably as fast when working with few particles? TEST:when progr. working.
-		a.updateSlaterMatrix(partPos);	
-		a.findInverse();
+		//Uncomment lines below if one need to campare with unoptimalized method.
+		//a.initSlaterMatrix(partPos);	
+		//a.findInverse();
 		
 		//b:faster when systems are larger.
-		//b.findInverse();
 		b.updateInverse(partPos[changed_part],changed_part);
-		b.updateSlaterMatrix(partPos[changed_part],changed_part);	
+		//included in update inverse
+		//b.updateSlaterMatrix(partPos[changed_part],changed_part);	
 	}
 #endif
 	a.print();

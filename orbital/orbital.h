@@ -13,16 +13,12 @@ class orbital {
 		bool spin_up;
 
 	public:
-	//Constructors
 		orbital();
 		//(int <energy_level>, int <angular_momentum>, bool <spin_up>)
 		orbital(int,int,bool);
-	
-		//methods	
 		//setValues(int <energy_level>, int <angular_momentum>, bool <spin_up>
 		void setValues(int,int,bool);
 		//Functions that returns different object properties
-		//using const for better opimalization
 		const int angularMomentum();
 		const int energyLevel();
 		const bool spinUp();
@@ -30,8 +26,7 @@ class orbital {
 		//XXX NOT TESTED  XXX
 		double wFDeriv1(double*);
 		double wFDeriv2(double*);
-
 		
-	//Make method that returns the energy of the orbital
+	//Make method that returns energies
 };
 
