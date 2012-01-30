@@ -173,7 +173,7 @@ void slaterMatrix::updateInverse(double* d_R, int i_upd){
 		cblas_dcopy(iCutoff, d_upd, 1, spin_up_matr[i_upd], 1);
 
 	} else {
-	//Repeat all for SPINDOWN if i_upd>iCutoff.
+	//repeat all for SPINDOWN if i_upd>iCutoff.
 		for (k=0;k<iCutoff;k++){
 				d_upd[k]=orbital_[k+iCutoff].valueWF(d_R);
 		}
@@ -190,55 +190,82 @@ void slaterMatrix::updateInverse(double* d_R, int i_upd){
 	}	
 }
 //endvimfold
-double slaterMatrix::waveFunction(double* dR, int iCofac_column){
+double slaterMatrix::waveFunction(double* dR, int i_upd){
 	//startvimfold
 	int i;
-	//double funct_[i][iNumPart];
-	//switch (input_integer):
-	//case 1: 	for (i=0;i<iNumPart;i++)
-	//				funct_[i]=orbital_[i].valueWF(); 
-	//			break;//now the ratio wf_new/wf_old is returned
-	//case_2: 	for (i=0;i<iNumPart;i++)
-	//				funct_[i]=orbital_[i].wFDeriv1(); //now the gradient is returned 
-	//			break;
-	//case 3: 	for (i=0;i<iNumPart;i++)
-	// 				funct_[i]=orbital_[i].wFDeriv2(); //now the laplacian (Del^2 wf_new)/wf_old is returned
-	// 			break;
-	//default: 
-	//			cout<<"\nerror slaterMatrix::wavefunction(). Value of input_integer"; 
-	// 			cout<<"does not fit any case in switch statement.\n" 
-	// 			exit(1);
-	//
-	// ********************************************************************************
-	// 	1: change orbital_ to funct_ below 2: make sure det_up and det_down are updated .
-	// ********************************************************************************
+	//Both of these parameters can be calculated when slater mat is initialized.
+	//Then only one of them needs to be updated when finding the det.
 	det_up=0.0;
 	det_down=0.0;
-	//EASY TO USE cblas ddot()
+	double new_up[iCutoff];
+	double new_down[iCutoff];
+	
+	//RATIO DET_new/DET_old
+	for (i=0;i<iNumPart;i++){
+		det_up+=orbital_[i].valueWF(dR);
+	}
+	for (i=iCutoff;i<iNumPart;i++){
+		det_down+=orbital_[i].valueWF(dR);
+	}
+	det_up=cblas_ddot(iCutoff,inv_up_matr[i_upd],1,new_up,1);
+	det_down=cblas_ddot(iCutoff,inv_down_matr[i_upd],1,new_down,1);
+	
+	return det_up*det_down;
+#if 0
 	//if (iCofac_column<iCutoff){//evt if(orbital_[iCofac_column].spinUp();)
-		for (i=0;i<iCutoff;i++){
-			det_up+=orbital_[i].valueWF(dR)*inv_up_matr[iCofac_column][i];
-		}
+	for (i=0;i<iCutoff;i++){
+		det_up+=orbital_[i].valueWF(dR)*inv_up_matr[i_upd][i];
+	}
 	//EASY TO USE cblas_ddot()
 	//} else if ((iCofac_column>=iCutoff)&&(iCofac_column<iNumPart)){ //XXX REMOVE TEST LATER 
-		for (i=iCutoff;i<iNumPart;i++){
-			det_down+=orbital_[i].valueWF(dR)*inv_down_matr[iCofac_column-iCutoff][i-iCutoff];
+	for (i=iCutoff;i<iNumPart;i++){
+		det_down+=orbital_[i].valueWF(dR)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
+	}
+#endif
+}
+//endvimfold
+double slaterMatrix::grad(double* dR, int i_upd, int axis){
+//startvimfold
+//Gradient along some axis w.r.t one particle / DET_old.
+//Grad_i. Full gradient/DET_old = Sum_i Grad_i.
+//EASY TO IMPLEMENT cblas_ddot() and temporary vector.
+	double temp=0;
+	int i;
+
+	if (i_upd<iCutoff){
+		for (i=0;i<iCutoff;i++){
+			temp+=orbital_[i].D1(dR,axis)*inv_up_matr[i_upd][i];
 		}
-		return det_up*det_down;
-		//switch (input_integer==1):
-		//case 1:
-		//RATIO DET_new/DET_old
-		//case 2: 
-		//1. derived
-		//case 3:
-		//2. derived
-		//	return det_up + det_down + jastrow();
+		return temp;
+	} else {
+		for (i=iCutoff;i<iNumPart;i++){
+			temp+=orbital_[i].D1(dR,axis)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
+		}
+		return temp;
+	}
+}
+//endvimfold
+double slaterMatrix::lapl(double* dR, int i_upd){
+//startvimfold
+//Laplacian w.r.t. i'th particle/DET_old (L_i f({r})).
+
+//Full laplacian/DET/old = Sum_i L_i f({r}).
+//EASY TO IMPLEMENT cblas_ddot() and temporary vector.
 	
-		
-	//} else {
-	//	cout<< "error in function waveFunction: iCofac_column out of bounds"; 
-	//	exit(1);
-	//}
+	double temp=0;
+	int i;
+	
+	if (i_upd<iCutoff){
+		for (i=0;i<iCutoff;i++){
+			temp+=orbital_[i].D2(dR)*inv_up_matr[i_upd][i];
+		}
+		return temp;
+	} else {
+		for (i=iCutoff;i<iNumPart;i++){
+			temp+=orbital_[i].D2(dR)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
+		}
+		return temp;
+	}
 }//End function waveFunction();
 //endvimfold
 void slaterMatrix::updateVariationalParameters(double* vp){
@@ -296,6 +323,8 @@ void slaterMatrix::clear(){
 	delete inv_up_matr;
 	delete spin_up_matr;
 	delete spin_down_matr;
+	//for (int i=0; i<iNumPart; i++)
+	//	delete orbital_[i];
 	delete orbital_; //DELETE ORBITAL[i]
 }
 //endvimfold

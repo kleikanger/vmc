@@ -10,6 +10,7 @@ class orbital {
 	//variables;
 		int energy_level;
 		int angular_momentum;
+		int dim;
 		bool spin_up;
 
 	public:
@@ -24,8 +25,8 @@ class orbital {
 		const bool spinUp();
 		double valueWF(double*);
 		//XXX NOT TESTED  XXX
-		double wFDeriv1(double*);
-		double wFDeriv2(double*);
+		double D1(double*, int);
+		double D2(double*);
 		
 	//Make method that returns energies
 };

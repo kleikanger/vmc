@@ -12,8 +12,9 @@ Number of dimensions should be included.
 using std::cout;
 using std::cerr;
 
-#define h 0.001
-#define h2 100000
+#define H 0.001
+#define ONE_OVER_H 1000
+#define ONE_OVER_H2 1000000
 
 //double psi_10(double);
 //double psi_20(double);
@@ -38,6 +39,8 @@ orbital::orbital(int el,int am, bool su){
 	energy_level=el;
 	angular_momentum=am;
 	spin_up=su;	
+	//dim should be input param.
+	dim=3;
 
 	if (energy_level<0) {
 	cout<<"\nerror: energy_level must be a positive integer.\n";
@@ -56,7 +59,9 @@ void orbital::setValues(int el,int am, bool su){
 //startvimfold
 	energy_level=el;
 	angular_momentum=am;
-	spin_up=su;	
+	spin_up=su;
+	//dim should be input param.
+	dim=3;
 
 	if (energy_level<0) {
 	cout<<"\nerror: energy_level must be a positive integer.\n";
@@ -92,8 +97,8 @@ double orbital::valueWF(double* dR){
 //startvimfold
 	
 	//Constants found in HF simulation. More decimals?
-	double a=0.9955496248;
-	double b=0.09423876105;
+	double a=0.9955496248; //variational parameters
+	double b=0.09423876105; //(1-a)
 	//finding norm	
 	double abs_r=0;
 	abs_r=cblas_dnrm2(3,dR,1);
@@ -107,7 +112,8 @@ double orbital::valueWF(double* dR){
 			case 2:	return -b*psi_10(abs_r)-a*psi_20(abs_r);	
 			//XXX:Testing for larger systems
 			case 3: return (2-4.0*abs_r)*exp(-4.0*abs_r);
-
+			//Testing D1,D2.
+			case 4: return sin(cblas_ddot(3,dR,1,dR,1));
 			default: 
 					cerr<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
@@ -130,38 +136,51 @@ double orbital::valueWF(double* dR){
 	}	
 }//end of orbitalWavefunctions::orbitalWavefunctions()
 //endvimfold
-double orbital::wFDeriv1(double* dR){
+//CALCULATE: gradient along one axis. axis E {0,1,2}
+//USE: CALL BY VALUE
+double orbital::D1(double* dR, int axis){
 //startvimfold
-	//Angular momentum can also be included.
-	if (spin_up) {
+	double f_min;
+	double f_plus;
+	double dR_temp[dim];
+	double result=0.0;
+	
+	cblas_dcopy(dim,dR,1,dR_temp,1);
 
-		switch (energy_level) {
-			case 1: return 1;
-			case 2:	return 1;	
-			case 3: return 1;
-			case 4: return 1;
-			default: 
-					cerr<<"\n error in orbital::wFDeriv1(): energy_level out of bounds\n"
-						<<", energy_level= " <<energy_level<<"\n";
-					exit(1);
-		}
-	} else {
-		switch (energy_level) {
-			case 1:	return 1;	
-			case 2:	return 1;	
-			case 3: return 1;
-			case 4: return 1;
-			default:
-					cerr<<"\n error in orbital::wFDeriv1(): energy_level out of bounds\n"
-						<<", energy_level= " <<energy_level<<"\n";
-					exit(1);
-		}
-	}	
+	dR_temp[axis]+=H;
+	f_plus=valueWF(dR_temp);
+	dR_temp[axis]-=2*H;
+	f_min=valueWF(dR_temp);
+	result+=(f_plus-f_min)*ONE_OVER_H*0.5;
+	return result;
 }
 //endvimfold
-double orbital::wFDeriv2(double * dR){
+//CALCULATE LAPLACIAN
+//USE: CALL BY VALUE
+double orbital::D2(double* dR){
 //startvimfold
-	//Angular momentum can also be included.
+
+//#if !USE_ANAL_DERIV	
+	double f_min;
+	double f;
+	double f_plus;
+	double dR_temp[dim];
+	double result=0.0;
+	cblas_dcopy(dim,dR,1,dR_temp,1);
+
+	f=valueWF(dR);
+	for (int i=0; i<dim; i++){
+		dR_temp[i]+=H;
+		f_plus=valueWF(dR_temp);
+		dR_temp[i]-=2*H;
+		f_min=valueWF(dR_temp);
+		dR_temp[i]=dR[i];
+		result+=(f_plus+f_min-2*f)*ONE_OVER_H2;
+	}	
+	return result;
+//#endif
+//use this func if analytical exp avaliable.
+#if 0
 	if (spin_up) {
 
 		switch (energy_level) {
@@ -186,6 +205,7 @@ double orbital::wFDeriv2(double * dR){
 					exit(1);
 		}
 	}	
+#endif
 }
 //endvimfold
 //Implementation example

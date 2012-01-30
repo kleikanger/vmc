@@ -71,7 +71,7 @@ int main(){
 	 		partPos[changed_part][j] += ideal_step*(ran2(&idum) -0.5);
 		}
 		//a:probably as fast when working with few particles? TEST:when progr. working.
-		//Uncomment lines below if one need to campare with unoptimalized method.
+		//Uncomment lines below if one need to compare with unoptimalized method.
 		//a.initSlaterMatrix(partPos);	
 		//a.findInverse();
 		
@@ -87,36 +87,5 @@ int main(){
 	a.clear();
 	b.clear();
 
-#if 0
-		cout<<"\n.\n";
-		for (int i = 0; i < iCutoff; i++) { 
-			for (int j = 0; j < iCutoff; j++ ){
-			cout<<a.spinUpMatrix[i][j]<<"\t";
-			}
-			cout<<"\n";
-		}
-
-		cout<<"\n.\n";
-		for (int i = 0; i < iCutoff; i++) { 
-			for (int j = 0; j < iCutoff; j++ ){
-			cout<<b.spinUpMatrix[i][j]<<"\t";
-			}
-			cout<<"\n";
-		}
-#endif
-#if 0
-		for (int i=0; i<iNumPart;i++){
-			cout<<setw(8)<<setprecision(16)<<"WF direct  :"<<slater_Matrix.waveFunction()<<"\n";
-			cout<<setw(8)<<setprecision(16)<<"WF cofactor:"<<slater_Matrix.waveFunction(partPos[i],i)<<"\n";
-		}
-		
-		for (int i=0; i<iNumPart;i++){
-			cout<<setw(8)<<setprecision(16)<<"WF direct  :"<<slater_Matrix2.waveFunction()<<"\n";
-			cout<<setw(8)<<setprecision(16)<<"WF cofactor:"<<slater_Matrix2.waveFunction(partPos[i],i)<<"\n";
-		}
-#endif
-
-
 }//End function 
 //endvimfold
-
