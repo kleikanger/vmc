@@ -1,3 +1,12 @@
+/*
+
+Test Laplacian and grad.
+
+   */
+
+
+
+
 #include "orbital.h"
 #include <cmath>
 #include <cstdlib>
@@ -19,11 +28,10 @@ int main(){
 		r[i]=i+1;
 	}
 	
-	cout<<"x "<<setprecision(16)<<a.D1(r,0)<<"\n";
-	cout<<"y "<<setprecision(16)<<a.D1(r,1)<<"\n";
-	cout<<"z "<<setprecision(16)<<a.D1(r,2)<<"\n";
-
-	cout<<"x "<<setprecision(16)<<a.D2(r)<<"\n";
+	cout<<"grad x "<<setprecision(16)<<a.D1(r,0)<<"\n";
+	cout<<"grad y "<<setprecision(16)<<a.D1(r,1)<<"\n";
+	cout<<"grad z "<<setprecision(16)<<a.D1(r,2)<<"\n";
+	cout<<"lapl. "<<setprecision(16)<<a.D2(r)<<"\n";
 
 	delete r;
 }

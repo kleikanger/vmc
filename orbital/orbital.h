@@ -16,15 +16,15 @@ class orbital {
 	public:
 		orbital();
 		//(int <energy_level>, int <angular_momentum>, bool <spin_up>)
-		orbital(int,int,bool);
+		orbital(int,int,bool,int);
 		//setValues(int <energy_level>, int <angular_momentum>, bool <spin_up>
-		void setValues(int,int,bool);
+		void setValues(int,int,bool,int);
 		//Functions that returns different object properties
 		const int angularMomentum();
 		const int energyLevel();
 		const bool spinUp();
 		double valueWF(double*);
-		//XXX NOT TESTED  XXX
+		//tested for f = x.*x and f = sin (x.'x)
 		double D1(double*, int);
 		double D2(double*);
 		
