@@ -81,16 +81,6 @@ void slaterMatrix::initSlaterMatrix(double** partPos){
 			spin_down_matr[i][j] = orbital_[j+iCutoff].valueWF(partPos[i+iCutoff]); //(i,pParticlePositions[j+iCutoff],dAlpha);
 		}
 	}
-
-			//inv_up_matr[0][0]=1.0;
-			//inv_down_matr[0][0]=1.0;
-			//spin_up_matr[0][1]=2.0;
-			//spin_down_matr[0][1]=2.0;
-			//inv_up_matr[1][0]=dim.0;
-			//inv_down_matr[1][0]=dim.0;
-			//spin_up_matr[1][1]=4.0;
-			//spin_down_matr[1][1]=4.0;
-
 }//End function varMC::DeterminantMatrix()
 /*//endvimfold*/
 //NOT IN USE. CAN BE REMOVED.
@@ -166,7 +156,7 @@ void slaterMatrix::findInverse(){
 
 }//End function slatermatrix::updateCofactors()
 //endvimfold
-void slaterMatrix::updateInverse(double* d_R, int i_upd){
+void slaterMatrix::update(double* d_R, int i_upd){
 //startvimfold	
 	
 	int k,j;
@@ -248,7 +238,7 @@ double slaterMatrix::waveFunction(double* dR, int i_upd){
 }
 //endvimfold
 //test
-double slaterMatrix::grad(double** dR, int axis){//, int i_upd){
+double slaterMatrix::grad(double** dR, int axis){
 //startvimfold
 //Gradient along some axis w.r.t one particle / DET_old.
 //Grad_i. Full gradient/DET_old = Sum_i Grad_i.
@@ -287,7 +277,7 @@ double slaterMatrix::grad(double** dR, int axis){//, int i_upd){
 //	}
 	//XXX change to + when including jastrow	
 	//FUNC now returns \hat e_i\nabla\Psi_{up} \hat e_i\nabla\Psi_{down}
-	return temp1*temp2;//grad_up[axis]*grad_down[axis];
+	return temp1+temp2;
 //	}
 }
 //endvimfold
@@ -325,38 +315,37 @@ void slaterMatrix::updateVariationalParameters(double* vp){
 //endvimfold
 double slaterMatrix::jastrow(double** r){
 //startvimfold
-	double length;
-	int a;
-	
+	double r_12;
+	int i,j,k;
+   	//summation variable
+	double value = 0;
 	//variational parameter.
-	double alpha = variational_parameters[0];
-
-    double argument = 0;
-    for (int i = 0; i < iNumPart - 1; i++) 
+	double beta = variational_parameters[0];
+   
+   	for (i = 0; i < iNumPart - 1; i++) 
 	{
-        for (int j = i + 1; j < iNumPart; j++) 
+        for (j = i + 1; j < iNumPart; j++) 
 		{
-            // Beregner avstand mellom partikkel i og j:
-            length=0.0;
-				for (a=0; a<dim; a++)
+            //find distance betw. part. i and j.
+            r_12=0.0;
+				for (k=0; k<dim; k++)
 				{
-					length+= (r[i][a]-r[j][a])*(r[i][a]-r[j][a]);
+					r_12+= (r[i][k]-r[j][k])*(r[i][k]-r[j][k]);
 				}
-			length=sqrt(length);
-            // Dersom partikkel i og j har samme spinn:
+			r_12=sqrt(r_12);
+            //Particles with parallel spins:
             if (orbital_[i].spinUp() == orbital_[j].spinUp()) 
 			{
-                argument += 0.25*length/(1 + alpha*length);
+                value += 0.3333333333333333 * r_12/(1 + beta*r_12);
             }
-            // Dersom partikkel i og j har ulike spinn:
+            //particles with antiparallel spins
             else 
 			{
-                argument += 0.5*length/(1 + alpha*length);
+                value += r_12/(1 + beta*r_12);
             }
         }
     }
-
-    return exp(argument);
+    return exp(value*0.5);
 }//End function slaterMatrix::jastrow()
 //endvimfold
 void slaterMatrix::clear(){
