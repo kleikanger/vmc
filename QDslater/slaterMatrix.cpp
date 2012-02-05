@@ -29,14 +29,14 @@ extern "C" {
 };
 	
 //constructor
-slaterMatrix::slaterMatrix(int iNp,int iCo,int iNovp, int di) {
+slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 	/*//startvimfold*/
 
 	dim=di;
 	iNumPart=iNp;
 	iCutoff=iCo;
-	variational_parameters = new double[iNovp];
-	iNumber_of_variational_parameters=iNovp;
+	variational_parameters = new double[inovp];
+	iNumber_of_variational_parameters=inovp;
 	
 	//Allocating new matrices and arrays
 	//grad_up = new double[dim];
@@ -238,50 +238,38 @@ double slaterMatrix::waveFunction(double* dR, int i_upd){
 }
 //endvimfold
 //test
-double slaterMatrix::grad(double** dR, int axis){
+double slaterMatrix::grad(double* dR, int axis, int i_upd){
 //startvimfold
 //Gradient along some axis w.r.t one particle / DET_old.
-//Grad_i. Full gradient/DET_old = Sum_i Grad_i.
-//EASY TO IMPLEMENT cblas_ddot() and temporary vector.
-	double temp1;
-	double temp2;
-	int i,j;
+//Grad_{i,axis}. Full gradient/DET_old = Sum_axis Sum_i Grad_{i,axis} \vec e_{i,axis}.
+
+//TEST
+
+	int i;
 	double d_upd[iCutoff];
 
-	//SINCE ONLY ONE PARTICLE IS UPDATED, IT IS ENOUGH TO CALCULATE ONE OF THE GRADS
-//	if (i_upd<iCutoff){
-		for (j=0;j<iCutoff;j++)
-		{
-		//if (i_upd<iCutoff){
+	if (i_upd<iCutoff)
+	{
 			for (i=0;i<iCutoff;i++)
 			{
-				//temp1+=orbital_[i].D1(dR[j],axis)*inv_up_matr[j][i];
-				d_upd[i]=orbital_[i].D1(dR[j],axis);
+				//temp1+=orbital_[i].D1(dR,axis)*inv_up_matr[i_upd][i];
+				d_upd[i]=orbital_[i].D1(dR,axis);
 			}
-//			grad_up[axis]=cblas_ddot(iCutoff,d_upd,1,inv_up_matr[j],1);
-			temp1=cblas_ddot(iCutoff,d_upd,1,inv_up_matr[j],1);
-		}
-//	} 
-//	else 
-//	{
-		for (j=iCutoff; j<iNumPart; j++)
-		{
+			//grad_up[axis]=cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
+			return cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
+	} 
+	else 
+	{
 			for (i=iCutoff;i<iNumPart;i++)
 			{
-				//temp2+=orbital_[i].D1(dR[j],axis)*inv_down_matr[j-iCutoff][i-iCutoff];
-				d_upd[i-iCutoff]=orbital_[i].D1(dR[j],axis);
+				//temp2+=orbital_[i].D1(dR,axis)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
+				d_upd[i-iCutoff]=orbital_[i].D1(dR,axis);
 			}
-//			grad_down[axis]=cblas_ddot(iCutoff,d_upd,1,inv_down_matr[j-iCutoff],1);
-			temp2=cblas_ddot(iCutoff,d_upd,1,inv_down_matr[j-iCutoff],1);
-		}
-//	}
-	//XXX change to + when including jastrow	
-	//FUNC now returns \hat e_i\nabla\Psi_{up} \hat e_i\nabla\Psi_{down}
-	return temp1+temp2;
-//	}
+			//grad_down[axis]=cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd-iCutoff],1);
+			return cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd-iCutoff],1);
+	}
 }
 //endvimfold
-//\nabla^2 \Psi_{\uparrow} +  \nabla^2 \Psi_{\downarrow}
 double slaterMatrix::lapl(double** dR){
 //startvimfold
 	double d_upd[iCutoff];
@@ -350,7 +338,7 @@ double slaterMatrix::jastrow(double** r){
 //endvimfold
 void slaterMatrix::clear(){
 //startvimfold
-	delete variational_parameters;
+	//delete variational_parameters;
 	for (int i=0; i<iCutoff; i++){
 		delete inv_down_matr[i];
 		delete inv_up_matr[i];
@@ -363,8 +351,6 @@ void slaterMatrix::clear(){
 	delete inv_up_matr;
 	delete spin_up_matr;
 	delete spin_down_matr;
-	//for (int i=0; i<iNumPart; i++)
-	//	delete orbital_[i];
 	delete orbital_; //DELETE ORBITAL[i]
 }
 //endvimfold

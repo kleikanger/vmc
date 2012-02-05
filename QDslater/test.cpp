@@ -1,11 +1,12 @@
 #include <cblas.h>
 #include <cstdlib>
 #include <cmath>
-#include "slaterMatrix.h"
 #include <iostream>
 #include "../lib/lib.h"
 #include <iomanip>
 
+#include "slaterMatrix.h"
+#include "../ipdist/ipdist.h"
 
 ///*TEST OF PROGRAM
 //startvimfold
@@ -24,15 +25,15 @@ int main(){
 	//double omega = 1.0;
 
 	//Number of variational parameters
-	int number_of_var_par;	
+	int num_of_var_par=1;	
 	//Variational param
-	double  var_par[1];
+	double  var_par[num_of_var_par];
 	var_par[0]=0.398;//beta (jastrow)	
 	//Increase of variational parameters
-	double var_par_inc[1];
+	double var_par_inc[num_of_var_par];
 	var_par_inc[0]=0.1;
 	//Number of variations in each var. par.
-	int var_par_cyc[1];
+	int var_par_cyc[num_of_var_par];
 	var_par_cyc[0]=10;
 	
 	//init pos.vecs.
@@ -42,6 +43,12 @@ int main(){
 		partPos[i] = new double[dimension];
 		//newPartPos[i] = new double[dimension];
 	}
+
+	//interparticle distances updated.
+	//1 particle upd, n-1 new parameters (r_ij)
+	double* ipd_upd = new double[iNumPart-1];
+	double* ones = new double[iNumPart-1];
+	for (int i=0;i<iNumPart-1;i++) ones[i]=1.0;
 	
 	long idum;
   	idum= - (time(NULL));//*(myrank));
@@ -49,12 +56,12 @@ int main(){
 	for (int i = 0; i < iNumPart; i++) { 
 		for (int j=0; j < dimension; j++) {
 			//newPartPos[i][j]=
-			partPos[i][j] += 2.*( ran2(&idum) - 0.5 );
+			partPos[i][j] += ideal_step*( ran2(&idum) - 0.5 );
 		}
 	}
 
 	//slaterMatrix a(iNumPart,iCutoff,1, dimension);
-	slaterMatrix b(iNumPart,iCutoff,number_of_var_par, dimension);
+	slaterMatrix b(iNumPart,iCutoff,num_of_var_par,dimension);
 	//a.updateVariationalParameters(ar);
 	b.updateVariationalParameters(var_par);
 	//a.initSlaterMatrix(partPos);	
@@ -62,7 +69,11 @@ int main(){
 	//a.findInverse();
 	b.findInverse();
 
-	double e_kinetic, r_12, e_potential, wf_R, r_squared;
+	//ipl: keeping track of len betw part r_ij, and 1/r_ij
+	ipdist ipd(iNumPart,dimension);
+	ipd.init(partPos);
+
+	double e_kinetic, r_12, r_12_new, e_potential, wf_R, r_squared;
 	double e_local=0.;
 	int i,j,k;
 	int active_part;
@@ -84,10 +95,44 @@ int main(){
 		for (j = 0; j < dimension; j++) 
 		{ 
 			newPartPos[j] = partPos[active_part][j] + ideal_step*(ran2(&idum) -0.5);
-		}		
+		}
+
+		//New ipd : calculating new lengths betw particles
+		for (i=0; i<active_part; i++)/*//startvimfold*/
+		{
+			r_12=0;
+			for (k=0; k<dimension; k++)
+			{
+				r_12+=(newPartPos[k]-partPos[i][k])*(newPartPos[k]-partPos[i][k]);
+			}
+			ipd_upd[i]=sqrt(r_12);
+		}
+		for (i=active_part+1; i<iNumPart; i++)
+		{
+			r_12=0;
+			for (k=0; k<dimension; k++)
+			{
+				r_12+=(newPartPos[k]-partPos[i][k])*(newPartPos[k]-partPos[i][k]);
+			}
+			ipd_upd[i]=sqrt(r_12);
+		}/*//endvimfold*/
+	   	
+		//jastrow ratio: brute force impl.
+		//********************************
+		double beta = var_par[0];
+		
+		//Summing the objects in ipd_upd (sum r_12)
+		r_12_new = cblas_ddot(iNumPart-1,ipd_upd,1,ones,1);// sum
+		//corresponding elements in old vector
+		r_12 = ipd.sumPart(active_part);	
+		
+		double jas_R=exp(0.5*( r_12_new/(1 + beta*r_12_new) -  0.5*( r_12/(1 + beta*r_12) )));
+		//********************************
+
 		//Metropolis test: update position if accepted, try new .
 		wf_R=b.waveFunction(newPartPos,active_part);
-		if (ran2(&idum) < wf_R*wf_R) 
+	
+		if (ran2(&idum) < jas_R*jas_R*wf_R*wf_R) 
 		{
 			cblas_dcopy(dimension,newPartPos,1,partPos[active_part],1);
 		}
@@ -95,7 +140,9 @@ int main(){
 
 		//update inverse and slatermatrix
 		b.update(partPos[active_part],active_part);
-		
+		//update interparticle distances
+		ipd.update(ipd_upd,active_part);
+
 		//****** if thermalization finished, start collecting data. ***********
 		if (loop_c<thermalization){ continue; }
 		accepted_vec[active_part]++;
@@ -136,6 +183,8 @@ int main(){
 		//Ex: n*(n-1)/2 unique elements. 
 		//update n-1 elements. ex ip part. k moved then update row k and col k exept diagonal elements. sum 1/r_{ij}.
 		//O(n-1) instead of O(n*(n-1)/2) algo.
+		
+		e_potential += ipd.sumInvlen();
 		/*
 		for (i = 0; i < iNumPart-1; i++) 
 		{ 
@@ -170,6 +219,11 @@ int main(){
 	//a.print();
 	//b.print();
 
+	//cout<<"a\n";
+
+
+	//OBS: pointer to VAR_PAR (malloced) 
+
 	for (i=0;i<iNumPart;i++)
 	{
 		delete partPos[i];
@@ -180,6 +234,7 @@ int main(){
 	
 	//a.clear();
 	b.clear();
+	ipd.clear();
 
 }//End function 
 //endvimfold

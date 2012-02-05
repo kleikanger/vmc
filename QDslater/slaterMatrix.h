@@ -97,8 +97,9 @@ class slaterMatrix {
 		double waveFunction(double*, int);
 		/*
 		Calculate one term of the gradient along axis over DET_old.
+		TEST.
 		 	*/		   
-		double grad(double** dR, int axis);
+		double grad(double* dR, int axis, int i_upd);
 		/*
 		Calculate the laplacian of the slatermatrixes.
 		   */
