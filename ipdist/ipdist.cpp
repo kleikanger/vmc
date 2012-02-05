@@ -105,7 +105,6 @@ void ipdist::clear()
 	for (int i=0; i<n_min_one; i++) delete ip_invlen[i];
 	delete ip_invlen;
 }/*//endvimfold*/
-//print matrix
 void ipdist::print()
 {/*//startvimfold*/
 	int i,j;
