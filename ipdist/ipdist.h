@@ -17,11 +17,13 @@ class ipdist{
 
 	private: 
 
-		//n-1
+		//number of particles -1
 		int n_min_one;
 		//dimension
 		int dim;
-
+		//spin down particles: only for calculating jastrow grad and lapl
+		int iCutoff;
+		
 		/*
 		   lower triangular with no diag elements n(n-1)/2 elem.
 
@@ -45,10 +47,10 @@ class ipdist{
 
 	public: 
 		/*
-		   declares and alloc. ip_len and ip_invlen.
-		   set n_min_one to n-1, and dim to di
+		   declare and alloc ip_len and ip_invlen.
+		   set n_min_one to n-1, dim to di and iCutoff to iC 
 		 */
-		ipdist(int n, int di);
+		ipdist(int n, int di, int iC);
 		/*
 		   init all elements in ip_len and ip_invlen
 		   NB! one should check if any of these elements are 0.
@@ -68,7 +70,6 @@ class ipdist{
 				,x_{i_upd,n-1} 
 				) 	
 
-	    	NB! one should check if any of these elements are 0.
 		 */
 		void update(double* r, int i_upd);
 		/*
@@ -76,7 +77,7 @@ class ipdist{
 		 */	   
 		const double sumInvlen();
 		/*
-		   Sum all elements with an index i_upd
+		   Sum all elements where one of the indices = i_upd
 		   		( 
 		 		r_{i_upd,0}
 				,...
@@ -87,6 +88,15 @@ class ipdist{
 				) 	
 		 */
 		const double sumPart(int i_upd);
+		/*
+			returns gradient of jastrow. contents of ret_vec will be changed to gradient.
+			beta is the variational parameter, and r is the positionvector.
+		*/	   
+		const void jasGrad(double** ret_vec, double beta, double** r);
+		/*
+		   Calculate laplacian. beta is the variational parameter.
+		   */
+		const double jasLapl(double beta, double** r);
 		/*
 		   clear all malloced vars
 		 */

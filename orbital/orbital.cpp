@@ -1,7 +1,5 @@
 /*
 Implementation of class orbitals
-XXX Number of dimensions should be included.
-XXX Test speed of more advanced meth. of num. deriv.
  	*/
 
 #include "orbital.h"
@@ -20,18 +18,18 @@ using std::cerr;
 
 #define ANALYTIC_DIFFERENTIATION false
 
-//Orbitals inlined:
+//Orbitals:
 inline double psi_10(double r_sqrd)
 {
 	return exp( - 0.5 * r_sqrd );
 }
 inline double psi_20(double r)
 {
-	return (2.0-4.0 * r) * exp(-2.0 * r ); 	
+	return 1.; 
 }
 inline double psi_30(double r)
 {
-	return 1; 
+	return 1.; 
 }
 //Constructors
 orbital::orbital(){}
@@ -45,8 +43,8 @@ orbital::orbital(int el,int am, bool su, int di){
 	if (energy_level<0) {
 	cout<<"\nerror: energy_level must be a positive integer.\n";
 	exit(1);
-	} else if (energy_level<angular_momentum) {
-	cout<<"\nerror: angular_momentum smaller then energy_level.\n";
+	} else if (energy_level*energy_level<angular_momentum*angular_momentum) {
+	cout<<"\nerror: |angular_momentum| larger than energy_level.\n";
 	exit(1);
 	} else {
 	cout<<"particle initialized: energy_level: "<<energy_level
@@ -67,8 +65,8 @@ void orbital::setValues(int el,int am, bool su, int di){
 	if (energy_level<0) {
 	cout<<"\nerror: energy_level must be a positive integer.\n";
 	exit(1);
-	} else if (energy_level<angular_momentum) {
-	cout<<"\nerror: angular_momentum smaller then energy_level.\n";
+	} else if (energy_level*energy_level<angular_momentum*angular_momentum) {
+	cout<<"\nerror: |angular_momentum| larger than energy_level.\n";
 	exit(1);
 	} else {
 	cout<<"particle initialized: energy_level: "<<energy_level
@@ -77,26 +75,9 @@ void orbital::setValues(int el,int am, bool su, int di){
 	}
 }
 //endvimfold
-//using const for better opimalization
-const int orbital::angularMomentum(){
-//startvimfold
-	return angular_momentum;
-}
-//endvimfold
-const int orbital::energyLevel(){
-//startvimfold
-	return energy_level;
-}
-//endvimfold
-//returns true if spin up
-const bool orbital::spinUp(){
-//startvimfold
-	return spin_up;
-}
-//endvimfold
-//CALCULATE: value of the orbital in some point dR.
 double orbital::valueWF(double* dR){
 //startvimfold
+//CALCULATE: value of the orbital in some point dR.
 
 	double r_sqrd=0;
 	r_sqrd=cblas_ddot(dim,dR,1,dR,1);
@@ -126,9 +107,9 @@ double orbital::valueWF(double* dR){
 	}	
 }//end of orbitalWavefunctions::orbitalWavefunctions()
 //endvimfold
-//CALCULATE: gradient along one axis. axis E {0,1,2,..}
 double orbital::D1(double* dR, int axis){
 //startvimfold
+//CALCULATE: gradient along one axis. axis E {0,1,2,..}
 #if !ANALYTIC_DIFFERENTIATION
 	double f_min;
 	double f_plus;
@@ -146,7 +127,7 @@ double orbital::D1(double* dR, int axis){
 	return result;
 #else
 	//Analytic expressions for the gradients
-	double r = cblas_dnrm2(dim,dR,1);
+	double abs_r = cblas_dnrm2(dim,dR,1);
 	if (spin_up) {
 
 		switch (energy_level) {
@@ -155,7 +136,7 @@ double orbital::D1(double* dR, int axis){
 			case 3: return 0;
 			case 4: return 0;
 			default: 
-					cerr<<"\n error in orbital::wFderiv2(): energy_level out of bounds\n"
+					cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
 					exit(1);
 		}
@@ -166,7 +147,7 @@ double orbital::D1(double* dR, int axis){
 			case 3: return 0;
 			case 4: return 0;
 			default:
-					cerr<<"\n error in orbital::wFDeriv2(): energy_level out of bounds\n"
+					cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
 					exit(1);
 		}
@@ -174,10 +155,9 @@ double orbital::D1(double* dR, int axis){
 #endif
 }
 //endvimfold
-//CALCULATE: Laplacian in some point dR.
-//USE: CALL BY VALUE
 double orbital::D2(double* dR){
 //startvimfold
+//calc: laplacian in some point dR.
 
 #if !ANALYTIC_DIFFERENTIATION
 	double f_min;
@@ -211,7 +191,7 @@ double orbital::D2(double* dR){
 			case 3: return 0;
 			case 4: return 0;
 			default: 
-					cerr<<"\n error in orbital::wFderiv2(): energy_level out of bounds\n"
+					cerr<<"\n error in orbital::D2(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
 					exit(1);
 		}
@@ -222,7 +202,7 @@ double orbital::D2(double* dR){
 			case 3: return 0;
 			case 4: return 0;
 			default:
-					cerr<<"\n error in orbital::wFDeriv2(): energy_level out of bounds\n"
+					cerr<<"\n error in orbital::D2(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
 					exit(1);
 		}
@@ -230,41 +210,21 @@ double orbital::D2(double* dR){
 #endif
 }
 //endvimfold
-//Implementation example
+const int orbital::angularMomentum(){
 //startvimfold
-/*
-int main(){
-
-	orbital* B[4];
-	orbital* C;
-	
-	C = new orbital[4];
-
-	//orbital* pointer;
-	for (int i = 0; i<4; i++){
-		//pointer = new orbital(0,i,false);
-		//B[i] = pointer; 
-		B[i] = new orbital(i,2,false);	
-		C[i].setValues(i,2,false);
-	}
-	
-	double* a = new double[3];
-	a[0]=a[1]=a[2]=0.2;
-	
-	for (int i = 0; i<2; i++){
-		cout<<"\n"<<B[i]->angularMomentum()<<"\n";
-		cout<<"\n"<<B[i]->valueWF(a)<<"\n";
-		cout<<"\n"<<C[i].valueWF(a)<<"\n";
-		
-	}
-
-     for (int i = 0; i < 4; i++){
-         delete B[i];
-         B[i] = NULL;//neccesary?
-     }
-	 delete a;
+	return angular_momentum;
 }
-*/
+//endvimfold
+const int orbital::energyLevel(){
+//startvimfold
+	return energy_level;
+}
+//endvimfold
+const bool orbital::spinUp(){
+//startvimfold
+//returns true if spin up
+	return spin_up;
+}
 //endvimfold
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold

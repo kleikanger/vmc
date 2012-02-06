@@ -21,6 +21,7 @@
 
 using std::cout;
 
+//LAPACK functions.
 extern "C" {
     // LU decomoposition of a general matrix
     void dgetrf_(int*, int*, double*, int*, int*, int*);
@@ -78,29 +79,9 @@ void slaterMatrix::initSlaterMatrix(double** partPos){
 	{
 		for (j=0; j<iCutoff; j++)
 		{
-			spin_down_matr[i][j] = orbital_[j+iCutoff].valueWF(partPos[i+iCutoff]); //(i,pParticlePositions[j+iCutoff],dAlpha);
+			spin_down_matr[i][j] = orbital_[j+iCutoff].valueWF(partPos[i+iCutoff]); 
 		}
 	}
-}//End function varMC::DeterminantMatrix()
-/*//endvimfold*/
-//NOT IN USE. CAN BE REMOVED.
-void slaterMatrix::updateSlaterMatrix(double* partPos, int i_upd){
-	/*//startvimfold*/
-	int i;
-	if (i_upd<iCutoff)
-	{
-		for (i=0; i<iCutoff; i++)
-		{
-			spin_up_matr[i_upd][i] = orbital_[i].valueWF(partPos); // Transpose
-		}
-	} 
-	else 
-	{
-		for (i=0; i<iCutoff; i++)
-		{
-			spin_down_matr[i_upd-iCutoff][i] = orbital_[i+iCutoff].valueWF(partPos); // Transpose
-		}
-	}	
 }//End function varMC::DeterminantMatrix()
 /*//endvimfold*/
 void slaterMatrix::findInverse(){
@@ -114,8 +95,9 @@ void slaterMatrix::findInverse(){
 	
 	for (int h=0; h<2; h++)
 	{
-		//Lapack using coloumn major!
+		//Lapack using coloumn major
 		//Matrixes must be transposed before they are sent to inverse
+		//Better to initiate transpose matrix at once !!
 		int k=0;
 		for (int i=0; i<n; i++)
 		{
@@ -128,7 +110,7 @@ void slaterMatrix::findInverse(){
 		}
 			
 		dgetrf_(&n,&n,B,&n,ipiv,&info);
-		//Even if we know that that the determinant is !=0, maybe we should check if matrix is singular or near to...
+		//maybe check if matrix is singular...
 		if (info==0) 
 		{
 			dgetri_(&n,B,&n,ipiv,work,&lwork,&info);
@@ -185,7 +167,7 @@ void slaterMatrix::update(double* d_R, int i_upd){
 		}
 		//inv_up_matr[i_upd][:]<-inv_up_matr[i_upd][:]/R
 		cblas_dscal(iCutoff,1/R,inv_up_matr[i_upd],1);
-		//Copy d_upd to spin_down_matr, updating spinupmatr.
+		//Copy d_upd to spin_down_matr, updating spin_up_matr.
 		cblas_dcopy(iCutoff, d_upd, 1, spin_up_matr[i_upd], 1);
 	} 
 	else 
@@ -210,9 +192,9 @@ void slaterMatrix::update(double* d_R, int i_upd){
 	}	
 }
 //endvimfold
-//returns ratio between new and old determinant when one particle moved.
 double slaterMatrix::waveFunction(double* dR, int i_upd){
 	//startvimfold
+	//returns ratio between new and old determinant when one particle moved.
 	int i;
 	double new_vec[iCutoff];
 	
@@ -237,10 +219,10 @@ double slaterMatrix::waveFunction(double* dR, int i_upd){
 	}
 }
 //endvimfold
-//test
+//test! 
 double slaterMatrix::grad(double* dR, int axis, int i_upd){
 //startvimfold
-//Gradient along some axis w.r.t one particle / DET_old.
+//OPTIMALIZATION: only one some grads needs to be updated.
 //Grad_{i,axis}. Full gradient/DET_old = Sum_axis Sum_i Grad_{i,axis} \vec e_{i,axis}.
 
 //TEST
@@ -272,6 +254,7 @@ double slaterMatrix::grad(double* dR, int axis, int i_upd){
 //endvimfold
 double slaterMatrix::lapl(double** dR){
 //startvimfold
+	//OPTIMALIZATION: only one of the matrices needs to be calculated.
 	double d_upd[iCutoff];
 	double temp=0.;
 	int i,j;
@@ -293,48 +276,6 @@ double slaterMatrix::lapl(double** dR){
 	}
 	return temp;
 }//End function 
-//endvimfold
-void slaterMatrix::updateVariationalParameters(double* vp){
-//startvimfold
-	for (int i=0;i<iNumber_of_variational_parameters;i++){
-		variational_parameters[i]=vp[i];
-	}
-}
-//endvimfold
-double slaterMatrix::jastrow(double** r){
-//startvimfold
-	double r_12;
-	int i,j,k;
-   	//summation variable
-	double value = 0;
-	//variational parameter.
-	double beta = variational_parameters[0];
-   
-   	for (i = 0; i < iNumPart - 1; i++) 
-	{
-        for (j = i + 1; j < iNumPart; j++) 
-		{
-            //find distance betw. part. i and j.
-            r_12=0.0;
-				for (k=0; k<dim; k++)
-				{
-					r_12+= (r[i][k]-r[j][k])*(r[i][k]-r[j][k]);
-				}
-			r_12=sqrt(r_12);
-            //Particles with parallel spins:
-            if (orbital_[i].spinUp() == orbital_[j].spinUp()) 
-			{
-                value += 0.3333333333333333 * r_12/(1 + beta*r_12);
-            }
-            //particles with antiparallel spins
-            else 
-			{
-                value += r_12/(1 + beta*r_12);
-            }
-        }
-    }
-    return exp(value*0.5);
-}//End function slaterMatrix::jastrow()
 //endvimfold
 void slaterMatrix::clear(){
 //startvimfold
@@ -385,6 +326,34 @@ void slaterMatrix::print(){
 			cout<<setprecision(16)<<spin_down_matr[i][j]<<"\t";
 		}
 		cout<<"\n";
+	}
+}
+//endvimfold
+//NOT USED. CAN BE REMOVED.
+void slaterMatrix::updateSlaterMatrix(double* partPos, int i_upd){
+	/*//startvimfold*/
+	int i;
+	if (i_upd<iCutoff)
+	{
+		for (i=0; i<iCutoff; i++)
+		{
+			spin_up_matr[i_upd][i] = orbital_[i].valueWF(partPos); // Transpose
+		}
+	} 
+	else 
+	{
+		for (i=0; i<iCutoff; i++)
+		{
+			spin_down_matr[i_upd-iCutoff][i] = orbital_[i+iCutoff].valueWF(partPos); // Transpose
+		}
+	}	
+}//End function varMC::DeterminantMatrix()
+/*//endvimfold*/
+//MOVE TO ORBITAL CLASS
+void slaterMatrix::updateVariationalParameters(double* vp){
+//startvimfold
+	for (int i=0;i<iNumber_of_variational_parameters;i++){
+		variational_parameters[i]=vp[i];
 	}
 }
 //endvimfold

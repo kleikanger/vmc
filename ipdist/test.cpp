@@ -9,8 +9,9 @@ main()
 
 	//TEST CLASS ipdist
 	//calculating distances directly and via update
-	int n=11;
-	int dim=1;
+	int n=2;
+	int iCutoff=1;
+	int dim=2;
 	int i_upd=0;
 
 	//Initializing a matrix
@@ -26,8 +27,8 @@ main()
 	}
 
 	//init ipdist objects
-	ipdist a(n,dim);
-	ipdist b(n,dim);
+	ipdist a(n,dim,iCutoff);
+	ipdist b(n,dim,iCutoff);
 
 	a.init(r);
 	b.init(r);
@@ -40,7 +41,7 @@ main()
 	//updating r, position i_upd
 	for (int i=0;i<dim;i++)
 	{
-	   r[i_upd][i] = (i_upd+1)/(i+1);
+	   r[i_upd][i] = (double)(i_upd+1)/(i+1);
 	}	   
 
 	//calculating new lengths betw particles
@@ -75,5 +76,33 @@ main()
 	cout<<"sumInvlen: "<<a.sumInvlen()<<"\n";
 	for (int s=0; s<n; s++)
 	cout<<"sumPart("<<s<<"):"<<a.sumPart(s)<<"\n";
+	
+	cout<<"\ngradient of jastrow:\n\n";
+	double** rr = new double*[n];
+	
+	for (i=0;i<n;i++) rr[i]=new double[dim];
+	b.jasGrad(rr,.4,r);
+	
+	cout<<"gradient";
+	for (i=0;i<n;i++) 
+	for (int j=0;j<dim;j++) 
+	{
+		if (!(j%dim)) cout<<std::endl;
+		cout<<rr[i][j]<<"\t";
+	}
+	
+	cout<<"\n\npos vec:";
+	for (i=0;i<n;i++) 
+	for (int j=0;j<dim;j++) 
+	{
+		if (!(j%dim)) cout<<std::endl;
+		cout<<r[i][j]<<"\t";
+	}
+	cout<<std::endl;
+	
+	cout<<"\nlaplacian of jastrow: ";
+	cout<<b.jasLapl(.4,r)<<"\n\n";
+
+	cout<<"all correct for this example!\n";
 
 }
