@@ -18,7 +18,7 @@ using std::cerr;
 
 #define ANALYTIC_D2 true
 #define ANALYTIC_D1 true
-#define alpha .98
+#define alpha .987
 
 //Orbitals:
 inline double psi_10(double r_sqrd)
