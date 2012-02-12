@@ -16,12 +16,14 @@ using std::cerr;
 #define ONE_OVER_H 1000
 #define ONE_OVER_H2 1000000
 
-#define ANALYTIC_DIFFERENTIATION false
+#define ANALYTIC_D2 true
+#define ANALYTIC_D1 true
+#define alpha .98
 
 //Orbitals:
 inline double psi_10(double r_sqrd)
 {
-	return exp( - 0.5 * r_sqrd );
+	return exp( - 0.5 * alpha * r_sqrd );
 }
 inline double psi_20(double r)
 {
@@ -79,10 +81,10 @@ double orbital::valueWF(double* dR){
 //startvimfold
 //CALCULATE: value of the orbital in some point dR.
 
-	double r_sqrd=0;
+	double r_sqrd=0.0;
 	r_sqrd=cblas_ddot(dim,dR,1,dR,1);
 
-	//Angular momentum can also be included.
+	//Angular momentum can also be included 3.
 	if (spin_up) 
 	{
 		switch (energy_level) 
@@ -110,7 +112,7 @@ double orbital::valueWF(double* dR){
 double orbital::D1(double* dR, int axis){
 //startvimfold
 //CALCULATE: gradient along one axis. axis E {0,1,2,..}
-#if !ANALYTIC_DIFFERENTIATION
+#if !ANALYTIC_D1
 	double f_min;
 	double f_plus;
 	double dR_temp[dim];
@@ -131,7 +133,7 @@ double orbital::D1(double* dR, int axis){
 	if (spin_up) {
 
 		switch (energy_level) {
-			case 1: return 0;
+			case 1: return -dR[axis]*alpha*valueWF(dR);
 			case 2:	return 0;	
 			case 3: return 0;
 			case 4: return 0;
@@ -142,7 +144,7 @@ double orbital::D1(double* dR, int axis){
 		}
 	} else {
 		switch (energy_level) {
-			case 1:	return 0;	
+			case 1:	return -dR[axis]*alpha*valueWF(dR);	
 			case 2:	return 0;	
 			case 3: return 0;
 			case 4: return 0;
@@ -159,7 +161,7 @@ double orbital::D2(double* dR){
 //startvimfold
 //calc: laplacian in some point dR.
 
-#if !ANALYTIC_DIFFERENTIATION
+#if !ANALYTIC_D2
 	double f_min;
 	double f;
 	double f_plus;
@@ -186,7 +188,7 @@ double orbital::D2(double* dR){
 	if (spin_up) {
 	
 		switch (energy_level) {
-			case 1: return 0;
+			case 1: return alpha*(alpha*r*r -2.)*valueWF(dR);
 			case 2:	return 0;	
 			case 3: return 0;
 			case 4: return 0;
@@ -197,7 +199,7 @@ double orbital::D2(double* dR){
 		}
 	} else {
 		switch (energy_level) {
-			case 1:	return 0;
+			case 1:	return alpha*(alpha*r*r - 2.)*valueWF(dR);
 			case 2:	return 0;	
 			case 3: return 0;
 			case 4: return 0;

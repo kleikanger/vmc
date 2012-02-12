@@ -22,7 +22,7 @@ main()
 		r[i] = new double[dim];
 	   for (int j=0;j<dim;j++)
 	   {
-		   r[i][j] = (i+3)*(j+1);
+		   r[i][j] = ((i+3)%3+1)*(j+1);
 	   }	   
 	}
 
@@ -36,7 +36,7 @@ main()
 	//test:
 	cout<<"\nprint init matrix\n";
 	a.print();
-	cout<<"\ncharge r, particle"<<i_upd<<"\n";
+	cout<<"move particle "<<i_upd<<"\n";
 
 	//updating r, position i_upd
 	for (int i=0;i<dim;i++)
@@ -45,7 +45,7 @@ main()
 	}	   
 
 	//calculating new lengths betw particles
-	double upd_vec[n-1];
+	double upd_vec[n];
 	for (i=0; i<i_upd; i++)
 	{
 		double temp=0;
@@ -62,7 +62,7 @@ main()
 		{
 			temp+=(r[i_upd][k]-r[i][k])*(r[i_upd][k]-r[i][k]);
 		}
-		upd_vec[i]=sqrt(temp);
+		upd_vec[i-1]=sqrt(temp);
 	}
 
 	a.update(upd_vec,i_upd);

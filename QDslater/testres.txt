@@ -3,37 +3,43 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls  ms/call  ms/call  name    
- 27.96      7.79     7.79 281547891     0.00     0.00  orbital::valueWF(double*)
- 18.55     12.95     5.17 120000006     0.00     0.00  ran2(long*)
- 11.82     16.24     3.29 281547891     0.00     0.00  psi_20(double)
- 11.10     19.33     3.09                             main
- 10.40     22.23     2.90 281547891     0.00     0.00  psi_10(double)
-  6.47     24.02     1.80 24350452     0.00     0.00  orbital::D2(double*)
-  3.81     25.09     1.06 24350452     0.00     0.00  orbital::D1(double*, int)
-  2.82     25.87     0.79 30000000     0.00     0.00  slaterMatrix::waveFunction(double*, int)
-  2.51     26.57     0.70 17393817     0.00     0.00  slaterMatrix::updateInverse(double*, int)
-  1.76     27.06     0.49 12175226     0.00     0.00  slaterMatrix::lapl(double**)
-  1.67     27.52     0.47 12175226     0.00     0.00  slaterMatrix::grad(double**, int)
-  0.52     27.67     0.14        1   145.00   145.00  _GLOBAL__sub_I__ZN7orbitalC2Ev
-  0.34     27.77     0.10                             orbital::spinUp()
-  0.14     27.80     0.04                             ran3(long*)
-  0.13     27.84     0.04                             ran1(long*)
-  0.00     27.84     0.00        8     0.00     0.00  std::setprecision(int)
-  0.00     27.84     0.00        4     0.00     0.00  orbital::setValues(int, int, bool, int)
-  0.00     27.84     0.00        4     0.00     0.00  orbital::orbital()
-  0.00     27.84     0.00        3     0.00     0.00  slaterMatrix::findInverse()
-  0.00     27.84     0.00        3     0.00     0.00  slaterMatrix::initSlaterMatrix(double**)
-  0.00     27.84     0.00        2     0.00     0.00  slaterMatrix::updateVariationalParameters(double*)
-  0.00     27.84     0.00        2     0.00     0.00  slaterMatrix::clear()
-  0.00     27.84     0.00        2     0.00     0.00  slaterMatrix::print()
-  0.00     27.84     0.00        2     0.00     0.00  slaterMatrix::slaterMatrix(int, int, int)
-  0.00     27.84     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z9time_stepi
-  0.00     27.84     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN12slaterMatrixC2Eiii
-  0.00     27.84     0.00        1     0.00     0.00  _GLOBAL__sub_I_main
-  0.00     27.84     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
-  0.00     27.84     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
-  0.00     27.84     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
-  0.00     27.84     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+ 23.04      1.29     1.29 30000004     0.00     0.00  ran2(long*)
+ 20.00      2.41     1.12                             main
+  9.29      2.93     0.52  6040879     0.00     0.00  ipdist::update(double*, int)
+  7.68      3.36     0.43 27788817     0.00     0.00  orbital::valueWF(double*)
+  6.07      3.70     0.34  3624656     0.00     0.00  slaterMatrix::grad(double**, double**)
+  5.98      4.04     0.34  6040879     0.00     0.00  slaterMatrix::update(double*, int)
+  5.54      4.34     0.31  3624656     0.00     0.00  ipdist::jasLapl(double, double**)
+  4.20      4.58     0.23  3624656     0.00     0.00  ipdist::jasGrad(double**, double, double**)
+  4.11      4.81     0.23 27788817     0.00     0.00  psi_10(double)
+  3.12      4.99     0.17 14498624     0.00     0.00  orbital::D1(double*, int)
+  3.04      5.16     0.17 10000000     0.00     0.00  ipdist::sumPart(int)
+  2.59      5.30     0.14  7249312     0.00     0.00  ipdist::sumInvlen()
+  2.41      5.43     0.14  7249312     0.00     0.00  orbital::D2(double*)
+  2.32      5.57     0.13  3624656     0.00     0.00  slaterMatrix::lapl(double**)
+  0.45      5.59     0.03                             ran1(long*)
+  0.09      5.59     0.01        1     5.00     5.00  slaterMatrix::findInverse()
+  0.09      5.60     0.01                             ran3(long*)
+  0.00      5.60     0.00        2     0.00     0.00  orbital::setValues(int, int, bool, int)
+  0.00      5.60     0.00        2     0.00     0.00  orbital::orbital()
+  0.00      5.60     0.00        2     0.00     0.00  std::setprecision(int)
+  0.00      5.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z9time_stepi
+  0.00      5.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN12slaterMatrixC2Eiiii
+  0.00      5.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN6ipdistC2Eiii
+  0.00      5.60     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN7orbitalC2Ev
+  0.00      5.60     0.00        1     0.00     0.00  _GLOBAL__sub_I_main
+  0.00      5.60     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00      5.60     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00      5.60     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00      5.60     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00      5.60     0.00        1     0.00     0.00  __static_initialization_and_destruction_0(int, int)
+  0.00      5.60     0.00        1     0.00     0.00  slaterMatrix::initSlaterMatrix(double**)
+  0.00      5.60     0.00        1     0.00     0.00  slaterMatrix::updateVariationalParameters(double*)
+  0.00      5.60     0.00        1     0.00     0.00  slaterMatrix::clear()
+  0.00      5.60     0.00        1     0.00     0.00  slaterMatrix::slaterMatrix(int, int, int, int)
+  0.00      5.60     0.00        1     0.00     0.00  ipdist::init(double**)
+  0.00      5.60     0.00        1     0.00     0.00  ipdist::clear()
+  0.00      5.60     0.00        1     0.00     0.00  ipdist::ipdist(int, int, int)
 
  %         the percentage of the total running time of the
 time       program used by this function.
@@ -65,139 +71,154 @@ name       the name of the function.  This is the minor sort
 		     Call graph (explanation follows)
 
 
-granularity: each sample hit covers 4 byte(s) for 0.04% of 27.84 seconds
+granularity: each sample hit covers 4 byte(s) for 0.18% of 5.60 seconds
 
 index % time    self  children    called     name
                                                  <spontaneous>
-[1]     98.9    3.09   24.43                 main [1]
-                0.49   10.26 12175226/12175226     slaterMatrix::lapl(double**) [3]
-                5.17    0.00 120000006/120000006     ran2(long*) [5]
-                0.47    3.48 12175226/12175226     slaterMatrix::grad(double**, int) [6]
-                0.79    2.23 30000000/30000000     slaterMatrix::waveFunction(double*, int) [9]
-                0.70    0.86 17393817/17393817     slaterMatrix::updateInverse(double*, int) [11]
-                0.00    0.00       3/3           slaterMatrix::initSlaterMatrix(double**) [17]
-                0.00    0.00       3/3           slaterMatrix::findInverse() [24]
-                0.00    0.00       2/2           slaterMatrix::slaterMatrix(int, int, int) [28]
-                0.00    0.00       2/2           slaterMatrix::updateVariationalParameters(double*) [25]
-                0.00    0.00       2/2           slaterMatrix::print() [27]
-                0.00    0.00       2/2           slaterMatrix::clear() [26]
+[1]     99.5    1.12    4.45                 main [1]
+                1.29    0.00 30000004/30000004     ran2(long*) [2]
+                0.34    0.52 3624656/3624656     slaterMatrix::grad(double**, double**) [3]
+                0.52    0.00 6040879/6040879     ipdist::update(double*, int) [5]
+                0.34    0.14 6040879/6040879     slaterMatrix::update(double*, int) [7]
+                0.13    0.31 3624656/3624656     slaterMatrix::lapl(double**) [8]
+                0.31    0.00 3624656/3624656     ipdist::jasLapl(double, double**) [9]
+                0.23    0.00 3624656/3624656     ipdist::jasGrad(double**, double, double**) [11]
+                0.17    0.00 10000000/10000000     ipdist::sumPart(int) [13]
+                0.14    0.00 7249312/7249312     ipdist::sumInvlen() [14]
+                0.01    0.00       1/1           slaterMatrix::findInverse() [16]
+                0.00    0.00       1/1           slaterMatrix::initSlaterMatrix(double**) [18]
+                0.00    0.00       2/2           std::setprecision(int) [24]
+                0.00    0.00       1/1           slaterMatrix::slaterMatrix(int, int, int, int) [37]
+                0.00    0.00       1/1           slaterMatrix::updateVariationalParameters(double*) [35]
+                0.00    0.00       1/1           ipdist::ipdist(int, int, int) [40]
+                0.00    0.00       1/1           ipdist::init(double**) [38]
+                0.00    0.00       1/1           slaterMatrix::clear() [36]
+                0.00    0.00       1/1           ipdist::clear() [39]
 -----------------------------------------------
-                0.00    0.00       6/281547891     slaterMatrix::initSlaterMatrix(double**) [17]
-                0.48    0.38 17393817/281547891     slaterMatrix::updateInverse(double*, int) [11]
-                1.24    0.99 45000000/281547891     slaterMatrix::waveFunction(double*, int) [9]
-                1.35    1.07 48700904/281547891     orbital::D1(double*, int) [7]
-                4.71    3.74 170453164/281547891     orbital::D2(double*) [4]
-[2]     50.2    7.79    6.18 281547891         orbital::valueWF(double*) [2]
-                3.29    0.00 281547891/281547891     psi_20(double) [8]
-                2.90    0.00 281547891/281547891     psi_10(double) [10]
+                1.29    0.00 30000004/30000004     main [1]
+[2]     23.0    1.29    0.00 30000004         ran2(long*) [2]
 -----------------------------------------------
-                0.49   10.26 12175226/12175226     main [1]
-[3]     38.6    0.49   10.26 12175226         slaterMatrix::lapl(double**) [3]
-                1.80    8.46 24350452/24350452     orbital::D2(double*) [4]
+                0.34    0.52 3624656/3624656     main [1]
+[3]     15.3    0.34    0.52 3624656         slaterMatrix::grad(double**, double**) [3]
+                0.17    0.34 14498624/14498624     orbital::D1(double*, int) [6]
 -----------------------------------------------
-                1.80    8.46 24350452/24350452     slaterMatrix::lapl(double**) [3]
-[4]     36.8    1.80    8.46 24350452         orbital::D2(double*) [4]
-                4.71    3.74 170453164/281547891     orbital::valueWF(double*) [2]
+                0.00    0.00       2/27788817     slaterMatrix::initSlaterMatrix(double**) [18]
+                0.09    0.05 6040879/27788817     slaterMatrix::update(double*, int) [7]
+                0.11    0.06 7249312/27788817     orbital::D2(double*) [10]
+                0.22    0.12 14498624/27788817     orbital::D1(double*, int) [6]
+[4]     11.8    0.43    0.23 27788817         orbital::valueWF(double*) [4]
+                0.23    0.00 27788817/27788817     psi_10(double) [12]
 -----------------------------------------------
-                5.17    0.00 120000006/120000006     main [1]
-[5]     18.6    5.17    0.00 120000006         ran2(long*) [5]
+                0.52    0.00 6040879/6040879     main [1]
+[5]      9.3    0.52    0.00 6040879         ipdist::update(double*, int) [5]
 -----------------------------------------------
-                0.47    3.48 12175226/12175226     main [1]
-[6]     14.2    0.47    3.48 12175226         slaterMatrix::grad(double**, int) [6]
-                1.06    2.42 24350452/24350452     orbital::D1(double*, int) [7]
+                0.17    0.34 14498624/14498624     slaterMatrix::grad(double**, double**) [3]
+[6]      9.3    0.17    0.34 14498624         orbital::D1(double*, int) [6]
+                0.22    0.12 14498624/27788817     orbital::valueWF(double*) [4]
 -----------------------------------------------
-                1.06    2.42 24350452/24350452     slaterMatrix::grad(double**, int) [6]
-[7]     12.5    1.06    2.42 24350452         orbital::D1(double*, int) [7]
-                1.35    1.07 48700904/281547891     orbital::valueWF(double*) [2]
+                0.34    0.14 6040879/6040879     main [1]
+[7]      8.5    0.34    0.14 6040879         slaterMatrix::update(double*, int) [7]
+                0.09    0.05 6040879/27788817     orbital::valueWF(double*) [4]
 -----------------------------------------------
-                3.29    0.00 281547891/281547891     orbital::valueWF(double*) [2]
-[8]     11.8    3.29    0.00 281547891         psi_20(double) [8]
+                0.13    0.31 3624656/3624656     main [1]
+[8]      7.8    0.13    0.31 3624656         slaterMatrix::lapl(double**) [8]
+                0.14    0.17 7249312/7249312     orbital::D2(double*) [10]
 -----------------------------------------------
-                0.79    2.23 30000000/30000000     main [1]
-[9]     10.8    0.79    2.23 30000000         slaterMatrix::waveFunction(double*, int) [9]
-                1.24    0.99 45000000/281547891     orbital::valueWF(double*) [2]
+                0.31    0.00 3624656/3624656     main [1]
+[9]      5.5    0.31    0.00 3624656         ipdist::jasLapl(double, double**) [9]
 -----------------------------------------------
-                2.90    0.00 281547891/281547891     orbital::valueWF(double*) [2]
-[10]    10.4    2.90    0.00 281547891         psi_10(double) [10]
+                0.14    0.17 7249312/7249312     slaterMatrix::lapl(double**) [8]
+[10]     5.5    0.14    0.17 7249312         orbital::D2(double*) [10]
+                0.11    0.06 7249312/27788817     orbital::valueWF(double*) [4]
 -----------------------------------------------
-                0.70    0.86 17393817/17393817     main [1]
-[11]     5.6    0.70    0.86 17393817         slaterMatrix::updateInverse(double*, int) [11]
-                0.48    0.38 17393817/281547891     orbital::valueWF(double*) [2]
+                0.23    0.00 3624656/3624656     main [1]
+[11]     4.2    0.23    0.00 3624656         ipdist::jasGrad(double**, double, double**) [11]
 -----------------------------------------------
-                0.14    0.00       1/1           __libc_csu_init [13]
-[12]     0.5    0.14    0.00       1         _GLOBAL__sub_I__ZN7orbitalC2Ev [12]
-                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [34]
+                0.23    0.00 27788817/27788817     orbital::valueWF(double*) [4]
+[12]     4.1    0.23    0.00 27788817         psi_10(double) [12]
 -----------------------------------------------
-                                                 <spontaneous>
-[13]     0.5    0.00    0.14                 __libc_csu_init [13]
-                0.14    0.00       1/1           _GLOBAL__sub_I__ZN7orbitalC2Ev [12]
-                0.00    0.00       1/1           _GLOBAL__sub_I__Z9time_stepi [29]
-                0.00    0.00       1/1           _GLOBAL__sub_I__ZN12slaterMatrixC2Eiii [30]
-                0.00    0.00       1/1           _GLOBAL__sub_I_main [31]
+                0.17    0.00 10000000/10000000     main [1]
+[13]     3.0    0.17    0.00 10000000         ipdist::sumPart(int) [13]
 -----------------------------------------------
-                                                 <spontaneous>
-[14]     0.3    0.10    0.00                 orbital::spinUp() [14]
------------------------------------------------
-                                                 <spontaneous>
-[15]     0.1    0.04    0.00                 ran3(long*) [15]
+                0.14    0.00 7249312/7249312     main [1]
+[14]     2.6    0.14    0.00 7249312         ipdist::sumInvlen() [14]
 -----------------------------------------------
                                                  <spontaneous>
-[16]     0.1    0.04    0.00                 ran1(long*) [16]
+[15]     0.4    0.03    0.00                 ran1(long*) [15]
 -----------------------------------------------
-                0.00    0.00       3/3           main [1]
-[17]     0.0    0.00    0.00       3         slaterMatrix::initSlaterMatrix(double**) [17]
-                0.00    0.00       6/281547891     orbital::valueWF(double*) [2]
+                0.01    0.00       1/1           main [1]
+[16]     0.1    0.01    0.00       1         slaterMatrix::findInverse() [16]
 -----------------------------------------------
-                0.00    0.00       8/8           slaterMatrix::print() [27]
-[21]     0.0    0.00    0.00       8         std::setprecision(int) [21]
+                                                 <spontaneous>
+[17]     0.1    0.01    0.00                 ran3(long*) [17]
 -----------------------------------------------
-                0.00    0.00       4/4           slaterMatrix::slaterMatrix(int, int, int) [28]
-[22]     0.0    0.00    0.00       4         orbital::setValues(int, int, bool, int) [22]
+                0.00    0.00       1/1           main [1]
+[18]     0.0    0.00    0.00       1         slaterMatrix::initSlaterMatrix(double**) [18]
+                0.00    0.00       2/27788817     orbital::valueWF(double*) [4]
 -----------------------------------------------
-                0.00    0.00       4/4           slaterMatrix::slaterMatrix(int, int, int) [28]
-[23]     0.0    0.00    0.00       4         orbital::orbital() [23]
+                0.00    0.00       2/2           slaterMatrix::slaterMatrix(int, int, int, int) [37]
+[22]     0.0    0.00    0.00       2         orbital::setValues(int, int, bool, int) [22]
 -----------------------------------------------
-                0.00    0.00       3/3           main [1]
-[24]     0.0    0.00    0.00       3         slaterMatrix::findInverse() [24]
------------------------------------------------
-                0.00    0.00       2/2           main [1]
-[25]     0.0    0.00    0.00       2         slaterMatrix::updateVariationalParameters(double*) [25]
+                0.00    0.00       2/2           slaterMatrix::slaterMatrix(int, int, int, int) [37]
+[23]     0.0    0.00    0.00       2         orbital::orbital() [23]
 -----------------------------------------------
                 0.00    0.00       2/2           main [1]
-[26]     0.0    0.00    0.00       2         slaterMatrix::clear() [26]
+[24]     0.0    0.00    0.00       2         std::setprecision(int) [24]
 -----------------------------------------------
-                0.00    0.00       2/2           main [1]
-[27]     0.0    0.00    0.00       2         slaterMatrix::print() [27]
-                0.00    0.00       8/8           std::setprecision(int) [21]
------------------------------------------------
-                0.00    0.00       2/2           main [1]
-[28]     0.0    0.00    0.00       2         slaterMatrix::slaterMatrix(int, int, int) [28]
-                0.00    0.00       4/4           orbital::orbital() [23]
-                0.00    0.00       4/4           orbital::setValues(int, int, bool, int) [22]
------------------------------------------------
-                0.00    0.00       1/1           __libc_csu_init [13]
-[29]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z9time_stepi [29]
-                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [35]
------------------------------------------------
-                0.00    0.00       1/1           __libc_csu_init [13]
-[30]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN12slaterMatrixC2Eiii [30]
+                0.00    0.00       1/1           __libc_csu_init [74]
+[25]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z9time_stepi [25]
                 0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [33]
 -----------------------------------------------
-                0.00    0.00       1/1           __libc_csu_init [13]
-[31]     0.0    0.00    0.00       1         _GLOBAL__sub_I_main [31]
+                0.00    0.00       1/1           __libc_csu_init [74]
+[26]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN12slaterMatrixC2Eiiii [26]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [31]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [74]
+[27]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN6ipdistC2Eiii [27]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [34]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [74]
+[28]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN7orbitalC2Ev [28]
                 0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [32]
 -----------------------------------------------
-                0.00    0.00       1/1           _GLOBAL__sub_I_main [31]
+                0.00    0.00       1/1           __libc_csu_init [74]
+[29]     0.0    0.00    0.00       1         _GLOBAL__sub_I_main [29]
+                0.00    0.00       1/1           __static_initialization_and_destruction_0(int, int) [30]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I_main [29]
+[30]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [30]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I__ZN12slaterMatrixC2Eiiii [26]
+[31]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [31]
+-----------------------------------------------
+                0.00    0.00       1/1           _GLOBAL__sub_I__ZN7orbitalC2Ev [28]
 [32]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [32]
 -----------------------------------------------
-                0.00    0.00       1/1           _GLOBAL__sub_I__ZN12slaterMatrixC2Eiii [30]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z9time_stepi [25]
 [33]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [33]
 -----------------------------------------------
-                0.00    0.00       1/1           _GLOBAL__sub_I__ZN7orbitalC2Ev [12]
+                0.00    0.00       1/1           _GLOBAL__sub_I__ZN6ipdistC2Eiii [27]
 [34]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [34]
 -----------------------------------------------
-                0.00    0.00       1/1           _GLOBAL__sub_I__Z9time_stepi [29]
-[35]     0.0    0.00    0.00       1         __static_initialization_and_destruction_0(int, int) [35]
+                0.00    0.00       1/1           main [1]
+[35]     0.0    0.00    0.00       1         slaterMatrix::updateVariationalParameters(double*) [35]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[36]     0.0    0.00    0.00       1         slaterMatrix::clear() [36]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[37]     0.0    0.00    0.00       1         slaterMatrix::slaterMatrix(int, int, int, int) [37]
+                0.00    0.00       2/2           orbital::orbital() [23]
+                0.00    0.00       2/2           orbital::setValues(int, int, bool, int) [22]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[38]     0.0    0.00    0.00       1         ipdist::init(double**) [38]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[39]     0.0    0.00    0.00       1         ipdist::clear() [39]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[40]     0.0    0.00    0.00       1         ipdist::ipdist(int, int, int) [40]
 -----------------------------------------------
 
  This table describes the call tree of the program, and was sorted by
@@ -285,14 +306,16 @@ index % time    self  children    called     name
 
 Index by function name
 
-  [29] _GLOBAL__sub_I__Z9time_stepi (lib.cpp) [10] psi_10(double) [28] slaterMatrix::slaterMatrix(int, int, int)
-  [30] _GLOBAL__sub_I__ZN12slaterMatrixC2Eiii (slaterMatrix.cpp) [8] psi_20(double) [7] orbital::D1(double*, int)
-  [12] _GLOBAL__sub_I__ZN7orbitalC2Ev (orbital.cpp) [24] slaterMatrix::findInverse() [4] orbital::D2(double*)
-  [31] _GLOBAL__sub_I_main (test.cpp) [9] slaterMatrix::waveFunction(double*, int) [14] orbital::spinUp()
-  [32] __static_initialization_and_destruction_0(int, int) (test.cpp) [11] slaterMatrix::updateInverse(double*, int) [2] orbital::valueWF(double*)
-  [33] __static_initialization_and_destruction_0(int, int) (slaterMatrix.cpp) [17] slaterMatrix::initSlaterMatrix(double**) [22] orbital::setValues(int, int, bool, int)
-  [34] __static_initialization_and_destruction_0(int, int) (orbital.cpp) [25] slaterMatrix::updateVariationalParameters(double*) [23] orbital::orbital()
-  [35] __static_initialization_and_destruction_0(int, int) (lib.cpp) [6] slaterMatrix::grad(double**, int) [21] std::setprecision(int)
-  [16] ran1(long*)             [3] slaterMatrix::lapl(double**) [1] main
-   [5] ran2(long*)            [26] slaterMatrix::clear()
-  [15] ran3(long*)            [27] slaterMatrix::print()
+  [25] _GLOBAL__sub_I__Z9time_stepi (lib.cpp) [12] psi_10(double) [9] ipdist::jasLapl(double, double**)
+  [26] _GLOBAL__sub_I__ZN12slaterMatrixC2Eiiii (slaterMatrix.cpp) [16] slaterMatrix::findInverse() [13] ipdist::sumPart(int)
+  [27] _GLOBAL__sub_I__ZN6ipdistC2Eiii (ipdist.cpp) [18] slaterMatrix::initSlaterMatrix(double**) [14] ipdist::sumInvlen()
+  [28] _GLOBAL__sub_I__ZN7orbitalC2Ev (orbital.cpp) [35] slaterMatrix::updateVariationalParameters(double*) [40] ipdist::ipdist(int, int, int)
+  [29] _GLOBAL__sub_I_main (test.cpp) [3] slaterMatrix::grad(double**, double**) [6] orbital::D1(double*, int)
+  [30] __static_initialization_and_destruction_0(int, int) (test.cpp) [8] slaterMatrix::lapl(double**) [10] orbital::D2(double*)
+  [31] __static_initialization_and_destruction_0(int, int) (slaterMatrix.cpp) [36] slaterMatrix::clear() [4] orbital::valueWF(double*)
+  [32] __static_initialization_and_destruction_0(int, int) (orbital.cpp) [7] slaterMatrix::update(double*, int) [22] orbital::setValues(int, int, bool, int)
+  [33] __static_initialization_and_destruction_0(int, int) (lib.cpp) [37] slaterMatrix::slaterMatrix(int, int, int, int) [23] orbital::orbital()
+  [34] __static_initialization_and_destruction_0(int, int) (ipdist.cpp) [38] ipdist::init(double**) [24] std::setprecision(int)
+  [15] ran1(long*)            [39] ipdist::clear()         [1] main
+   [2] ran2(long*)             [5] ipdist::update(double*, int)
+  [17] ran3(long*)            [11] ipdist::jasGrad(double**, double, double**)

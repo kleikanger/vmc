@@ -192,7 +192,7 @@ void slaterMatrix::update(double* d_R, int i_upd){
 	}	
 }
 //endvimfold
-double slaterMatrix::waveFunction(double* dR, int i_upd){
+const double slaterMatrix::waveFunction(double* dR, int i_upd){
 	//startvimfold
 	//returns ratio between new and old determinant when one particle moved.
 	int i;
@@ -220,39 +220,49 @@ double slaterMatrix::waveFunction(double* dR, int i_upd){
 }
 //endvimfold
 //test! 
-double slaterMatrix::grad(double* dR, int axis, int i_upd){
-//startvimfold
+const void slaterMatrix::grad(double** ret_vec, double** dR)//, int axis, int i_upd)
+{//startvimfold
 //OPTIMALIZATION: only one some grads needs to be updated.
 //Grad_{i,axis}. Full gradient/DET_old = Sum_axis Sum_i Grad_{i,axis} \vec e_{i,axis}.
+//OPT two loops instead of one
 
 //TEST
 
-	int i;
+	int i, axis, i_upd;
 	double d_upd[iCutoff];
 
-	if (i_upd<iCutoff)
+	for (i_upd=0;i_upd<iNumPart;i_upd++)
 	{
-			for (i=0;i<iCutoff;i++)
+		if (i_upd<iCutoff)
+		{
+			for (axis=0;axis<dim;axis++)
 			{
-				//temp1+=orbital_[i].D1(dR,axis)*inv_up_matr[i_upd][i];
-				d_upd[i]=orbital_[i].D1(dR,axis);
-			}
+				for (i=0;i<iCutoff;i++)
+				{
+					//temp1+=orbital_[i].D1(dR,axis)*inv_up_matr[i_upd][i];
+					d_upd[i]=orbital_[i].D1(dR[i_upd],axis);
+				}
 			//grad_up[axis]=cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
-			return cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
-	} 
-	else 
-	{
-			for (i=iCutoff;i<iNumPart;i++)
-			{
-				//temp2+=orbital_[i].D1(dR,axis)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
-				d_upd[i-iCutoff]=orbital_[i].D1(dR,axis);
+			ret_vec[i_upd][axis] = cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
 			}
+		}	
+		else 
+		{
+			for (axis=0;axis<dim;axis++)
+			{
+				for (i=iCutoff;i<iNumPart;i++)
+				{
+					//temp2+=orbital_[i].D1(dR,axis)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
+					d_upd[i-iCutoff]=orbital_[i].D1(dR[i_upd],axis);
+				}
 			//grad_down[axis]=cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd-iCutoff],1);
-			return cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd-iCutoff],1);
+			ret_vec[i_upd][axis] = cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd-iCutoff],1);
+			}
+		}
 	}
 }
 //endvimfold
-double slaterMatrix::lapl(double** dR){
+const double slaterMatrix::lapl(double** dR){
 //startvimfold
 	//OPTIMALIZATION: only one of the matrices needs to be calculated.
 	double d_upd[iCutoff];
@@ -349,12 +359,14 @@ void slaterMatrix::updateSlaterMatrix(double* partPos, int i_upd){
 	}	
 }//End function varMC::DeterminantMatrix()
 /*//endvimfold*/
-//MOVE TO ORBITAL CLASS
+//MOVauE TO ORBITAL CLASS
 void slaterMatrix::updateVariationalParameters(double* vp){
 //startvimfold
 	for (int i=0;i<iNumber_of_variational_parameters;i++){
 		variational_parameters[i]=vp[i];
 	}
+	//for..
+	//orbital_[i].updateVarPar(...)
 }
 //endvimfold
 
