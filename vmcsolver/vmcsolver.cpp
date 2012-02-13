@@ -12,13 +12,13 @@
 int main()
 {/*//startvimfold*/
 
-	int num_cycles=1e8;
+	int num_cycles=1e7;
 	int thermalization=0.3*num_cycles;//num_cycles*.5;
 	int num_part=2;
 	int spin_up_cutoff=1;
 	int dimension=2;
 	
-	double ideal_step=2.4;
+	double ideal_step=2.2;
 	//double omega = 1.0;
 
 	//Number of variational parameters
@@ -47,11 +47,16 @@ int main()
 
 	//loop over variational parameters
 	//start sampling
-	solver.sample(num_cycles, thermalization, var_par);//pass on array returning e_local,variance.
-	solver.sample(num_cycles, thermalization, var_par);//pass on array returning e_local,variance.
-	solver.sample(num_cycles, thermalization, var_par);//pass on array returning e_local,variance.
-	solver.sample(num_cycles, thermalization, var_par);//pass on array returning e_local,variance.
-	solver.sample(num_cycles, thermalization, var_par);//pass on array returning e_local,variance.
+	//for (int loop_v0=0; loop_v0<var_par_cyc[0]; loop_v0++)
+	//{
+	//var_par[0]+=var_par_inc[0];
+		solver.sample(num_cycles, thermalization, var_par);//pass array returning e_local,variance.
+	//}
+	solver.sample(num_cycles, thermalization, var_par);//pass array returning e_local,variance.
+	solver.sample(num_cycles, thermalization, var_par);//pass array returning e_local,variance.
+	solver.sample(num_cycles, thermalization, var_par);//pass array returning e_local,variance.
+	solver.sample(num_cycles, thermalization, var_par);//pass array returning e_local,variance.
+	
 
 }/*//endvimfold*/
 
@@ -80,8 +85,8 @@ vmcsolver::vmcsolver(int num_part, int spin_up_cutoff,int dimension, int num_of_
 	//Gradients of jastrow and laplacian
 	jas_grad=new double*[num_part];
 	for (int i=0;i<num_part;i++) jas_grad[i]=new double[dimension];
-	wf_grad=new double*[num_part];
-	for (int i=0;i<num_part;i++) wf_grad[i]=new double[dimension];
+	sla_grad=new double*[num_part];
+	for (int i=0;i<num_part;i++) sla_grad[i]=new double[dimension];
 }/*//endvimfold*/
 
 void vmcsolver::sample(int num_cycles, int thermalization, double* var_par)
@@ -93,14 +98,13 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par)
 	int i,j,k;
 	int active_part;
 
-	double ideal_step=2.2;
+	double ideal_step=2.3;
 	
   	idum= - (time(NULL));//*(myrank));
 	
 	//''random'' startposition 
 	for (int i = 0; i < num_part; i++) { 
 		for (int j=0; j < dimension; j++) {
-			//r_new[i][j]=
 			r_old[i][j] = ideal_step*( ran2(&idum) - 0.5 );
 		}
 	}
@@ -109,17 +113,30 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par)
 	slater->findInverse();
 	ipd->init(r_old);
 	
-	//REMOVE
-	int accepted_vec[num_part];
-	for (i=0;i<num_part;i++) accepted_vec[i]=0;
 	//interparticle distances updated.
 	double* ipd_upd = new double[num_part-1];
 	//storing new positions
 	double* r_new = new double[dimension];
 	//for summation using cblas ddot
-	double* ones = new double[num_part];
-	for (int i=0;i<num_part;i++) { ones[i]=1.0; }
+	//DELETE:double* ones = new double[num_part];
+	//for (int i=0;i<num_part;i++) { ones[i]=1.0; }
 	
+	//set to 1 first loop
+	double greens_f=1.0;
+
+	double delta_t=.05;//???
+	double diff_const=.5;//???
+	
+	//quantumforce. Set to 0 first iteration.
+	double q_force_new[num_part][dimension];
+	for (i=0;i<num_part;i++)
+		for (j=0;i<dimension;j++)
+			q_force_new[i][j]=0;
+	double q_force_old[num_part][dimension];
+	for (i=0;i<num_part;i++)
+		for (j=0;i<dimension;j++)
+			q_force_old[i][j]=0;
+
 
 	//******** START Monte Carlo SAMPLING LOOP ***********
 	for (int loop_c=0;loop_c<num_cycles+thermalization;loop_c++)
@@ -127,15 +144,14 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par)
 		//Moving one particle at a time. (converges slowly?)
 		//possible to try to move all part before collecting energy. 
 		//or move two part. at a time, one in each SD?
-		//*******
 		active_part=loop_c%(num_part);
 		//get new r_i (r_new) and r_{ij} (ipd_upd) for active particle
 		getNewPos(active_part, ideal_step, r_new, ipd_upd);
-	
+
 		//jastrow ratio: 2 particle impl.
 		//********************************
 		//Summing over ipd_upd (sum r_12)
-		r_12_new = cblas_ddot(num_part-1,ipd_upd,1,ones,1);// sum
+		r_12_new = cblas_dasum(num_part-1,ipd_upd,1);// sum
 		//corresponding elements in old vector
 		r_12 = ipd->sumPart(active_part);
 		double jas_R = exp( r_12_new/(1.0 + var_par[0]*r_12_new) - r_12/(1.0 + var_par[0]*r_12 ) );
@@ -144,7 +160,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par)
 		//wave func ratio
 		wf_R=slater->waveFunction(r_new,active_part);
 		//Metropolis test: update slater+ipd+positions if accepted.
-		if ( ran2(&idum) <= (jas_R * jas_R * wf_R * wf_R ) ) 
+		if ( ran2(&idum) <= (greens_f * jas_R * jas_R * wf_R * wf_R ) ) 
 		{
 			//update positions	
 			cblas_dcopy(dimension,&r_new[0],1,&r_old[active_part][0],1);
@@ -152,15 +168,51 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par)
 			slater->update(r_new,active_part);
 			//update interparticle distances
 			ipd->update(ipd_upd,active_part);
-			//update acceptancerate
+			//update gradients OPT: not necc to recalc for all part
+			ipd->jasGrad(jas_grad, var_par[0],r_old);
+			slater->grad(sla_grad,r_old);
+			//update quantumforce, first swap pointers q_force_new<->q_force_new
+			double** swap_temp;
+			swap_temp = q_force_new;
+			q_force_new = q_force_old;
+			q_force_old = swap_temp;
+			//then, calculate new qforce
+			//OBS OVERHEAD to large using cblas? 2d loop better?
+			for (i=0; i<num_part; i++)
+			{
+				//swap cblas_dswap(dimension,q_force_old[i],1,q_force_new[i]);
+				//2(jas_grad+sla_grad)->q_force_new
+				cblas_dcopy(dimension,jas_grad[i],1,q_force_new[i],1);
+				cblas_daxpy(dimension,1.0,sla_grad[i],1,q_force_new[i],1);
+				cblas_dscal(dimension,2.0,q_force_new[i],1);
+			}
+			//calculate greensfunc (first iteration greensfunc =1)
+			greens_f=0.0;
+			for (i=0; i<num_part; i++)
+			for (j=0; j<dimension; j++)
+			{
+				temp=0.5*(q_force_old[i][j]-q_force_new[i][j]);
+				if (i!=active_part)
+				{
+					greens_f[i][j]+=diff_const*delta_t*temp*temp;
+				} 
+				else
+				{
+					temp*=diff_const*delta_t*temp*+r_old[i][j]-r_new[j];
+					greens_f[i][j]+=temp;
+				}	
+			}
+			greens_f=exp(greens_f);
+		
 			if (loop_c<thermalization) { continue; } 
-			//restart for loop or add one to accepted
-				//DELETE accepted_vec
-				accepted_vec[active_part]++;
+				//restart for-loop or add one to accepted
 				accepted++;
 		}
 		//if thermalization finished, start collecting data.
-		else if (loop_c<thermalization) { continue; }
+		else if (loop_c<thermalization) 
+		{ 
+			continue; 
+		}
 		//add local energy to variables e_local and e_local_squared.
 		calcLocalEnergy(&e_local, &e_local_squared, var_par);
 	}
@@ -173,7 +225,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par)
 	//cout<<"beta :\t\t"<<var_par[0]<<"\n";
 
 	delete [] r_new;
-	delete [] ones;
+	//delete [] ones;
 	delete [] ipd_upd;
 }/*//endvimfold*/
 
@@ -183,29 +235,14 @@ void vmcsolver::calcLocalEnergy(double* e_local, double* e_local_squared, double
 	int i;	
 		
 	double e_kinetic=0;
-	//Laplacian: \nabla^2 \Psi_{\uparrow} + \nable^2 \Psi_{\downarrow}
+	//Laplacian of slatermatrices: \nabla^2 \Psi_{\uparrow} + \nable^2 \Psi_{\downarrow}
 	e_kinetic+=slater->lapl(r_old);
-	//e_kinetic+=(cblas_ddot(dimension,r_old[1],1,r_old[1],1)+cblas_ddot(dimension,r_old[0],1,r_old[0],1) - dimension*num_part);
-	//energy_s-=0.5*slater.lapl(r_old);
+	//Laplacian of : 
 	e_kinetic+=ipd->jasLapl(var_par[0],r_old);
-	//double beta = var_par[0];
-	//e_kinetic +=  2*( 1.0 - beta*r_12_new ) / r_12_new / ( pow((1.0+r_12_new*beta),3) );
-	//energy_j-=0.5*ipd.jasLapl(var_par[0], r_old);
-	ipd->jasGrad(jas_grad, var_par[0],r_old);
-	//temp = 1. / r_12_new / (1.+beta*r_12_new) / (1.+beta*r_12_new);
-	//for (i=0;i<num_part;i++)
-	//for (j=0;j<dimension;j++)
-	//	jas_grad[i][j]=temp*(r_old[i][j]-r_old[(i+1)%2][j]);
-	
-	//TESTED: 2 part
-	slater->grad(wf_grad,r_old);
-	//for (i=0;i<num_part;i++)
-	//for (j=0;j<dimension;j++)
-	//	wf_grad[i][j]=-r_old[i][j];
 	
 	for (i=0;i<num_part;i++)
 	{
-		e_kinetic+=2.0*cblas_ddot(dimension,jas_grad[i],1,wf_grad[i],1);
+		e_kinetic+=2.0*cblas_ddot(dimension,jas_grad[i],1,sla_grad[i],1);
 		e_kinetic+=cblas_ddot(dimension,jas_grad[i],1,jas_grad[i],1);
 	}
 	e_kinetic *= -0.5;
@@ -220,20 +257,7 @@ void vmcsolver::calcLocalEnergy(double* e_local, double* e_local_squared, double
 	e_potential*=0.5;
 	// e-e electrostatic interaction
 	e_potential += ipd->sumInvlen();
-	
-	//for (i = 0; i < num_part-1; i++) 
-	//{ 
-	//	for (j = i+1; j < num_part; j++) 
-	//	{
-	//		r_12 = 0;  
-	//		for (k = 0; k < dimension; k++) 
-	//		{ 
-	//			r_12 += (r_old[i][k]-r_old[j][k])*(r_old[i][k]-r_old[j][k]);
-	//		}
-	//		e_potential += 1/sqrt(r_12);         
-	//		energy_ee +=1/sqrt(r_12); 
-	//	}
-	//}
+	//update local energy and local energy squared
 	*e_local += e_potential+e_kinetic;
 	*e_local_squared += pow((e_potential+e_kinetic),2); 
 }/*//endvimfold*/
@@ -275,10 +299,10 @@ vmcsolver::~vmcsolver()
 	for (int i=0;i<num_part;i++)	
 	{
 		delete [] jas_grad[i];
-		delete [] wf_grad[i];	
+		delete [] sla_grad[i];	
 	}
 	delete [] jas_grad;
-	delete [] wf_grad;
+	delete [] sla_grad;
 	
 	for (int i=0;i<num_part;i++)	
 	{
