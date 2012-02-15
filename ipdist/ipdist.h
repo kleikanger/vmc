@@ -101,8 +101,13 @@ class ipdist{
 		 */
 		const double sumPart(int i_upd);
 		/*
-			returns gradient of jastrow. contents of ret_vec will be changed to gradient.
-			beta is the variational parameter, and r is the positionvector.
+		   returns R. exp(R_new-R_old) = the jastrow ratio when only one 
+		   particle r_{i_upd}  is moved.
+		   */
+		const double logJasR(int i_upd, double beta);
+		/*
+		   returns gradient of jastrow. contents of ret_vec will be changed to 
+		   gradient. beta is the variational parameter, and r is the positionvector.
 		*/	   
 		const void jasGrad(double** ret_vec, double beta, double** r);
 		/*

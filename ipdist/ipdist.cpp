@@ -290,6 +290,26 @@ const double ipdist::jasLapl(double beta, double** r)
 	
 }//End function slaterMatrix::jastrow()
 //endvimfold
+const double ipdist::logJasR(int i_upd, double beta)
+{/*//startvimfold*/
+	double sum=0.0;
+	double r_12;
+	int i, i_upd_mo;
+	//i_upd minus one
+	i_upd_mo=i_upd-1;
+	//n-1 elements in ip_len needs to be summed
+	for (i=0;i<i_upd;i++)
+	{
+		r_12=ip_len[i_upd_mo][i];
+		sum+=r_12/(1.0 + beta*r_12);
+	}
+	for (i=i_upd;i<n_min_one;i++)
+	{
+		r_12=ip_len[i][i_upd];
+		sum+=r_12/(1.0 + beta*r_12);
+	}
+	return sum;
+}/*//endvimfold*/
 void ipdist::clear()
 {/*//startvimfold*/
 	for (int i=0; i<n_min_one; i++) delete ip_len[i];

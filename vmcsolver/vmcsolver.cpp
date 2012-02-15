@@ -43,7 +43,7 @@ int main()
 	int spin_up_cutoff=1;
 	int dimension=2;
 
-	double delta_t = 0.05;
+	double delta_t = 0.01;
 
 	//double ideal_step=.5;
 	//double omega = 1.0;
@@ -115,27 +115,28 @@ vmcsolver::vmcsolver(int num_part, int spin_up_cutoff,int dimension, int num_of_
 
 void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, double delta_t)
 {/*//startvimfold*/
-	int accepted=0;
-	double e_kinetic, r_12, r_12_new, e_potential, wf_R, r_squared, temp;
+	double e_kinetic, jaslR_new, jaslR_old, e_potential, wf_R, r_squared, temp;
 	double e_local=0.0;
 	double e_local_squared=0.0;
 	double e_local_temp=0.0;
-	int i,j,k;
-	int active_part;
-
-	//double ideal_step=2.3;
+	double greens_f;
+	int i,j,k,active_part;
+	int accepted=0;
+	//diffusion const D * delta_t = 0.5 * delta_t
+	double dt_x_D = 0.5 * delta_t;
 	
-  	idum = (int)time(NULL);//*(myrank));
-	idum2 = (int)time(NULL);
-	double cseed=5;//diff sequence for different seed
-	//init ran number generator. timeconsuming. only necc once
-	//move to constructor?
-	RAN_NORM_SET(&idum,cseed);
-	RAN_UNI_SET(&idum,cseed);
-
+	//updatevector interparticle distance.
+	double* ipd_upd = new double[num_part-1];
 	//new positions
 	double** r_new = new double*[num_part];
 	for (i=0;i<num_part;i++) { r_new[i]=new double[dimension]; }
+
+  	idum = (int)time(NULL);//*(myrank));
+	//idum2 = (int)time(NULL);
+	double cseed=5;//diff sequence for different seed
+	//init ran number generator. only necc once, move to constructor?
+	RAN_NORM_SET(&idum,cseed);
+	RAN_UNI_SET(&idum,cseed);
 	
 	double init_sigma = 3.0;	
 	//''random'' startposition 
@@ -153,16 +154,6 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	slater->findInverse();
 	ipd->init(r_old);
 	
-	//interparticle distance updated.
-	double* ipd_upd = new double[num_part-1];
-	
-	//MOVE TO MAIN
-	//diffusion const D * delta_t = 0.5 * delta_t
-	double dt_x_D = 0.5 * delta_t;
-	
-
-	//greens function
-	double greens_f;
 	
 	//init q_force_old
 	slater->grad(sla_grad,r_old);
@@ -177,30 +168,26 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	for (int loop_c=0;loop_c<num_cycles+thermalization;loop_c++)
 	{
 		//Moving one particle at a time. (converges slowly?)
-		//possible to try to move all part before collecting energy. 
+		//possible to try to move all part. before collecting energy. 
 		//or move two part. at a time, one in each SD?
 		active_part=loop_c%(num_part);
 		//get new r_i (r_new) and r_{ij} (ipd_upd) for active particle
 		getNewPos(active_part, r_new, ipd_upd, dt_x_D, delta_t);
-		
 		//wave func ratio
 		wf_R=slater->waveFunction(r_new[active_part],active_part);
-		//Metropolis test: update slater+ipd+positions if accepted.
-		//jastrow ratio: 2 particle impl.
-		//********************************
-		//Summing over ipd_upd (sum r_12)
-		r_12_new = cblas_dasum(num_part-1,ipd_upd,1);// sum
-		//corresponding elements in old vector
-		r_12 = ipd->sumPart(active_part);
-			
-		//update inverse and slatermatrix
-		slater->update(r_new[active_part],active_part);
+		//log of old jastrow ratio  		
+		jaslR_old = ipd->logJasR(active_part,var_par[0]);
 		//update interparticle distances
 		ipd->update(ipd_upd,active_part);
+		//log of new jastrow ratio  		
+		jaslR_new = ipd->logJasR(active_part,var_par[0]);
+		//update inverse and slatermatrix (neccesary to find gradient??)
+		//if not, wait, use and update() instead of accept().
+		slater->update(r_new[active_part],active_part);
 		//update gradients OPT: not necc to recalc for all part
 		slater->grad(sla_grad,r_new);
 		ipd->jasGrad(jas_grad,var_par[0],r_new);
-			
+		//*** void calcQF
 		//calculate new qforce
 		for (i=0; i<num_part; i++)
 		{
@@ -208,8 +195,8 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 			{
 				q_force_new[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
 			}
-		}
-			
+		} 
+		//double calcGreensf
 		//calculate greensfunc
 		greens_f=0.0;
 		for (i=0; i<num_part; i++)
@@ -231,11 +218,10 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 					 r_old[i][j] - r_new[i][j] );
 			}	
 		}
-		//cout<<greens_f;
 		greens_f=exp(greens_f);
-
-		double jas_R = exp( r_12_new/(1.0 + var_par[0]*r_12_new) - r_12/(1.0 + var_par[0]*r_12 ) );
-		//********************************
+		//calculate jastrow ratio
+		double jas_R = exp(jaslR_new-jaslR_old);
+		//metropolis-hastings test
 		if ( RAN_UNI() <= (greens_f * jas_R * jas_R * wf_R * wf_R ) ) 
 		{
 			//update positions (XXX loop faster)	
@@ -262,7 +248,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 			ipd->reject(active_part);
 			//update positions (XXX loop faster)	
 			cblas_dcopy(dimension,&r_old[active_part][0],1,&r_new[active_part][0],1);
-			//restart for-loop in not thermalized
+			//restart for-loop if not thermalized
 			if (loop_c<thermalization) { continue; } 
 		}
 		//if thermalization finished, start collecting data.

@@ -12,7 +12,7 @@ class vmcsolver{
 	
 		//seed for the random number generator	
 		int idum;
-	   	int idum2;	
+	   	//int idum2;	
 
 		//particle positions 
 		double** r_old;
