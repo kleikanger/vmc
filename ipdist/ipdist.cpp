@@ -17,6 +17,12 @@ ipdist::ipdist(int n, int di, int iC)
 	for (int i=0; i<n_min_one; i++) ip_len[i] = new double[i+1];
 	ip_invlen = new double*[n_min_one];
 	for (int i=0; i<n_min_one; i++) ip_invlen[i] = new double[i+1];
+	//and corresponding backupmatr	
+	ip_len_backup = new double*[n_min_one];
+	for (int i=0; i<n_min_one; i++) ip_len_backup[i] = new double[i+1];
+	ip_invlen_backup = new double*[n_min_one];
+	for (int i=0; i<n_min_one; i++) ip_invlen_backup[i] = new double[i+1];
+	
 }/*//endvimfold*/
 void ipdist::init(double** r)
 {/*//startvimfold*/
@@ -44,6 +50,22 @@ void ipdist::init(double** r)
 			ip_invlen[i][j]=1.0/ip_len[i][j];
 		}
 	}
+	//Initializing backup matrices
+	for (i=0; i<n_min_one; i++)
+	{
+		for (j=0; j<=i; j++)
+		{
+			ip_len_backup[i][j]=ip_len[i][j];
+		}
+	}
+	//Initializing lower triag. array of 1/r_ij
+	for (i=0; i<n_min_one; i++)
+	{
+		for (j=0; j<=i; j++)
+		{	
+			ip_invlen_backup[i][j]=ip_invlen[i][j];
+		}
+	}
 }/*//endvimfold*/
 void ipdist::update(double* r, int i_upd)
 {/*//startvimfold*/
@@ -67,6 +89,54 @@ void ipdist::update(double* r, int i_upd)
 	for (i=i_upd;i<n_min_one;i++)
 	{
 		ip_invlen[i][i_upd]=1.0/r[i];
+	}
+}/*//endvimfold*/
+void ipdist::accept(int i_upd)
+{/*//startvimfold*/
+	int i, i_upd_mo;
+	//i_upd minus one
+	i_upd_mo=i_upd-1;
+	//n-1 elements in ip_len needs to be updated
+	for (i=0;i<i_upd;i++)
+	{
+		ip_len_backup[i_upd_mo][i]=ip_len[i_upd_mo][i];
+	}
+	for (i=i_upd;i<n_min_one;i++)
+	{
+		ip_len_backup[i][i_upd]=ip_len[i][i_upd];
+	}
+	//n-1 elements in ip_invlen needs to be updated
+	for (i=0;i<i_upd;i++)
+	{
+		ip_invlen_backup[i_upd_mo][i]=ip_invlen[i_upd_mo][i];
+	}
+	for (i=i_upd;i<n_min_one;i++)
+	{
+		ip_invlen_backup[i][i_upd]=ip_invlen[i][i_upd];
+	}
+}/*//endvimfold*/
+void ipdist::reject(int i_upd)
+{/*//startvimfold*/
+	int i, i_upd_mo;
+	//i_upd minus one
+	i_upd_mo=i_upd-1;
+	//n-1 elements in ip_len needs to be updated
+	for (i=0;i<i_upd;i++)
+	{
+		ip_len[i_upd_mo][i]=ip_len_backup[i_upd_mo][i];
+	}
+	for (i=i_upd;i<n_min_one;i++)
+	{
+		ip_len[i][i_upd]=ip_len_backup[i][i_upd];
+	}
+	//n-1 elements in ip_invlen needs to be updated
+	for (i=0;i<i_upd;i++)
+	{
+		ip_invlen[i_upd_mo][i]=ip_invlen_backup[i_upd_mo][i];
+	}
+	for (i=i_upd;i<n_min_one;i++)
+	{
+		ip_invlen[i][i_upd]=ip_invlen_backup[i][i_upd];
 	}
 }/*//endvimfold*/
 const double ipdist::sumPart(int i_upd)

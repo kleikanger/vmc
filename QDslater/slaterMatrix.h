@@ -21,6 +21,12 @@ class slaterMatrix {
 		//Inverse matrixes
 		double** inv_up_matr;
 		double** inv_down_matr;
+		//Slater matrixes. Two separate matrixes containing spin up and spin 
+		double** spin_up_backup;
+		double** spin_down_backup;
+		//Inverse matrixes
+		double** inv_up_backup;
+		double** inv_down_backup;
 		//Number of particles of each spin orientation.
 		int iCutoff;
 		//Number of particles
@@ -62,6 +68,14 @@ class slaterMatrix {
 		 	*/
 		slaterMatrix(int, int, int, int);
 		/*
+		   Clear all malloc'ed variables.
+		   */
+		~slaterMatrix();
+		/*
+		   Change variational parameter alpha in orbital objects
+		   */
+		void setVarPar(double alpha);
+		/*
 		   Input - position vector.
 		   Initializing or updating slater matrix when more then one particle have new coords.	
 			*/
@@ -82,6 +96,14 @@ class slaterMatrix {
 		*/
 		void update(double* r_new, int i_upd);
 		/*
+		   Reset matrices to last value before update (backup'matr)
+		   */
+		void reject(int active_part);
+		/*
+		   Accept last update (update backup'matr)
+		   */
+		void accept(int i_upd);
+		/*
 		   Input - (position vector of moved particle, index of moved particle).
 		   
 		   Using the inverse matrixes to calculate the determinant. r_new is the position 
@@ -98,10 +120,6 @@ class slaterMatrix {
 		   Calculate the laplacian of the slatermatrixes.
 		   */
 		const double lapl(double** dR);
-		/*
-		   Clear all malloc'ed variables.
-		   */
-		void clear();
 		/*
 		   Print slatermatrices and the inverse.
 		   */

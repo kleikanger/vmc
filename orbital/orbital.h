@@ -12,6 +12,7 @@ class orbital {
 		int angular_momentum;
 		int dim;
 		bool spin_up;
+		double alpha;
 
 	public:
 		orbital();
@@ -19,6 +20,8 @@ class orbital {
 		orbital(int,int,bool,int);
 		//setValues(int energy_level, int angular_momentum, bool spin_up, int dim)
 		void setValues(int,int,bool,int);
+		//Set variational parameter alpha
+		void setAlpha(double);
 		//input: position r of particle
 		//returns value of orbital in r.
 		double valueWF(double*);

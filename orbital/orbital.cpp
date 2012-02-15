@@ -12,18 +12,25 @@ using std::cout;
 using std::cerr;
 
 //const. for calc. of derivatives.
+
 #define H 0.001
 #define ONE_OVER_H 1000
 #define ONE_OVER_H2 1000000
 
-#define ANALYTIC_D2 true
+#ifndef ANALYTIC_D1
 #define ANALYTIC_D1 true
-#define alpha .987
+#endif
+#ifndef ANALYTIC_D2
+#define ANALYTIC_D2 true
+#endif
+#ifndef OMG
+#define OMG 1.0
+#endif
 
-//Orbitals:
-inline double psi_10(double r_sqrd)
+//Orbitals
+inline double psi_10(double r_sqrd, double alpha)
 {
-	return exp( - 0.5 * alpha * r_sqrd );
+	return exp( - 0.5 * alpha*OMG * r_sqrd );
 }
 inline double psi_20(double r)
 {
@@ -77,6 +84,9 @@ void orbital::setValues(int el,int am, bool su, int di){
 	}
 }
 //endvimfold
+void orbital::setAlpha(double alph){
+	alpha = alph;/*//startvimfold*/
+}/*//endvimfold*/
 double orbital::valueWF(double* dR){
 //startvimfold
 //CALCULATE: value of the orbital in some point dR.
@@ -89,7 +99,7 @@ double orbital::valueWF(double* dR){
 	{
 		switch (energy_level) 
 		{
-			case 1: return psi_10(r_sqrd);
+			case 1: return psi_10(r_sqrd,alpha);
 			default: 
 					cerr<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
@@ -100,7 +110,7 @@ double orbital::valueWF(double* dR){
 	{
 		switch (energy_level) 
 		{
-			case 1:	return psi_10(r_sqrd);
+			case 1:	return psi_10(r_sqrd,alpha);
 			default:
 					cerr<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
@@ -133,7 +143,7 @@ double orbital::D1(double* dR, int axis){
 	if (spin_up) {
 
 		switch (energy_level) {
-			case 1: return -dR[axis]*alpha*valueWF(dR);
+			case 1: return -dR[axis]*alpha*OMG*valueWF(dR);
 			case 2:	return 0;	
 			case 3: return 0;
 			case 4: return 0;
@@ -144,7 +154,7 @@ double orbital::D1(double* dR, int axis){
 		}
 	} else {
 		switch (energy_level) {
-			case 1:	return -dR[axis]*alpha*valueWF(dR);	
+			case 1:	return -dR[axis]*alpha*OMG*valueWF(dR);	
 			case 2:	return 0;	
 			case 3: return 0;
 			case 4: return 0;
@@ -188,7 +198,7 @@ double orbital::D2(double* dR){
 	if (spin_up) {
 	
 		switch (energy_level) {
-			case 1: return alpha*(alpha*r*r -2.)*valueWF(dR);
+			case 1: return alpha*OMG*(alpha*OMG*r*r -2.)*valueWF(dR);
 			case 2:	return 0;	
 			case 3: return 0;
 			case 4: return 0;
@@ -199,7 +209,7 @@ double orbital::D2(double* dR){
 		}
 	} else {
 		switch (energy_level) {
-			case 1:	return alpha*(alpha*r*r - 2.)*valueWF(dR);
+			case 1:	return alpha*OMG*(alpha*OMG*r*r - 2.)*valueWF(dR);
 			case 2:	return 0;	
 			case 3: return 0;
 			case 4: return 0;

@@ -10,6 +10,9 @@
 	If number of spin up particles does not equal number of spin down program needs to be 
 	modified. New variables: iCutoff_up, iCutoff_down.
  
+	NBBB: later initiate orbital objects in solver class, and pass pointers to this
+	class as argument when initializing the class. Then only one set of orbital obj.
+	needs to be initialized and stored. Aldernative: heritage??
  */
 #include <iomanip>
 #include <cstdlib>
@@ -42,18 +45,24 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 	//Allocating new matrices and arrays
 	//grad_up = new double[dim];
 	//grad_down = new double[dim];
-
-	inv_up_matr = new double*[iCutoff];
-	inv_down_matr = new double*[iCutoff];
 	spin_up_matr = new double*[iCutoff];
+	for (int i=0; i<iCutoff; i++){spin_up_matr[i] = new double[iCutoff];}
 	spin_down_matr = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){
-		inv_down_matr[i] = new double[iCutoff];
-		inv_up_matr[i] = new double[iCutoff];
-		spin_up_matr[i] = new double[iCutoff];
-		spin_down_matr[i] = new double[iCutoff];
-	}
-	
+	for (int i=0; i<iCutoff; i++){spin_down_matr[i] = new double[iCutoff];}
+	inv_up_matr = new double*[iCutoff];
+	for (int i=0; i<iCutoff; i++){inv_up_matr[i] = new double[iCutoff];}
+	inv_down_matr = new double*[iCutoff];
+	for (int i=0; i<iCutoff; i++){inv_down_matr[i] = new double[iCutoff];}
+
+	spin_up_backup = new double*[iCutoff];
+	for (int i=0; i<iCutoff; i++){spin_up_backup[i] = new double[iCutoff];}
+	spin_down_backup = new double*[iCutoff];
+	for (int i=0; i<iCutoff; i++){spin_down_backup[i] = new double[iCutoff];}
+	inv_up_backup = new double*[iCutoff];
+	for (int i=0; i<iCutoff; i++){inv_up_backup[i] = new double[iCutoff];}
+	inv_down_backup = new double*[iCutoff];
+	for (int i=0; i<iCutoff; i++){inv_down_backup[i] = new double[iCutoff];}
+		
 	//Initializing orbital objects
 	orbital_ = new orbital[iNumPart];
 	//States 0-(iCutoff-1) enters inv_up_matr. 
@@ -65,8 +74,41 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 
 }//end constructor varMC()
 /*//endvimfold*/
+slaterMatrix::~slaterMatrix(){
+//startvimfold
+	//delete variational_parameters;
+	for (int i=0; i<iCutoff; i++){
+		delete [] inv_down_matr[i];
+		delete [] inv_up_matr[i];
+		delete [] spin_up_matr[i];
+		delete [] spin_down_matr[i];
+		delete [] inv_down_backup[i];
+		delete [] inv_up_backup[i];
+		delete [] spin_up_backup[i];
+		delete [] spin_down_backup[i];
+	}
+	//delete grad_up;
+	//delete grad_down;
+	delete [] inv_down_matr;
+	delete [] inv_up_matr;
+	delete [] spin_up_matr;
+	delete [] spin_down_matr;
+	delete [] inv_down_backup;
+	delete [] inv_up_backup;
+	delete [] spin_up_backup;
+	delete [] spin_down_backup;
+	delete [] orbital_; //DELETE ORBITAL[i]
+}
+//endvimfold
+void slaterMatrix::setVarPar(double alpha){
+	for (int i=0; i<iNumPart; i++)/*//startvimfold*/
+	{
+		orbital_[i].setAlpha(alpha); 
+	}
+}/*//endvimfold*/
 void slaterMatrix::initSlaterMatrix(double** partPos){
 	/*//startvimfold*/
+	//XXX OPT: init as 1D array.
 	int i,j;
 	for (i=0; i<iCutoff; i++)
 	{
@@ -82,6 +124,22 @@ void slaterMatrix::initSlaterMatrix(double** partPos){
 			spin_down_matr[i][j] = orbital_[j+iCutoff].valueWF(partPos[i+iCutoff]); 
 		}
 	}
+	//copying initialized matrices to backupmatr.
+	for (i=0; i<iCutoff; i++)
+	{
+		for (j=0; j<iCutoff; j++)
+		{
+			spin_up_backup[i][j] = spin_up_matr[i][j];
+		}
+	}
+	for (i=0; i<iCutoff; i++)
+	{
+		for (j=0; j<iCutoff; j++)
+		{
+			spin_down_backup[i][j] = spin_down_matr[i][j]; 
+		}
+	}
+	
 }//End function varMC::DeterminantMatrix()
 /*//endvimfold*/
 void slaterMatrix::findInverse(){
@@ -132,15 +190,18 @@ void slaterMatrix::findInverse(){
 		k+=n;
 		}
 	}    
-	delete B;
-    delete ipiv;
-    delete work;
+	delete [] B;
+    delete [] ipiv;
+    delete [] work;
+
+	//init backupmatr
+	accept(0);
 
 }//End function slatermatrix::updateCofactors()
 //endvimfold
 void slaterMatrix::update(double* d_R, int i_upd){
 //startvimfold	
-	
+//XXX OPT: dcopy & daxpy much slower than 2D loop, dscal same, ddot 2x faster	
 	int k,j;
 	double d_upd[iCutoff];
 	double R, temp;
@@ -192,6 +253,52 @@ void slaterMatrix::update(double* d_R, int i_upd){
 	}	
 }
 //endvimfold
+void slaterMatrix::reject(int i_upd)
+{/*//startvimfold*/
+	//copying entire matrix : inv_up_matr<-inv_up_backup
+	int i,j;
+	for (i=0;i<iCutoff;i++)
+		for (j=0;j<iCutoff;j++)
+			inv_up_matr[i][j]=inv_up_backup[i][j];
+	for (i=0;i<iCutoff;i++)
+		for (j=0;j<iCutoff;j++)
+			inv_down_matr[i][j]=inv_down_backup[i][j];
+	//copying the last updated row : spin_up_matr <- spin_up_backup
+	if (i_upd<iCutoff)
+	{
+		for (i=0;i<iCutoff;i++)
+			spin_up_matr[i_upd][i]=spin_up_backup[i_upd][i];
+	}
+	else
+	{
+		i_upd-=iCutoff;
+		for (i=0;i<iCutoff;i++)
+			spin_down_matr[i_upd][i]=spin_down_backup[i_upd][i];
+	}
+}/*//endvimfold*/
+void slaterMatrix::accept(int i_upd)
+{/*//startvimfold*/
+	//copying entire matrix : inv_up_backup <- inv_up_matr
+	int i,j;
+	for (i=0;i<iCutoff;i++)
+		for (j=0;j<iCutoff;j++)
+			inv_up_backup[i][j]=inv_up_matr[i][j];
+	for (i=0;i<iCutoff;i++)
+		for (j=0;j<iCutoff;j++)
+			inv_down_backup[i][j]=inv_down_matr[i][j];
+	//copying the last updated row : spin_up_backup <- spin_up_matr
+	if (i_upd<iCutoff)
+	{
+		for (i=0;i<iCutoff;i++)
+			spin_up_backup[i_upd][i]=spin_up_matr[i_upd][i];
+	}
+	else
+	{	
+		i_upd-=iCutoff;
+		for (i=0;i<iCutoff;i++)
+			spin_down_backup[i_upd][i]=spin_up_matr[i_upd][i];
+	}
+}/*//endvimfold*/
 const double slaterMatrix::waveFunction(double* dR, int i_upd){
 	//startvimfold
 	//returns ratio between new and old determinant when one particle moved.
@@ -219,7 +326,6 @@ const double slaterMatrix::waveFunction(double* dR, int i_upd){
 	}
 }
 //endvimfold
-//test! 
 const void slaterMatrix::grad(double** ret_vec, double** dR)//, int axis, int i_upd)
 {//startvimfold
 //OPTIMALIZATION: only one some grads needs to be updated.
@@ -265,6 +371,7 @@ const void slaterMatrix::grad(double** ret_vec, double** dR)//, int axis, int i_
 const double slaterMatrix::lapl(double** dR){
 //startvimfold
 	//OPTIMALIZATION: only one of the matrices needs to be calculated.
+	//probably faster method than using double loops
 	double d_upd[iCutoff];
 	double temp=0.;
 	int i,j;
@@ -286,24 +393,6 @@ const double slaterMatrix::lapl(double** dR){
 	}
 	return temp;
 }//End function 
-//endvimfold
-void slaterMatrix::clear(){
-//startvimfold
-	//delete variational_parameters;
-	for (int i=0; i<iCutoff; i++){
-		delete inv_down_matr[i];
-		delete inv_up_matr[i];
-		delete spin_up_matr[i];
-		delete spin_down_matr[i];
-	}
-	//delete grad_up;
-	//delete grad_down;
-	delete inv_down_matr;
-	delete inv_up_matr;
-	delete spin_up_matr;
-	delete spin_down_matr;
-	delete orbital_; //DELETE ORBITAL[i]
-}
 //endvimfold
 void slaterMatrix::print(){
 //startvimfold	
@@ -359,7 +448,7 @@ void slaterMatrix::updateSlaterMatrix(double* partPos, int i_upd){
 	}	
 }//End function varMC::DeterminantMatrix()
 /*//endvimfold*/
-//MOVauE TO ORBITAL CLASS
+//MOVE TO ORBITAL CLASS
 void slaterMatrix::updateVariationalParameters(double* vp){
 //startvimfold
 	for (int i=0;i<iNumber_of_variational_parameters;i++){

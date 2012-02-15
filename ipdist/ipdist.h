@@ -44,6 +44,10 @@ class ipdist{
 		double** ip_len;
 		// inverse elements (1/r_ij)
 		double** ip_invlen;
+		// elements (r_ij)
+		double** ip_len_backup;
+		// inverse elements (1/r_ij)
+		double** ip_invlen_backup;
 
 	public: 
 		/*
@@ -72,6 +76,14 @@ class ipdist{
 
 		 */
 		void update(double* r, int i_upd);
+		/*
+		   Reset matrices to last value before update (backup'matr)
+		   */
+		void reject(int active_part);
+		/*
+		   Accept last update (update backup'matr)
+		   */
+		void accept(int i_upd);
 		/*
 		   Return sum of inverse elements. e-e electrostatic energy = ee/sum
 		 */	   
