@@ -18,10 +18,10 @@ using std::cerr;
 #define ONE_OVER_H2 1000000
 
 #ifndef ANALYTIC_D1
-#define ANALYTIC_D1 true
+#define ANALYTIC_D1 false
 #endif
 #ifndef ANALYTIC_D2
-#define ANALYTIC_D2 true
+#define ANALYTIC_D2 false
 #endif
 #ifndef OMG
 #define OMG 1.
@@ -113,6 +113,8 @@ const double orbital::valueWF(double* dR){
 		switch (energy_level) 
 		{
 			case 1: return psi_10(r_sqrd,alpha);
+			case 2: return h1(dR[0])*psi_10(r_sqrd,alpha);
+			case 3: return h1(dR[1])*psi_10(r_sqrd,alpha);
 			default: 
 					cerr<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
@@ -124,6 +126,8 @@ const double orbital::valueWF(double* dR){
 		switch (energy_level) 
 		{
 			case 1:	return psi_10(r_sqrd,alpha);
+			case 2: return h1(dR[0])*psi_10(r_sqrd,alpha);
+			case 3: return h1(dR[1])*psi_10(r_sqrd,alpha);
 			default:
 					cerr<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";

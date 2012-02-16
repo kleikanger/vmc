@@ -39,8 +39,8 @@ int main()
 	
 	int num_cycles=1.5e7;
 	int thermalization=0.3*num_cycles;//num_cycles*.5;
-	int num_part=2;
-	int spin_up_cutoff=1;
+	int num_part=6;
+	int spin_up_cutoff=3;
 	int dimension=2;
 
 	double delta_t = 0.05;
@@ -49,11 +49,11 @@ int main()
 	//double omega = 1.0;
 
 	//beta (jastrow)	
-	var_par[0]=0.398;
+	var_par[0]=0.565;
 	var_par_inc[0]=0.00;
 	var_par_cyc[0]=1;
 	//alpha (orbitals)
-	var_par[1]=0.987;
+	var_par[1]=0.92;
 	var_par_inc[1]=0.0;
 	var_par_cyc[1]=10;
 
@@ -260,8 +260,8 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	//************************** END OF MC sampling **************************
 
 	cout<<setprecision(10)<<"Local energy:  "<<(e_local/(double)num_cycles);	
-	cout<<setprecision(10)<<"\tvariance:  "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
-	cout<<setprecision(10)<<"\tAcc.rate:  "<<accepted/(double)(num_cycles)<<"\n";
+	cout<<setprecision(5)<<"\tvariance:  "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
+	cout<<setprecision(5)<<"\tAcc.rate:  "<<accepted/(double)(num_cycles)<<"\n";
 	//cout<<"beta :\t\t"<<var_par[0]<<"\n";
 
 	for (i=0;i<num_part;i++) { delete [] r_new[i]; }
