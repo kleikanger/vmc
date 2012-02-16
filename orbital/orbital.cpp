@@ -24,21 +24,32 @@ using std::cerr;
 #define ANALYTIC_D2 true
 #endif
 #ifndef OMG
-#define OMG 1.0
+#define OMG 1.
 #endif
+//squareroot of omega
+#define SQOMG 1. 
 
 //Orbitals
 inline double psi_10(double r_sqrd, double alpha)
 {
-	return exp( - 0.5 * alpha*OMG * r_sqrd );
+	return exp(-0.5 * alpha * OMG * r_sqrd);
 }
-inline double psi_20(double r)
+//hermite polynomials. (h0=1);
+inline double h1(double x)
 {
-	return 1.; 
+	return 2.*x*SQOMG; 
 }
-inline double psi_30(double r)
+inline double h2(double x)
 {
-	return 1.; 
+	return 4.*pow(x*SQOMG,2) - 2.; 
+}
+inline double h3(double x)
+{
+	return 8.*pow(x*SQOMG,3) - 12.; 
+}
+inline double h4(double x)
+{
+	return 16.*pow(x*SQOMG,4) - 48.*pow(x*SQOMG,2) + 12.; 
 }
 //Constructors
 orbital::orbital(){}
@@ -87,9 +98,11 @@ void orbital::setValues(int el,int am, bool su, int di){
 void orbital::setAlpha(double alph){
 	alpha = alph;/*//startvimfold*/
 }/*//endvimfold*/
-double orbital::valueWF(double* dR){
+const double orbital::valueWF(double* dR){
 //startvimfold
 //CALCULATE: value of the orbital in some point dR.
+
+	// wf = h_(n_x)(dR[0])*h_(n_y)(dR[1])*psi_10;
 
 	double r_sqrd=0.0;
 	r_sqrd=cblas_ddot(dim,dR,1,dR,1);
@@ -119,7 +132,7 @@ double orbital::valueWF(double* dR){
 	}	
 }//end of orbitalWavefunctions::orbitalWavefunctions()
 //endvimfold
-double orbital::D1(double* dR, int axis){
+const double orbital::D1(double* dR, int axis){
 //startvimfold
 //CALCULATE: gradient along one axis. axis E {0,1,2,..}
 #if !ANALYTIC_D1
@@ -167,7 +180,7 @@ double orbital::D1(double* dR, int axis){
 #endif
 }
 //endvimfold
-double orbital::D2(double* dR){
+const double orbital::D2(double* dR){
 //startvimfold
 //calc: laplacian in some point dR.
 

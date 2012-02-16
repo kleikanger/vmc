@@ -22,7 +22,6 @@ ipdist::ipdist(int n, int di, int iC)
 	for (int i=0; i<n_min_one; i++) ip_len_backup[i] = new double[i+1];
 	ip_invlen_backup = new double*[n_min_one];
 	for (int i=0; i<n_min_one; i++) ip_invlen_backup[i] = new double[i+1];
-	
 }/*//endvimfold*/
 void ipdist::init(double** r)
 {/*//startvimfold*/
@@ -316,6 +315,10 @@ void ipdist::clear()
 	delete ip_len;
 	for (int i=0; i<n_min_one; i++) delete ip_invlen[i];
 	delete ip_invlen;
+	for (int i=0; i<n_min_one; i++) delete ip_len_backup[i];
+	delete ip_len_backup;
+	for (int i=0; i<n_min_one; i++) delete ip_invlen_backup[i];
+	delete ip_invlen_backup;
 }/*//endvimfold*/
 void ipdist::print()
 {/*//startvimfold*/

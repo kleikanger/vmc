@@ -21,7 +21,7 @@ using std::setprecision;
 #define RAN_UNI DRan_MWC8222
 
 #ifndef OMG
-#define OMG 1.0
+#define OMG 1.
 #endif
 #define OMG2 OMG*OMG
 
@@ -43,7 +43,7 @@ int main()
 	int spin_up_cutoff=1;
 	int dimension=2;
 
-	double delta_t = 0.01;
+	double delta_t = 0.05;
 
 	//double ideal_step=.5;
 	//double omega = 1.0;

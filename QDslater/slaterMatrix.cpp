@@ -196,6 +196,7 @@ void slaterMatrix::findInverse(){
 
 	//init backupmatr
 	accept(0);
+	accept(iCutoff);
 
 }//End function slatermatrix::updateCofactors()
 //endvimfold
@@ -253,50 +254,77 @@ void slaterMatrix::update(double* d_R, int i_upd){
 	}	
 }
 //endvimfold
+//OK?
 void slaterMatrix::reject(int i_upd)
 {/*//startvimfold*/
 	//copying entire matrix : inv_up_matr<-inv_up_backup
 	int i,j;
-	for (i=0;i<iCutoff;i++)
-		for (j=0;j<iCutoff;j++)
-			inv_up_matr[i][j]=inv_up_backup[i][j];
-	for (i=0;i<iCutoff;i++)
-		for (j=0;j<iCutoff;j++)
-			inv_down_matr[i][j]=inv_down_backup[i][j];
 	//copying the last updated row : spin_up_matr <- spin_up_backup
 	if (i_upd<iCutoff)
 	{
 		for (i=0;i<iCutoff;i++)
+		{
+			for (j=0;j<iCutoff;j++)
+			{
+				inv_up_matr[i][j]=inv_up_backup[i][j];
+			}
+		}
+	//if (i_upd<iCutoff)
+		for (i=0;i<iCutoff;i++)
+		{
 			spin_up_matr[i_upd][i]=spin_up_backup[i_upd][i];
+		}
 	}
 	else
 	{
-		i_upd-=iCutoff;
 		for (i=0;i<iCutoff;i++)
+		{
+			for (j=0;j<iCutoff;j++)
+			{
+				inv_down_matr[i][j]=inv_down_backup[i][j];
+			}
+		}
+		i_upd-=iCutoff;
+	//if (i_upd>iCutoff)
+		for (i=0;i<iCutoff;i++)
+		{
 			spin_down_matr[i_upd][i]=spin_down_backup[i_upd][i];
+		}
 	}
 }/*//endvimfold*/
 void slaterMatrix::accept(int i_upd)
 {/*//startvimfold*/
-	//copying entire matrix : inv_up_backup <- inv_up_matr
 	int i,j;
-	for (i=0;i<iCutoff;i++)
-		for (j=0;j<iCutoff;j++)
-			inv_up_backup[i][j]=inv_up_matr[i][j];
-	for (i=0;i<iCutoff;i++)
-		for (j=0;j<iCutoff;j++)
-			inv_down_backup[i][j]=inv_down_matr[i][j];
-	//copying the last updated row : spin_up_backup <- spin_up_matr
 	if (i_upd<iCutoff)
 	{
+	//copying entire matrix : inv_up_backup <- inv_up_matr
 		for (i=0;i<iCutoff;i++)
+		{
+			for (j=0;j<iCutoff;j++)
+			{
+				inv_up_backup[i][j]=inv_up_matr[i][j];
+			}
+		}
+	//copying the last updated row : spin_up_backup <- spin_up_matr
+		for (i=0;i<iCutoff;i++) 
+		{
 			spin_up_backup[i_upd][i]=spin_up_matr[i_upd][i];
+		}
 	}
 	else
 	{	
+		for (i=0;i<iCutoff;i++)
+		{
+			for (j=0;j<iCutoff;j++)
+			{
+				inv_down_backup[i][j]=inv_down_matr[i][j];
+			}
+		}
 		i_upd-=iCutoff;
 		for (i=0;i<iCutoff;i++)
-			spin_down_backup[i_upd][i]=spin_up_matr[i_upd][i];
+		{
+			spin_down_backup[i_upd][i]=spin_down_matr[i_upd][i];
+		}
 	}
 }/*//endvimfold*/
 const double slaterMatrix::waveFunction(double* dR, int i_upd){
