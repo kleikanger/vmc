@@ -4,6 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
+#include <mpi.h>
+
 //Ref: Jurgen A. Doornik 2005.
 #include "../ziggurat/zigrandom.h"
 #include "../ziggurat/zignor.h"
@@ -25,8 +27,15 @@ using std::setprecision;
 #endif
 #define OMG2 OMG*OMG
 
-int main()
+int main(int argc, char** argv)
 {/*//startvimfold*/
+	
+	// ************ MPI INIT **************
+	int myrank, nprocs;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	// ************************************
 	
 	//Number of variational parameters
 	int num_of_var_par=2;	
@@ -37,25 +46,26 @@ int main()
 	//Number of variations in each var. par.
 	int var_par_cyc[num_of_var_par];
 	
-	int num_cycles=1.5e7;
+	int num_cycles=1.e7;
 	int thermalization=0.3*num_cycles;//num_cycles*.5;
-	int num_part=6;
-	int spin_up_cutoff=3;
+	int num_part=2;
+	int spin_up_cutoff=1;
 	int dimension=2;
 
-	double delta_t = 0.05;
+	double delta_t = 0.025;
 
 	//double ideal_step=.5;
 	//double omega = 1.0;
 
 	//beta (jastrow)	
-	var_par[0]=0.565;
+	var_par[0]=0.4;//565;
 	var_par_inc[0]=0.00;
 	var_par_cyc[0]=1;
 	//alpha (orbitals)
-	var_par[1]=0.92;
+	var_par[1]=.98;//0.92;
 	var_par_inc[1]=0.0;
 	var_par_cyc[1]=10;
+    
 
 	//construct vmcsolver object
 	vmcsolver solver(num_part, spin_up_cutoff, dimension, num_of_var_par);	
@@ -76,9 +86,12 @@ int main()
 			var_par[1]+=var_par_inc[1];
 			cout<<"alpha:\t"<<var_par[1];
 			cout<<"\t\tbeta:\t"<<var_par[0]<<"\n";
-			solver.sample(num_cycles, thermalization, var_par, delta_t);
+			solver.sample(num_cycles, thermalization, var_par, delta_t, myrank);
 		}
 	}
+
+    MPI_Finalize();
+    return 0;
 
 }/*//endvimfold*/
 
@@ -113,7 +126,7 @@ vmcsolver::vmcsolver(int num_part, int spin_up_cutoff,int dimension, int num_of_
 	for (int i=0;i<num_part;i++) q_force_old[i]=new double[dimension];
 }/*//endvimfold*/
 
-void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, double delta_t)
+void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, double delta_t, int myrank)
 {/*//startvimfold*/
 	double e_kinetic, jaslR_new, jaslR_old, e_potential, wf_R, r_squared, temp;
 	double e_local=0.0;
@@ -131,7 +144,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	double** r_new = new double*[num_part];
 	for (i=0;i<num_part;i++) { r_new[i]=new double[dimension]; }
 
-  	idum = (int)time(NULL);//*(myrank));
+  	idum = (int)time(NULL)*(myrank);
 	//idum2 = (int)time(NULL);
 	double cseed=5;//diff sequence for different seed
 	//init ran number generator. only necc once, move to constructor?
@@ -167,82 +180,85 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	//******** START Monte Carlo SAMPLING LOOP ***********
 	for (int loop_c=0;loop_c<num_cycles+thermalization;loop_c++)
 	{
-		//Moving one particle at a time. (converges slowly?)
-		//possible to try to move all part. before collecting energy. 
-		//or move two part. at a time, one in each SD?
-		active_part=loop_c%(num_part);
-		//get new r_i (r_new) and r_{ij} (ipd_upd) for active particle
-		getNewPos(active_part, r_new, ipd_upd, dt_x_D, delta_t);
-		//wave func ratio
-		wf_R=slater->waveFunction(r_new[active_part],active_part);
-		//log of old jastrow ratio  		
-		jaslR_old = ipd->logJasR(active_part,var_par[0]);
-		//update interparticle distances
-		ipd->update(ipd_upd,active_part);
-		//log of new jastrow ratio  		
-		jaslR_new = ipd->logJasR(active_part,var_par[0]);
-		//update inverse and slatermatrix (neccesary to find gradient??)
-		//if not, wait, use and update() instead of accept().
-		slater->update(r_new[active_part],active_part);
-		//update gradients OPT: not necc to recalc for all part
-		slater->grad(sla_grad,r_new);
-		ipd->jasGrad(jas_grad,var_par[0],r_new);
-		//*** void calcQF
-		//calculate new qforce
-		for (i=0; i<num_part; i++)
-		{
+	//	for (int loop_p=0;loop_p<num_part; loop_p++) //move all particles
+	//	{
+			//Moving one particle at a time. (converges slowly?)
+			//possible to try to move all part. before collecting energy. 
+			//or move two part. at a time, one in each SD?
+			active_part=loop_c%(num_part);
+			//active_part=loop_p;
+			//get new r_i (r_new) and r_{ij} (ipd_upd) for active particle
+			getNewPos(active_part, r_new, ipd_upd, dt_x_D, delta_t);
+			//wave func ratio
+			wf_R=slater->waveFunction(r_new[active_part],active_part);
+			//log of old jastrow ratio  		
+			jaslR_old = ipd->logJasR(active_part,var_par[0]);
+			//update interparticle distances
+			ipd->update(ipd_upd,active_part);
+			//log of new jastrow ratio  		
+			jaslR_new = ipd->logJasR(active_part,var_par[0]);
+			//update inverse and slatermatrix (neccesary to find gradient??)
+			//if not, wait, use and update() instead of accept().
+			slater->update(r_new[active_part],active_part);
+			//update gradients OPT: not necc to recalc for all part
+			slater->grad(sla_grad,r_new);
+			ipd->jasGrad(jas_grad,var_par[0],r_new);
+			//*** void calcQF
+			//calculate new qforce
+			for (i=0; i<num_part; i++)
+			{
+				for (j=0; j<dimension; j++)
+				{
+					q_force_new[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
+				}
+			} 
+			//double calcGreensf
+			//calculate greensfunc
+			greens_f=0.0;
+			for (i=0; i<num_part; i++)
 			for (j=0; j<dimension; j++)
 			{
-				q_force_new[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
+				//temp1=(q_force_old[i][j]+q_force_new[i][j]);
+				//temp2=(q_force_old[i][j]-q_force_new[i][j]);
+				if (i!=active_part)
+				{
+					greens_f+= 0.25 * dt_x_D *
+						(q_force_old[i][j] + q_force_new[i][j]) *
+						(q_force_old[i][j] - q_force_new[i][j]);
+				} 
+				else
+				{
+					//i=active_part
+					greens_f+=0.5 * (q_force_old[i][j] + q_force_new[i][j]) *
+					   ( 0.5 * dt_x_D * (q_force_old[i][j] - q_force_new[i][j]) +
+						 r_old[i][j] - r_new[i][j] );
+				}	
 			}
-		} 
-		//double calcGreensf
-		//calculate greensfunc
-		greens_f=0.0;
-		for (i=0; i<num_part; i++)
-		for (j=0; j<dimension; j++)
-		{
-			//temp1=(q_force_old[i][j]+q_force_new[i][j]);
-			//temp2=(q_force_old[i][j]-q_force_new[i][j]);
-			if (i!=active_part)
+			greens_f=exp(greens_f);
+			//calculate jastrow ratio
+			double jas_R = exp(jaslR_new-jaslR_old);
+			//metropolis-hastings test
+			if ( RAN_UNI() <= (greens_f * jas_R * jas_R * wf_R * wf_R ) ) 
 			{
-				greens_f+= 0.25 * dt_x_D *
-					(q_force_old[i][j] + q_force_new[i][j]) *
-					(q_force_old[i][j] - q_force_new[i][j]);
-			} 
-			else
+				//update positions (XXX loop faster)	
+				cblas_dcopy(dimension,&r_new[active_part][0],1,&r_old[active_part][0],1);
+				//accept updates
+				slater->accept(active_part);
+				ipd->accept(active_part);
+				//update quantumforce, swap pointers q_force_new<->q_force_new
+				double** s_p_temp;
+				s_p_temp = q_force_old;
+				q_force_old = q_force_new;
+				q_force_new = s_p_temp;
+				//restart for-loop in not thermalized
+				if (loop_c<thermalization) { continue; } 
+					//update acceptancerate
+					accepted++;
+					//update local energy
+					e_local_temp=calcLocalEnergy(var_par);
+			}
+			else  
 			{
-				//i=active_part
-				greens_f+=0.5 * (q_force_old[i][j] + q_force_new[i][j]) *
-				   ( 0.5 * dt_x_D * (q_force_old[i][j] - q_force_new[i][j]) +
-					 r_old[i][j] - r_new[i][j] );
-			}	
-		}
-		greens_f=exp(greens_f);
-		//calculate jastrow ratio
-		double jas_R = exp(jaslR_new-jaslR_old);
-		//metropolis-hastings test
-		if ( RAN_UNI() <= (greens_f * jas_R * jas_R * wf_R * wf_R ) ) 
-		{
-			//update positions (XXX loop faster)	
-			cblas_dcopy(dimension,&r_new[active_part][0],1,&r_old[active_part][0],1);
-			//accept updates
-			slater->accept(active_part);
-			ipd->accept(active_part);
-			//update quantumforce, swap pointers q_force_new<->q_force_new
-			double** s_p_temp;
-			s_p_temp = q_force_old;
-			q_force_old = q_force_new;
-			q_force_new = s_p_temp;
-			//restart for-loop in not thermalized
-			if (loop_c<thermalization) { continue; } 
-				//update acceptancerate
-				accepted++;
-				//update local energy
-				e_local_temp=calcLocalEnergy(var_par);
-		}
-		else  
-		{
 			//reject updates
 			slater->reject(active_part);
 			ipd->reject(active_part);
@@ -251,11 +267,18 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 			//restart for-loop if not thermalized
 			if (loop_c<thermalization) { continue; } 
 		}
+	//}//All particles moved
+
+		//ADD LOOP (loop=0;loop<num_part;...)
+		//Collect energy here (but acceptancerate as before)
+
 		//if thermalization finished, start collecting data.
 		//add local energy to variables e_local and e_local_squared.
+		//e_local_temp = calcLocalEnergy(var_par);
 		e_local += e_local_temp;
 		e_local_squared += e_local_temp*e_local_temp; 	
 	}
+	e_local_temp=calcLocalEnergy(var_par);
 	
 	//************************** END OF MC sampling **************************
 

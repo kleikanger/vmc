@@ -37,7 +37,7 @@ class vmcsolver{
 		~vmcsolver();
 		
 		//Main function, mc sampling
-		void sample(int num_cycles, int thermalization, double* var_par, double delta_t);
+		void sample(int num_cycles, int thermalization, double* var_par, double delta_t, int myrank);
 		//void calcEnergy()
 		
 		//random update of the position of active_part.
