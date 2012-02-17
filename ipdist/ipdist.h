@@ -106,10 +106,10 @@ class ipdist{
 		   */
 		const double logJasR(int i_upd, double beta);
 		/*
-		   returns gradient of jastrow. contents of ret_vec will be changed to 
+		   returns gradient of jastrow. i_upd part. in ret_vec will be changed to new 
 		   gradient. beta is the variational parameter, and r is the positionvector.
 		*/	   
-		const void jasGrad(double** ret_vec, double beta, double** r);
+		const void jasGrad(double** ret_vec, double beta, double** r, int i_upd);
 		/*
 		   Calculate laplacian. beta is the variational parameter.
 		   */

@@ -169,9 +169,9 @@ const double ipdist::sumInvlen()
 	}
 	return sum;
 }/*//endvimfold*/
-const void ipdist::jasGrad(double** ret_vec, double beta, double** r)
+const void ipdist::jasGrad(double** ret_vec, double beta, double** r, int i_upd)
 {//startvimfold
-	int j,k,J,kk;
+	int j,k,i;
 	//temporary variable
 	double r_kj=0;
 	//temporary array
@@ -187,20 +187,26 @@ const void ipdist::jasGrad(double** ret_vec, double beta, double** r)
 			ret_vec[k][j]=0.0;	
 	
 	//XXX OPT XXX ONLY ONE PART NEEDS TO BE UPDATED
-	//INPUT i_upd, set k=i_upd
+	//retvec already contains the other values
+	//INPUT i_upd, set k=i_upd 
 
 	//Sum over all particles.	
 	for (k=0;k<=n_min_one;k++)
 	{
+	//k=i_upd;
 		for (j=0;j<k;j++)
 		{       
 			//pick the correct element from the ip_len matrix
 			r_kj=ip_len[k-1][j]; //k>=1 since 0<=j<k 
 			
 			//temp_arr<-r[k]
-			cblas_dcopy(dim,r[k],1,temp_arr,1);
+			//cblas_dcopy(dim,r[k],1,temp_arr,1);
 			//temp_arr< r[k]-r[j]
-			cblas_daxpy(dim,-1.0,r[j],1,temp_arr,1);
+			//cblas_daxpy(dim,-1.0,r[j],1,temp_arr,1);
+			for (i=0;i<dim;i++)
+			{
+				temp_arr[i]=r[k][i]-r[j][i];
+			}
 			//Particles with parallel spins:
 			if ((j<iCutoff)==(k<iCutoff)) 
 			{
@@ -212,7 +218,12 @@ const void ipdist::jasGrad(double** ret_vec, double beta, double** r)
 				//a=1.0
 				temp = 1. /r_kj /(1.+beta*r_kj) /(1.+beta*r_kj);
 			}
-			cblas_daxpy(dim, temp, temp_arr, 1, ret_vec[k], 1);
+			//cblas_daxpy(dim, temp, temp_arr, 1, ret_vec[k], 1);
+			for (i=0;i<dim;i++)
+			{
+				ret_vec[k][i]+=temp*temp_arr[i];
+			}
+				
 		}
 		for (j=k+1;j<=n_min_one;j++)
 		{
@@ -220,10 +231,13 @@ const void ipdist::jasGrad(double** ret_vec, double beta, double** r)
 			r_kj=ip_len[j-1][k];
 
 			//temp_arr<-r[k]
-			cblas_dcopy(dim,r[k],1,temp_arr,1);
+			//cblas_dcopy(dim,r[k],1,temp_arr,1);
 			//temp_arr< r(k)-r[j]
-			cblas_daxpy(dim,-1.0,r[j],1,temp_arr,1);
-				
+			//cblas_daxpy(dim,-1.0,r[j],1,temp_arr,1);
+			for (i=0;i<dim;i++)
+			{
+				temp_arr[i]=r[k][i]-r[j][i];
+			}
 			//Particles with parallel spins:
 			if ((k<iCutoff)==(j<iCutoff)) 
 			{
@@ -235,7 +249,11 @@ const void ipdist::jasGrad(double** ret_vec, double beta, double** r)
 				//a=1.0
 				temp = 1.0 /r_kj /(1+beta*r_kj) /(1+beta*r_kj);
 			}
-			cblas_daxpy(dim, temp, temp_arr, 1, ret_vec[k], 1);
+			//cblas_daxpy(dim, temp, temp_arr, 1, ret_vec[k], 1);
+			for (i=0;i<dim;i++)
+			{
+				ret_vec[k][i]+=temp*temp_arr[i];
+			}
 		}
 	}
 }//endvimfold

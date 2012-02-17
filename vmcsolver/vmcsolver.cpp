@@ -46,35 +46,41 @@ int main(int argc, char** argv)
 	//Number of variations in each var. par.
 	int var_par_cyc[num_of_var_par];
 	
-	int num_cycles=1.e7;
+	int num_cycles=3.e6;
 	int thermalization=0.3*num_cycles;//num_cycles*.5;
-	int num_part=2;
-	int spin_up_cutoff=1;
+	int num_part=6;
+	int spin_up_cutoff=3;
 	int dimension=2;
 
-	double delta_t = 0.025;
+	double delta_t = 0.05;
 
 	//double ideal_step=.5;
 	//double omega = 1.0;
 
 	//beta (jastrow)	
-	var_par[0]=0.4;//565;
+	var_par[0]=0.55;
 	var_par_inc[0]=0.00;
 	var_par_cyc[0]=1;
 	//alpha (orbitals)
-	var_par[1]=.98;//0.92;
+	var_par[1]=.928;//0.92;
 	var_par_inc[1]=0.0;
-	var_par_cyc[1]=10;
-    
-
+	var_par_cyc[1]=1;
+	
 	//construct vmcsolver object
 	vmcsolver solver(num_part, spin_up_cutoff, dimension, num_of_var_par);	
-	
-	//output to screen
-	cout<<"\n";
-	cout<<"num_cycles:    \t\t"<<num_cycles<<"\n";
-	cout<<"thermalization:\t\t"<<thermalization<<"\n";
-	cout<<"delta_t:       \t\t"<<delta_t<<"\n\n";
+
+	if (myrank==0)
+	{
+		//output to screen
+		cout<<"\n\n";
+		cout<<"------------------------------------------------------\n";
+		cout<<"\n";
+		cout<<"num_cycles:    \t\t"<<num_cycles<<"\n";
+		cout<<"thermalization:\t\t"<<thermalization<<"\n";
+		cout<<"delta_t:       \t\t"<<delta_t<<"\n";
+		cout<<"num_part:      \t\t"<<num_part<<"\n\n";
+		cout<<"------------------------------------------------------\n\n";
+	}	
 
 	//loop over variational parameters
 	//start sampling
@@ -84,8 +90,6 @@ int main(int argc, char** argv)
 		for (int loop_v1=0; loop_v1<var_par_cyc[1]; loop_v1++)
 		{
 			var_par[1]+=var_par_inc[1];
-			cout<<"alpha:\t"<<var_par[1];
-			cout<<"\t\tbeta:\t"<<var_par[0]<<"\n";
 			solver.sample(num_cycles, thermalization, var_par, delta_t, myrank);
 		}
 	}
@@ -144,7 +148,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	double** r_new = new double*[num_part];
 	for (i=0;i<num_part;i++) { r_new[i]=new double[dimension]; }
 
-  	idum = (int)time(NULL)*(myrank);
+  	idum = (int)time(NULL)*(myrank+1);
 	//idum2 = (int)time(NULL);
 	double cseed=5;//diff sequence for different seed
 	//init ran number generator. only necc once, move to constructor?
@@ -170,7 +174,10 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	
 	//init q_force_old
 	slater->grad(sla_grad,r_old);
-	ipd->jasGrad(jas_grad, var_par[0],r_old);
+	for (i=0; i<num_part; i++)
+	{
+		ipd->jasGrad(jas_grad, var_par[0],r_old,i);
+	}
 	for (i=0; i<num_part; i++)
 	{
 		for (j=0; j<dimension; j++)
@@ -200,9 +207,9 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 			//update inverse and slatermatrix (neccesary to find gradient??)
 			//if not, wait, use and update() instead of accept().
 			slater->update(r_new[active_part],active_part);
-			//update gradients OPT: not necc to recalc for all part
-			slater->grad(sla_grad,r_new);
-			ipd->jasGrad(jas_grad,var_par[0],r_new);
+			//update gradients OPT: not necc to recalc for all part..
+			slater->grad(sla_grad,r_new);//only necc to update one part (XXX necc to update inderse before taking gradients??)
+			ipd->jasGrad(jas_grad,var_par[0],r_new,active_part);
 			//*** void calcQF
 			//calculate new qforce
 			for (i=0; i<num_part; i++)
@@ -282,6 +289,8 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	
 	//************************** END OF MC sampling **************************
 
+	cout<<"alpha: "<<var_par[1];
+	cout<<" beta: "<<var_par[0]<<" ";
 	cout<<setprecision(10)<<"Local energy:  "<<(e_local/(double)num_cycles);	
 	cout<<setprecision(5)<<"\tvariance:  "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
 	cout<<setprecision(5)<<"\tAcc.rate:  "<<accepted/(double)(num_cycles)<<"\n";

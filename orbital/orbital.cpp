@@ -18,10 +18,10 @@ using std::cerr;
 #define ONE_OVER_H2 1000000
 
 #ifndef ANALYTIC_D1
-#define ANALYTIC_D1 false
+#define ANALYTIC_D1 true
 #endif
 #ifndef ANALYTIC_D2
-#define ANALYTIC_D2 false
+#define ANALYTIC_D2 true
 #endif
 #ifndef OMG
 #define OMG 1.
@@ -89,9 +89,9 @@ void orbital::setValues(int el,int am, bool su, int di){
 	cout<<"\nerror: |angular_momentum| larger than energy_level.\n";
 	exit(1);
 	} else {
-	cout<<"particle initialized: energy_level: "<<energy_level
-				<<", angular momentum: "<<angular_momentum
-				<<", spin_up: "<<spin_up<<"\n"; 
+	//cout<<"particle initialized: energy_level: "<<energy_level
+	//			<<", angular momentum: "<<angular_momentum
+	//			<<", spin_up: "<<spin_up<<"\n"; 
 	}
 }
 //endvimfold
@@ -156,13 +156,21 @@ const double orbital::D1(double* dR, int axis){
 	return result;
 #else
 	//Analytic expressions for the gradients
-	double abs_r = cblas_dnrm2(dim,dR,1);
+	//double abs_r = cblas_dnrm2(dim,dR,1);
 	if (spin_up) {
 
 		switch (energy_level) {
 			case 1: return -dR[axis]*alpha*OMG*valueWF(dR);
-			case 2:	return 0;	
-			case 3: return 0;
+			case 2:	//n_x=1 n_y=0
+					if (axis==0) return 
+					(2.*sqrt(OMG*alpha) / h1(dR[0])-dR[0]*OMG*alpha)*valueWF(dR);
+					else return 
+					(-dR[1]*OMG*alpha)*valueWF(dR);	
+			case 3: //n_x=0 n_y=1
+					if (axis==0) return
+					(-dR[0]*OMG*alpha)*valueWF(dR);
+					else return
+					(2.*sqrt(OMG*alpha) / h1(dR[1])-dR[1]*OMG*alpha)*valueWF(dR);	
 			case 4: return 0;
 			default: 
 					cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
@@ -172,8 +180,16 @@ const double orbital::D1(double* dR, int axis){
 	} else {
 		switch (energy_level) {
 			case 1:	return -dR[axis]*alpha*OMG*valueWF(dR);	
-			case 2:	return 0;	
-			case 3: return 0;
+			case 2:	//n_x=1 //n_y=0
+					if (axis==0) return 
+					(2.*sqrt(OMG*alpha) / h1(dR[0])-dR[0]*OMG*alpha)*valueWF(dR);
+					else return 
+					(-dR[1]*OMG*alpha)*valueWF(dR);	
+			case 3: //n_x=0 n_y=1
+					if (axis==0) return
+					(-dR[0]*OMG*alpha)*valueWF(dR);
+					else return
+					(2.*sqrt(OMG*alpha) / h1(dR[1])-dR[1]*OMG*alpha)*valueWF(dR);	
 			case 4: return 0;
 			default:
 					cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
@@ -210,14 +226,16 @@ const double orbital::D2(double* dR){
 #else
 	//Analytic expressions for the laplacians
 	
-	double r = cblas_dnrm2(dim,dR,1);
+	double r_sq = cblas_ddot(dim,dR,1,dR,1);
 	
 	if (spin_up) {
 	
 		switch (energy_level) {
-			case 1: return alpha*OMG*(alpha*OMG*r*r -2.)*valueWF(dR);
-			case 2:	return 0;	
-			case 3: return 0;
+			case 1: return alpha*OMG*(alpha*OMG*r_sq -2.)*valueWF(dR);
+			case 2:	return //n_x=1 n_y=0 
+					OMG*alpha*(OMG*alpha*r_sq-2.-4.*dR[0]/h1(dR[0]))*valueWF(dR);
+			case 3: return //n_x=0 n_y=1 
+					OMG*alpha*(OMG*alpha*r_sq-2.-4.*dR[1]/h1(dR[1]))*valueWF(dR);
 			case 4: return 0;
 			default: 
 					cerr<<"\n error in orbital::D2(): energy_level out of bounds\n"
@@ -226,9 +244,11 @@ const double orbital::D2(double* dR){
 		}
 	} else {
 		switch (energy_level) {
-			case 1:	return alpha*OMG*(alpha*OMG*r*r - 2.)*valueWF(dR);
-			case 2:	return 0;	
-			case 3: return 0;
+			case 1:	return alpha*OMG*(alpha*OMG*r_sq - 2.)*valueWF(dR);
+			case 2:	return //n_x=1 n_y=0 
+					OMG*alpha*(OMG*alpha*r_sq-2.-4.*dR[0]/h1(dR[0]))*valueWF(dR);
+			case 3: return //n_x=0 n_y=1 
+					OMG*alpha*(OMG*alpha*r_sq-2.-4.*dR[1]/h1(dR[1]))*valueWF(dR);
 			case 4: return 0;
 			default:
 					cerr<<"\n error in orbital::D2(): energy_level out of bounds\n"
