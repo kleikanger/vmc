@@ -169,6 +169,7 @@ const double ipdist::sumInvlen()
 	}
 	return sum;
 }/*//endvimfold*/
+//PROBLEM?
 const void ipdist::jasGrad(double** ret_vec, double beta, double** r, int i_upd)
 {//startvimfold
 	int j,k,i;
@@ -182,10 +183,15 @@ const void ipdist::jasGrad(double** ret_vec, double beta, double** r, int i_upd)
 
 	//set all enements in ret_vec = 0
 	//for (int i=0;i<((n_min_one+1)*dim);i++) { cout<<(*(ret_vec)+i)<<"\n"; }
+	
+	
+	k=i_upd;
 	for (k=0;k<=n_min_one;k++)	
 		for (j=0;j<dim;j++)
+		{
 			ret_vec[k][j]=0.0;	
-	
+		}
+
 	//XXX OPT XXX ONLY ONE PART NEEDS TO BE UPDATED
 	//retvec already contains the other values
 	//INPUT i_upd, set k=i_upd 
@@ -193,7 +199,6 @@ const void ipdist::jasGrad(double** ret_vec, double beta, double** r, int i_upd)
 	//Sum over all particles.	
 	for (k=0;k<=n_min_one;k++)
 	{
-	//k=i_upd;
 		for (j=0;j<k;j++)
 		{       
 			//pick the correct element from the ip_len matrix

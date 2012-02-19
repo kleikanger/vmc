@@ -3,9 +3,9 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
-
 #include <mpi.h>
-
+//write to file
+#include <fstream>
 //Ref: Jurgen A. Doornik 2005.
 #include "../ziggurat/zigrandom.h"
 #include "../ziggurat/zignor.h"
@@ -14,7 +14,15 @@
 //#include "../ipdist/ipdist.h"
 
 using std::cout;
+using std::cerr;
+//using std::ofile;
+using std::ofstream;
 using std::setprecision;
+using std::setiosflags;
+using std::setw;
+using std::ios;
+
+//using namespace std;
 
 //see folder ziggurat. more generators+automatic benchmark
 #define RAN_NORM_SET RanNormalSetSeedZig32
@@ -26,6 +34,18 @@ using std::setprecision;
 #define OMG 1.
 #endif
 #define OMG2 OMG*OMG
+
+//name and path of ofile
+#ifndef OFNAMEB
+#define OFNAMEB "test1.dat"
+#endif
+#ifndef OFPATHB
+#define OFPATHB "/home/karleik/masterProgging/vmc/datafiles/zerotermalization.dat"
+#endif
+//write to of?
+#ifndef WRITEOFB
+#define WRITEOFB false
+#endif
 
 int main(int argc, char** argv)
 {/*//startvimfold*/
@@ -46,8 +66,8 @@ int main(int argc, char** argv)
 	//Number of variations in each var. par.
 	int var_par_cyc[num_of_var_par];
 	
-	int num_cycles=3.e6;
-	int thermalization=0.3*num_cycles;//num_cycles*.5;
+	int num_cycles=1.e7;
+	int thermalization=1e6;//0.3*num_cycles;//num_cycles*.5;
 	int num_part=6;
 	int spin_up_cutoff=3;
 	int dimension=2;
@@ -132,6 +152,29 @@ vmcsolver::vmcsolver(int num_part, int spin_up_cutoff,int dimension, int num_of_
 
 void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, double delta_t, int myrank)
 {/*//startvimfold*/
+
+#if WRITEOFB
+	//Only for rank 0 proc
+	//if (rank=0) ?
+	if (num_cycles>2e7)
+	{
+		//
+		cerr<<"Warning: vmcsolver::sample(). Max size for num_cycles (=" 
+			<<num_cycles<<")is set to 1e6 when WRITEOFB == true. Terminating";
+		exit(1);
+	}
+	ofstream ofile;
+	ofile.open((OFPATHB));
+		ofile<<"num_cycles:     "<<num_cycles<<"\n";
+		ofile<<"thermalization: "<<thermalization<<"\n";
+		ofile<<"delta_t:        "<<delta_t<<"\n";
+		ofile<<"num_part:       "<<num_part<<"\n";
+		ofile<<"omega           "<<OMG<<"\n"; 
+		ofile<<"alpha           "<<var_par[1]<<"\n"; 
+		ofile<<"beta            "<<var_par[0]<<"\n"; 
+		ofile<<"------------------------------------------------------\n";
+	//cout<<writing to file ((std::string)OFPATHB)((std::string)OFNAMEB);
+#endif
 	double e_kinetic, jaslR_new, jaslR_old, e_potential, wf_R, r_squared, temp;
 	double e_local=0.0;
 	double e_local_squared=0.0;
@@ -141,9 +184,12 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	int accepted=0;
 	//diffusion const D * delta_t = 0.5 * delta_t
 	double dt_x_D = 0.5 * delta_t;
-	
+	//backup of jasgrad
+	double jas_grad_bu[num_part][dimension];
 	//updatevector interparticle distance.
 	double* ipd_upd = new double[num_part-1];
+	//temp for pointer swapping
+	double** s_p_temp;
 	//new positions
 	double** r_new = new double*[num_part];
 	for (i=0;i<num_part;i++) { r_new[i]=new double[dimension]; }
@@ -171,7 +217,6 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	slater->findInverse();
 	ipd->init(r_old);
 	
-	
 	//init q_force_old
 	slater->grad(sla_grad,r_old);
 	for (i=0; i<num_part; i++)
@@ -183,7 +228,26 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 		for (j=0; j<dimension; j++)
 			q_force_old[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
 	}
-
+	//init backup of jas_grad 
+	for (i=0; i<num_part;i++)
+	{
+		for (j=0; j<dimension;j++)
+		{
+			jas_grad_bu[i][j]=jas_grad[i][j];
+		}
+	}
+/*
+			for(i=0;i<dimension;i++){
+			for(j=0;j<num_part;j++)
+			{ cout<<jas_grad[j][i]<<"\t";
+			}cout<<"\n";}
+			cout<<"\n";
+			for(i=0;i<dimension;i++){
+			for(j=0;j<num_part;j++)
+			{ cout<<jas_grad_bu[j][i]<<"\t";
+			}cout<<"\n";}
+			cout<<"\n";
+*/
 	//******** START Monte Carlo SAMPLING LOOP ***********
 	for (int loop_c=0;loop_c<num_cycles+thermalization;loop_c++)
 	{
@@ -204,12 +268,14 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 			ipd->update(ipd_upd,active_part);
 			//log of new jastrow ratio  		
 			jaslR_new = ipd->logJasR(active_part,var_par[0]);
+			//upd gradient of jastrow
+			//for (i=0;i<num_part;i++)
+			ipd->jasGrad(jas_grad,var_par[0],r_new,active_part);
 			//update inverse and slatermatrix (neccesary to find gradient??)
 			//if not, wait, use and update() instead of accept().
 			slater->update(r_new[active_part],active_part);
 			//update gradients OPT: not necc to recalc for all part..
 			slater->grad(sla_grad,r_new);//only necc to update one part (XXX necc to update inderse before taking gradients??)
-			ipd->jasGrad(jas_grad,var_par[0],r_new,active_part);
 			//*** void calcQF
 			//calculate new qforce
 			for (i=0; i<num_part; i++)
@@ -250,10 +316,13 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 				//update positions (XXX loop faster)	
 				cblas_dcopy(dimension,&r_new[active_part][0],1,&r_old[active_part][0],1);
 				//accept updates
+			//	for (i=0;i<dimension;i++)
+			//	{
+			//		jas_grad_bu[active_part][i] = jas_grad[active_part][i];
+			//	}
 				slater->accept(active_part);
 				ipd->accept(active_part);
 				//update quantumforce, swap pointers q_force_new<->q_force_new
-				double** s_p_temp;
 				s_p_temp = q_force_old;
 				q_force_old = q_force_new;
 				q_force_new = s_p_temp;
@@ -266,14 +335,24 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 			}
 			else  
 			{
-			//reject updates
-			slater->reject(active_part);
-			ipd->reject(active_part);
-			//update positions (XXX loop faster)	
-			cblas_dcopy(dimension,&r_old[active_part][0],1,&r_new[active_part][0],1);
-			//restart for-loop if not thermalized
-			if (loop_c<thermalization) { continue; } 
-		}
+				//reject updates
+			//	for (i=0;i<dimension;i++)
+			//	{
+			//		jas_grad[active_part][i] = jas_grad_bu[active_part][i];
+			//	}
+				slater->reject(active_part);
+				ipd->reject(active_part);
+				
+				//REJECT NEW sla_grad IF SAMPLING MANY PART AT ONCE!
+				//REJECT NEW jas_grad IF SAMPLING MANY PART AT ONCE!
+				
+
+				//update positions (XXX loop faster)	
+				cblas_dcopy(dimension,&r_old[active_part][0],1,&r_new[active_part][0],1);
+				//restart for-loop if not thermalized
+				if (loop_c<thermalization) { continue; }
+			}
+
 	//}//All particles moved
 
 		//ADD LOOP (loop=0;loop<num_part;...)
@@ -284,8 +363,21 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 		//e_local_temp = calcLocalEnergy(var_par);
 		e_local += e_local_temp;
 		e_local_squared += e_local_temp*e_local_temp; 	
+#if WRITEOFB
+		//evt:
+		/*
+		e_chunk+=e_local;
+		//chunksize = 10
+		if (!(loop_c%10)) {
+		ofile.write(e_chunk)
+		e_chunk=0.0;
+		   */
+		if (myrank==0){
+    	ofile << setiosflags(ios::showpoint | ios::uppercase);
+    	ofile << setw(16) << setprecision(16) << e_local_temp <<"\n";
+		}
+#endif
 	}
-	e_local_temp=calcLocalEnergy(var_par);
 	
 	//************************** END OF MC sampling **************************
 
@@ -295,6 +387,10 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	cout<<setprecision(5)<<"\tvariance:  "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
 	cout<<setprecision(5)<<"\tAcc.rate:  "<<accepted/(double)(num_cycles)<<"\n";
 	//cout<<"beta :\t\t"<<var_par[0]<<"\n";
+
+#if WRITEOFB
+	ofile.close();
+#endif
 
 	for (i=0;i<num_part;i++) { delete [] r_new[i]; }
 	delete [] r_new;

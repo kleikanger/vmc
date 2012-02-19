@@ -2,22 +2,23 @@ LFLAGS=-llapack -lcblas
 CFLAGS=-O4
 DEBUG=-Wall -g
 PAT=/home/karleik/masterProgging/vmc
+NPROC=-n 2
 CC=mpic++
-
-vmcsolver.out: vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o
-	$(CC) $(CFLAGS) vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o -o vmcsolver.out $(LFLAGS)
+GPROFOUT=gprof_testres.txt
 
 all: vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o
 
 run: vmcsolver.out
-	$(CC) $(CFLAGS) vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o -o vmcsolver.out $(LFLAGS)
-	mpiexec -n 2 vmcsolver.out
+	mpiexec $(NPROC) vmcsolver.out
 
 profile: all
-	c++ -O4  -pg -g2 vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o -o vmcsolver.out -lcblas -llapack
-	./vmcsolver.out
-	gprof ./vmcsolver.out gmon.out > testres.txt
-	less testres.txt
+	$(CC) $(CFLAGS) -pg -g2 vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o -o vmcsolver_gprof.out $(LFLAGS)
+	mpiexec $(NPROC) vmcsolver_gprof.out 
+	gprof ./vmcsolver_gprof.out gmon.out > $(GPROFOUT)
+	less $(GPROFOUT)
+
+vmcsolver.out: all
+	$(CC) $(CFLAGS) vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o -o vmcsolver.out $(LFLAGS)
 
 vmcsolver.o: vmcsolver.h vmcsolver.cpp
 	$(CC) $(CFLAGS) -c vmcsolver.h vmcsolver.cpp $(LFLAGS)
@@ -36,3 +37,6 @@ zignor.o: $(PAT)/ziggurat/zignor.h $(PAT)/ziggurat/zignor.c
 
 zigrandom.o: $(PAT)/ziggurat/zigrandom.h $(PAT)/ziggurat/zigrandom.c
 	$(CC) $(CFLAGS) -c $(PAT)/ziggurat/zigrandom.h $(PAT)/ziggurat/zigrandom.c
+
+clear:
+	rm *.out *.o
