@@ -104,18 +104,18 @@ class slaterMatrix {
 		   */
 		void accept(int i_upd);
 		/*
-		   Input - (position vector of moved particle, index of moved particle).
+		   Input - (index of moved particle).
 		   
 		   Using the inverse matrixes to calculate the determinant. r_new is the position 
 		   of the new particle, i_upd the number of the particle.
 		 	*/
-		double const waveFunction(double*, int);
+		double const waveFunction(int);
 		/*
 		   Calculate ( \nabla \Psi ) / \Psi.
 		   ret_vec changed to updated gradient. 
 		   TEST!
 		 	*/		   
-		void const grad(double** ret_vec, double** dR);// int axis, int i_upd);
+		void const grad(double** ret_vec, double** dR, int active_part);// int axis, int i_upd);
 		/*
 		   Calculate the laplacian of the slatermatrixes.
 		   */

@@ -145,11 +145,13 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	ipd->init(r_old);
 	
 	//init q_force_old
-	slater->grad(sla_grad,r_old);
-	for (i=0; i<num_part; i++)
-	{
-		ipd->jasGrad(jas_grad, var_par[0],r_old,i);
-	}
+	//init both up and down grad
+	slater->grad(sla_grad,r_old,0);
+	slater->grad(sla_grad,r_old,spin_up_cutoff);
+	//for (i=0; i<num_part; i++)
+	//{
+	ipd->jasGrad(jas_grad, var_par[0],r_old,i);
+	//}
 	for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
 	{
 		q_force_old[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
@@ -176,30 +178,25 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 			//get new r_i (r_new) and r_{ij} (ipd_upd) for active particle
 			getNewPos(active_part, r_new, ipd_upd, dt_x_D, delta_t);
 			
-			//wave func ratio
-			wf_R=slater->waveFunction(r_new[active_part],active_part);
-			
-			
 			//log of old jastrow ratio  		
 			jaslR_old = ipd->logJasR(active_part,var_par[0]);
 			//update interparticle distances
 			ipd->update(ipd_upd,active_part);
 			//log of new jastrow ratio  		
 			jaslR_new = ipd->logJasR(active_part,var_par[0]);
-			
 			//upd gradient of jastrow
-			//BEFORE UPD OF JASGRAD?
 			ipd->jasGrad(jas_grad,var_par[0],r_new,active_part);
 			
 			//update inverse
 			slater->update(r_new[active_part],active_part);
+			//wave func ratio
+			wf_R=slater->waveFunction(active_part);
 			//update gradients XXX OPT: ONLY ONE MATRIX AT A TIME. 2x. speedup
-			slater->grad(sla_grad,r_new);//XXX necc to update inverse before taking gradients??)
+			slater->grad(sla_grad,r_new,active_part);//XXX necc to update inverse before taking gradients??)
 			//*** void calcQF/*//endvimfold*/
 			//calculate new qforce
 			for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
 			{
-				//changing 2. will change the acceptance rate
 				q_force_new[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
 			}
 			//double calcGreensf
@@ -228,7 +225,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 
 
 			//metropolis-hastings test
-			if ( RAN_UNI() <= ( exp( greens_f+2.*(jaslR_new-jaslR_old) ) * wf_R * wf_R ) ) //XXX <! 
+			if ( RAN_UNI() <= ( exp( greens_f+2.*(jaslR_new-jaslR_old) ) * wf_R * wf_R ) ) 
 			{
 				//accept updates/*//startvimfold*/
 				//cblas_dcopy(dimension,&r_new[active_part][0],1,&r_old[active_part][0],1);//XXX loop faster
@@ -247,7 +244,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 				{ 
 					jas_grad_bu[i][j] = jas_grad[i][j]; 
 				}
-				for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)//only active matrix
+				for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)//only active matrix necc
 				{ 
 					sla_grad_bu[i][j] = sla_grad[i][j]; 
 				}/*//endvimfold*/
@@ -259,11 +256,16 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 				//reject updates/*//startvimfold*/
 				slater->reject(active_part);
 				ipd->reject(active_part);
-				//revejt new position
+				//reject new position
 				//cblas_dcopy(dimension,&r_old[active_part][0],1,&r_new[active_part][0],1);/*//endvimfold*/
 				for (i=0;i<dimension;i++)
 				{	
 					r_new[active_part][i]=r_old[active_part][i];
+				}
+				//NB ONLY NECC FOR UP OR DOWN MATR
+				for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)
+				{ 
+					sla_grad[i][j] = sla_grad_bu[i][j]; 
 				}
 				//reset gradients if the energy are calculated after this cycle
 				if (loop_p==(num_part-1)) 
@@ -271,10 +273,6 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 					for (i=0;i<num_part;i++) for (j=0;j<dimension;j++) 
 					{ 
 						jas_grad[i][j] = jas_grad_bu[i][j]; 
-					}
-					for (i=0;i<num_part;i++) for (j=0;j<dimension;j++) //XXX only active matrix necc
-					{ 
-						sla_grad[i][j] = sla_grad_bu[i][j]; 
 					}
 				}
 			}

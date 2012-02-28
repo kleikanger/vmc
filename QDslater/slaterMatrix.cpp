@@ -326,57 +326,39 @@ void slaterMatrix::accept(int i_upd)
 		}
 	}
 }/*//endvimfold*/
-double const slaterMatrix::waveFunction(double* dR, int i_upd){
+double const slaterMatrix::waveFunction(int i_upd){
 	//startvimfold
 	//returns ratio between new and old determinant when one particle moved.
 	int i;
-	double new_vec[iCutoff];
+	//double new_vec[iCutoff];
 	
-#if 0
-	//RATIO DET_new/DET_old
+	//double sum=0;
 	if (i_upd<iCutoff)
 	{
-		for (i=0;i<iCutoff;i++)
-		{
-			new_vec[i]=orbital_[i].valueWF(dR);
-		}
+		//for (i=0;i<iCutoff;i++)
+		//{
+			//sum+=orbital_[i].valueWF(dR)*inv_up_matr[i_upd][i];
+			//sum+=spin_up_matr[i_upd][i]*inv_up_backup[i_upd][i];
+		//}
+		return cblas_ddot(iCutoff,spin_up_matr[i_upd],1,inv_up_backup[i_upd],1);
 		//Det down not changed: ratio =1;
-		return cblas_ddot(iCutoff,inv_up_matr[i_upd],1,new_vec,1);
+		//return sum;
 	} 
 	else 
 	{
-		for (i=iCutoff;i<iNumPart;i++)
-		{
-			new_vec[i-iCutoff]=orbital_[i].valueWF(dR);
-		}
+		//for (i=iCutoff;i<iNumPart;i++)
+		//{
+			//sum+=orbital_[i].valueWF(dR)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
+			//sum+=spin_down_matr[i_upd-iCutoff][i-iCutoff]*inv_down_backup[i_upd-iCutoff][i-iCutoff];
+		//}
+		return cblas_ddot(iCutoff,spin_down_matr[i_upd-iCutoff],1,inv_down_backup[i_upd-iCutoff],1);
 		//Det up not changed: ratio =1;
-		return cblas_ddot(iCutoff,inv_down_matr[i_upd-iCutoff],1,new_vec,1);
+		//return sum;
 	}
-#else
-	double sum=0;
-	if (i_upd<iCutoff)
-	{
-		for (i=0;i<iCutoff;i++)
-		{
-			sum+=orbital_[i].valueWF(dR)*inv_up_matr[i_upd][i];
-		}
-		//Det down not changed: ratio =1;
-		return sum;
-	} 
-	else 
-	{
-		for (i=iCutoff;i<iNumPart;i++)
-		{
-			sum+=orbital_[i].valueWF(dR)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
-		}
-		//Det up not changed: ratio =1;
-		return sum;
-	}
-#endif
 
 }
 //endvimfold
-void const slaterMatrix::grad(double** ret_vec, double** dR)//, int axis, int i_upd)
+void const slaterMatrix::grad(double** ret_vec, double** dR, int active_part)//, int axis, int i_upd)
 {//startvimfold
 //OPTIMALIZATION: only one some grads needs to be updated.
 //Grad_{iaxis}. Full gradient/DET_old = Sum_axis Sum_i Grad_{i,axis} \vec e_{i,axis}.
@@ -386,10 +368,11 @@ void const slaterMatrix::grad(double** ret_vec, double** dR)//, int axis, int i_
 
 	int i, axis, i_upd;
 	double d_upd[iCutoff];
-#if 1
-	for (i_upd=0;i_upd<iNumPart;i_upd++)
+
+	//Only update 'active' matrix
+	if (active_part<iCutoff)
 	{
-		if (i_upd<iCutoff)
+		for (i_upd=0;i_upd<iCutoff;i_upd++)
 		{
 			for (axis=0;axis<dim;axis++)
 			{
@@ -401,8 +384,11 @@ void const slaterMatrix::grad(double** ret_vec, double** dR)//, int axis, int i_
 			//grad_up[axis]=cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
 			ret_vec[i_upd][axis] = cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
 			}
-		}	
-		else 
+		}
+	}	
+	else
+	{	
+		for (i_upd=iCutoff;i_upd<iNumPart;i_upd++)
 		{
 			for (axis=0;axis<dim;axis++)
 			{
@@ -416,23 +402,6 @@ void const slaterMatrix::grad(double** ret_vec, double** dR)//, int axis, int i_
 			}
 		}
 	}
-#else
-	//MORTENS METHOD
-	double sum;
-	for (int i=0;i<iNumPart;i++)
-			for (int j=0;j<dim;j++)
-			{
-				sum=0.0;
-			if ( i < iCutoff )
-				for ( int l = 0 ; l <  iCutoff ; l ++)
-					sum += orbital_[l].D1(dR[i],j)*inv_up_matr[i][l];
-			else
-				for ( int l = 0 ; l <  iCutoff ; l ++)
-					sum += orbital_[l].D1(dR[i],j)*inv_down_matr[i-iCutoff][l];
-			ret_vec[i][j] = sum ;
-			}
-
-#endif
 }
 //endvimfold
 double const slaterMatrix::lapl(double** dR){
