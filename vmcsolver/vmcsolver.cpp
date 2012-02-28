@@ -31,9 +31,8 @@ using std::ios;
 #define RAN_UNI DRan_MWC8222
 
 #ifndef OMG
-#define OMG 1.
+#define OMG 1.0
 #endif
-#define OMG2 OMG*OMG
 
 //name and path of ofile
 #ifndef OFNAMEB
@@ -42,84 +41,11 @@ using std::ios;
 #ifndef OFPATHB
 #define OFPATHB "/home/karleik/masterProgging/vmc/datafiles/zerotermalization.dat"
 #endif
-//write to of?
-#ifndef WRITEOFB
-#define WRITEOFB false
+#ifndef OFNAMEB
+#define OFNAMEB "test2.dat"
 #endif
 
-int main(int argc, char** argv)
-{/*//startvimfold*/
-	
-	// ************ MPI INIT **************
-	int myrank, nprocs;
-    MPI_Init(&argc, &argv);
-    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-	// ************************************
-	
-	//Number of variational parameters
-	int num_of_var_par=2;	
-	//Variational param
-	double  var_par[num_of_var_par];
-	//Increase of variational parameters
-	double var_par_inc[num_of_var_par];
-	//Number of variations in each var. par.
-	int var_par_cyc[num_of_var_par];
-	
-	int num_cycles=1.e7;
-	int thermalization=1e6;//0.3*num_cycles;//num_cycles*.5;
-	int num_part=6;
-	int spin_up_cutoff=3;
-	int dimension=2;
-
-	double delta_t = 0.05;
-
-	//double ideal_step=.5;
-	//double omega = 1.0;
-
-	//beta (jastrow)	
-	var_par[0]=0.55;
-	var_par_inc[0]=0.00;
-	var_par_cyc[0]=1;
-	//alpha (orbitals)
-	var_par[1]=.928;//0.92;
-	var_par_inc[1]=0.0;
-	var_par_cyc[1]=1;
-	
-	//construct vmcsolver object
-	vmcsolver solver(num_part, spin_up_cutoff, dimension, num_of_var_par);	
-
-	if (myrank==0)
-	{
-		//output to screen
-		cout<<"\n\n";
-		cout<<"------------------------------------------------------\n";
-		cout<<"\n";
-		cout<<"num_cycles:    \t\t"<<num_cycles<<"\n";
-		cout<<"thermalization:\t\t"<<thermalization<<"\n";
-		cout<<"delta_t:       \t\t"<<delta_t<<"\n";
-		cout<<"num_part:      \t\t"<<num_part<<"\n\n";
-		cout<<"------------------------------------------------------\n\n";
-	}	
-
-	//loop over variational parameters
-	//start sampling
-	for (int loop_v0=0; loop_v0<var_par_cyc[0]; loop_v0++)
-	{
-		var_par[0]+=var_par_inc[0];
-		for (int loop_v1=0; loop_v1<var_par_cyc[1]; loop_v1++)
-		{
-			var_par[1]+=var_par_inc[1];
-			solver.sample(num_cycles, thermalization, var_par, delta_t, myrank);
-		}
-	}
-
-    MPI_Finalize();
-    return 0;
-
-}/*//endvimfold*/
-
-vmcsolver::vmcsolver(int num_part, int spin_up_cutoff,int dimension, int num_of_var_par)
+vmcsolver::vmcsolver(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par)
 {/*//startvimfold*/
 	this->num_part=num_part;
 	this->spin_up_cutoff=spin_up_cutoff;
@@ -150,13 +76,13 @@ vmcsolver::vmcsolver(int num_part, int spin_up_cutoff,int dimension, int num_of_
 	for (int i=0;i<num_part;i++) q_force_old[i]=new double[dimension];
 }/*//endvimfold*/
 
-void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, double delta_t, int myrank)
+void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, double delta_t, int myrank, double* result)
 {/*//startvimfold*/
 
 #if WRITEOFB
 	//Only for rank 0 proc
 	//if (rank=0) ?
-	if (num_cycles>2e7)
+	if (num_cycles>1.1e7)
 	{
 		//
 		cerr<<"Warning: vmcsolver::sample(). Max size for num_cycles (=" 
@@ -184,8 +110,9 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	int accepted=0;
 	//diffusion const D * delta_t = 0.5 * delta_t
 	double dt_x_D = 0.5 * delta_t;
-	//backup of jasgrad
+	//backup of jas_grad and sla_grad
 	double jas_grad_bu[num_part][dimension];
+	double sla_grad_bu[num_part][dimension];
 	//updatevector interparticle distance.
 	double* ipd_upd = new double[num_part-1];
 	//temp for pointer swapping
@@ -194,9 +121,10 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	double** r_new = new double*[num_part];
 	for (i=0;i<num_part;i++) { r_new[i]=new double[dimension]; }
 
-  	idum = (int)time(NULL)*(myrank+1);
+  	idum = (int)abs(time(NULL)*(myrank+1));
+//	cout<<" "<<idum<< " "<<myrank<<" "<<time(NULL)<<"\n";
 	//idum2 = (int)time(NULL);
-	double cseed=5;//diff sequence for different seed
+	int cseed=1;//diff sequence for different seed
 	//init ran number generator. only necc once, move to constructor?
 	RAN_NORM_SET(&idum,cseed);
 	RAN_UNI_SET(&idum,cseed);
@@ -212,7 +140,6 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	//update alpha in orbitals
 	slater->setVarPar(var_par[1]);
 	//initialize slatermatrix and ipd-matrix
-	slater->updateVariationalParameters(var_par);
 	slater->initSlaterMatrix(r_old);	
 	slater->findInverse();
 	ipd->init(r_old);
@@ -223,76 +150,65 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	{
 		ipd->jasGrad(jas_grad, var_par[0],r_old,i);
 	}
-	for (i=0; i<num_part; i++)
+	for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
 	{
-		for (j=0; j<dimension; j++)
-			q_force_old[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
+		q_force_old[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
 	}
-	//init backup of jas_grad 
-	for (i=0; i<num_part;i++)
+	//init backup of jas_grad and slagrad.
+    //not really necc since particles are thermalizing	
+	for (i=0; i<num_part;i++) for (j=0; j<dimension;j++)
 	{
-		for (j=0; j<dimension;j++)
-		{
-			jas_grad_bu[i][j]=jas_grad[i][j];
-		}
+		jas_grad_bu[i][j]=jas_grad[i][j];
 	}
-/*
-			for(i=0;i<dimension;i++){
-			for(j=0;j<num_part;j++)
-			{ cout<<jas_grad[j][i]<<"\t";
-			}cout<<"\n";}
-			cout<<"\n";
-			for(i=0;i<dimension;i++){
-			for(j=0;j<num_part;j++)
-			{ cout<<jas_grad_bu[j][i]<<"\t";
-			}cout<<"\n";}
-			cout<<"\n";
-*/
+	for (i=0; i<num_part;i++) for (j=0; j<dimension;j++)
+	{
+		sla_grad_bu[i][j]=sla_grad[i][j];
+	}
 	//******** START Monte Carlo SAMPLING LOOP ***********
 	for (int loop_c=0;loop_c<num_cycles+thermalization;loop_c++)
 	{
-	//	for (int loop_p=0;loop_p<num_part; loop_p++) //move all particles
-	//	{
-			//Moving one particle at a time. (converges slowly?)
-			//possible to try to move all part. before collecting energy. 
-			//or move two part. at a time, one in each SD?
-			active_part=loop_c%(num_part);
-			//active_part=loop_p;
+		for (int loop_p=0;loop_p<num_part; loop_p++) //move all particles
+		{
+			//new position ++/*//startvimfold*/
+			//possible to move two part. at a time, one in each SD?
+			//active_part=loop_c%(num_part);
+			active_part=loop_p;
 			//get new r_i (r_new) and r_{ij} (ipd_upd) for active particle
 			getNewPos(active_part, r_new, ipd_upd, dt_x_D, delta_t);
+			
 			//wave func ratio
 			wf_R=slater->waveFunction(r_new[active_part],active_part);
+			
+			
 			//log of old jastrow ratio  		
 			jaslR_old = ipd->logJasR(active_part,var_par[0]);
 			//update interparticle distances
 			ipd->update(ipd_upd,active_part);
 			//log of new jastrow ratio  		
 			jaslR_new = ipd->logJasR(active_part,var_par[0]);
+			
 			//upd gradient of jastrow
-			//for (i=0;i<num_part;i++)
+			//BEFORE UPD OF JASGRAD?
 			ipd->jasGrad(jas_grad,var_par[0],r_new,active_part);
-			//update inverse and slatermatrix (neccesary to find gradient??)
-			//if not, wait, use and update() instead of accept().
+			
+			//update inverse
 			slater->update(r_new[active_part],active_part);
-			//update gradients OPT: not necc to recalc for all part..
-			slater->grad(sla_grad,r_new);//only necc to update one part (XXX necc to update inderse before taking gradients??)
-			//*** void calcQF
+			//update gradients XXX OPT: ONLY ONE MATRIX AT A TIME. 2x. speedup
+			slater->grad(sla_grad,r_new);//XXX necc to update inverse before taking gradients??)
+			//*** void calcQF/*//endvimfold*/
 			//calculate new qforce
-			for (i=0; i<num_part; i++)
+			for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
 			{
-				for (j=0; j<dimension; j++)
-				{
-					q_force_new[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
-				}
-			} 
+				//changing 2. will change the acceptance rate
+				q_force_new[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
+			}
 			//double calcGreensf
 			//calculate greensfunc
-			greens_f=0.0;
-			for (i=0; i<num_part; i++)
+			//only necc to calculate for 1 part??
+			greens_f=0.0;/*//startvimfold*/
+			for (i=0; i<num_part; i++) 
 			for (j=0; j<dimension; j++)
 			{
-				//temp1=(q_force_old[i][j]+q_force_new[i][j]);
-				//temp2=(q_force_old[i][j]-q_force_new[i][j]);
 				if (i!=active_part)
 				{
 					greens_f+= 0.25 * dt_x_D *
@@ -301,66 +217,72 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 				} 
 				else
 				{
-					//i=active_part
-					greens_f+=0.5 * (q_force_old[i][j] + q_force_new[i][j]) *
-					   ( 0.5 * dt_x_D * (q_force_old[i][j] - q_force_new[i][j]) +
-						 r_old[i][j] - r_new[i][j] );
-				}	
-			}
-			greens_f=exp(greens_f);
-			//calculate jastrow ratio
-			double jas_R = exp(jaslR_new-jaslR_old);
+  					//i=active_part;
+  					greens_f+=0.5 * (q_force_old[i][j] + q_force_new[i][j]) *
+  					   	( 0.5 * dt_x_D * (q_force_old[i][j] - q_force_new[i][j]) +
+  						r_old[i][j] - r_new[i][j] );
+  				}	
+
+			}			
+			//greens_f=exp(greens_f);/*//endvimfold*/
+
+
 			//metropolis-hastings test
-			if ( RAN_UNI() <= (greens_f * jas_R * jas_R * wf_R * wf_R ) ) 
+			if ( RAN_UNI() <= ( exp( greens_f+2.*(jaslR_new-jaslR_old) ) * wf_R * wf_R ) ) //XXX <! 
 			{
-				//update positions (XXX loop faster)	
-				cblas_dcopy(dimension,&r_new[active_part][0],1,&r_old[active_part][0],1);
-				//accept updates
-			//	for (i=0;i<dimension;i++)
-			//	{
-			//		jas_grad_bu[active_part][i] = jas_grad[active_part][i];
-			//	}
+				//accept updates/*//startvimfold*/
+				//cblas_dcopy(dimension,&r_new[active_part][0],1,&r_old[active_part][0],1);//XXX loop faster
+				for (i=0;i<dimension;i++)
+				{	
+					r_old[active_part][i]=r_new[active_part][i]; 
+				}
 				slater->accept(active_part);
 				ipd->accept(active_part);
 				//update quantumforce, swap pointers q_force_new<->q_force_new
 				s_p_temp = q_force_old;
 				q_force_old = q_force_new;
 				q_force_new = s_p_temp;
-				//restart for-loop in not thermalized
-				if (loop_c<thermalization) { continue; } 
-					//update acceptancerate
-					accepted++;
-					//update local energy
-					e_local_temp=calcLocalEnergy(var_par);
+				//backup gradients
+				for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)
+				{ 
+					jas_grad_bu[i][j] = jas_grad[i][j]; 
+				}
+				for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)//only active matrix
+				{ 
+					sla_grad_bu[i][j] = sla_grad[i][j]; 
+				}/*//endvimfold*/
+				//update acceptancerate
+				if (loop_c>thermalization) { accepted++; } 
 			}
 			else  
 			{
-				//reject updates
-			//	for (i=0;i<dimension;i++)
-			//	{
-			//		jas_grad[active_part][i] = jas_grad_bu[active_part][i];
-			//	}
+				//reject updates/*//startvimfold*/
 				slater->reject(active_part);
 				ipd->reject(active_part);
-				
-				//REJECT NEW sla_grad IF SAMPLING MANY PART AT ONCE!
-				//REJECT NEW jas_grad IF SAMPLING MANY PART AT ONCE!
-				
-
-				//update positions (XXX loop faster)	
-				cblas_dcopy(dimension,&r_old[active_part][0],1,&r_new[active_part][0],1);
-				//restart for-loop if not thermalized
-				if (loop_c<thermalization) { continue; }
+				//revejt new position
+				//cblas_dcopy(dimension,&r_old[active_part][0],1,&r_new[active_part][0],1);/*//endvimfold*/
+				for (i=0;i<dimension;i++)
+				{	
+					r_new[active_part][i]=r_old[active_part][i];
+				}
+				//reset gradients if the energy are calculated after this cycle
+				if (loop_p==(num_part-1)) 
+				{
+					for (i=0;i<num_part;i++) for (j=0;j<dimension;j++) 
+					{ 
+						jas_grad[i][j] = jas_grad_bu[i][j]; 
+					}
+					for (i=0;i<num_part;i++) for (j=0;j<dimension;j++) //XXX only active matrix necc
+					{ 
+						sla_grad[i][j] = sla_grad_bu[i][j]; 
+					}
+				}
 			}
-
-	//}//All particles moved
-
-		//ADD LOOP (loop=0;loop<num_part;...)
-		//Collect energy here (but acceptancerate as before)
-
+		}//All particles moved
+		//restart for-loop if not thermalized
+		if (loop_c<thermalization) { continue; }
 		//if thermalization finished, start collecting data.
-		//add local energy to variables e_local and e_local_squared.
-		//e_local_temp = calcLocalEnergy(var_par);
+		e_local_temp = calcLocalEnergy(var_par);
 		e_local += e_local_temp;
 		e_local_squared += e_local_temp*e_local_temp; 	
 #if WRITEOFB
@@ -372,21 +294,24 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 		ofile.write(e_chunk)
 		e_chunk=0.0;
 		   */
-		if (myrank==0){
-    	ofile << setiosflags(ios::showpoint | ios::uppercase);
-    	ofile << setw(16) << setprecision(16) << e_local_temp <<"\n";
+		if (myrank==0)
+		{
+			ofile << setiosflags(ios::showpoint | ios::uppercase);
+			ofile << setw(16) << setprecision(16) << e_local_temp <<"\n";
 		}
 #endif
-	}
-	
-	//************************** END OF MC sampling **************************
+	} //************************** END OF MC sampling **************************
 
-	cout<<"alpha: "<<var_par[1];
-	cout<<" beta: "<<var_par[0]<<" ";
-	cout<<setprecision(10)<<"Local energy:  "<<(e_local/(double)num_cycles);	
-	cout<<setprecision(5)<<"\tvariance:  "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
-	cout<<setprecision(5)<<"\tAcc.rate:  "<<accepted/(double)(num_cycles)<<"\n";
+	cout<<setprecision(4)<<"alpha: "<<var_par[1];
+	cout<<setprecision(4)<<" beta: "<<var_par[0]<<"\t";
+	cout<<setprecision(10)<< "Local energy: "<<(e_local/(double)num_cycles);	
+	cout<<setprecision(5)<<" variance^2: "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
+	cout<<setprecision(5)<<" Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
 	//cout<<"beta :\t\t"<<var_par[0]<<"\n";
+
+	//return values
+	result[0]=(e_local/(double)num_cycles);
+	result[1]=(e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
 
 #if WRITEOFB
 	ofile.close();
@@ -400,40 +325,60 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 
 double vmcsolver::calcLocalEnergy(double* var_par)
 {	/*//startvimfold*/
-	
 	int i;	
-		
-	double e_kinetic=0;
-	//Laplacian of slatermatrices: \nabla^2 \Psi_{\uparrow} + \nable^2 \Psi_{\downarrow}
-	e_kinetic+=slater->lapl(r_old);
-	//Laplacian of : 
-	e_kinetic+=ipd->jasLapl(var_par[0],r_old);
 	
+	double e_kinetic=0;
+	//Laplacian of slatermatrices
+	e_kinetic-=slater->lapl(r_old);
+	//Laplacian of jastrow 
+#if 1
+	e_kinetic-=ipd->jasLapl(var_par[0],r_old); //x2??
+#else/*//startvimfold*/
+//mortens kode
+double rij,a;
+double beta = var_par[0];
+int N=6;
+int N2=3;
+for ( i = 0 ; i < N-1; i ++) {
+	for ( int j = i +1; j < N ; j ++) {
+		if ( ( j < N2 && i < N2 ) || ( j >= N2 && i >= N2))
+			a = 0.33333333;
+		else
+			a = 1.0;
+		rij=0.0;
+		for (int k = 0; k<dimension; k++)
+			rij+=pow(r_old[i][k]-r_old[j][k],2);
+		rij=sqrt(rij);
+		e_kinetic -= a*(1.-rij*beta) / ( rij *pow(1.+ beta * rij , 3 ) );
+	}
+}/*//endvimfold*/
+#endif
 	for (i=0;i<num_part;i++)
 	{
-		e_kinetic+=2.0*cblas_ddot(dimension,jas_grad[i],1,sla_grad[i],1);
-		e_kinetic+=cblas_ddot(dimension,jas_grad[i],1,jas_grad[i],1);
+		e_kinetic-=cblas_ddot(dimension,jas_grad[i],1,jas_grad[i],1);
 	}
-	e_kinetic *= -0.5;
-
+	//cross term of the total laplacian
+	e_kinetic *= 0.5;	
+	for (i=0;i<num_part;i++)
+	{
+		e_kinetic-=cblas_ddot(dimension,jas_grad[i],1,sla_grad[i],1);
+	}
 	double e_potential=0.0;
 	//e - V_ext electrostatic pot
 	//OPT: only |\vec r|^2 for one particle needs to be updated.
 	for (i = 0; i < num_part; i++) 
 	{
-		e_potential+=OMG2*cblas_ddot(dimension,r_old[i],1,r_old[i],1);
+		e_potential+=cblas_ddot(dimension,r_old[i],1,r_old[i],1);
 	}
-	e_potential*=0.5;
+	e_potential*=0.5*OMG*OMG;
 	// e-e electrostatic interaction
 	e_potential += ipd->sumInvlen();
-	//update local energy and local energy squared
+	
 	return e_potential+e_kinetic;
-	//*e_local += e_potential+e_kinetic;
-	//*e_local_squared += pow((e_potential+e_kinetic),2); 
 }/*//endvimfold*/
 
-void vmcsolver::getNewPos(int active_part, double** r_new, 
-		double* ipd_upd, double dt_x_D, double delta_t)
+void vmcsolver::getNewPos(int active_part, double** r_new, double* ipd_upd, 
+		double dt_x_D, double delta_t)
 {/*//startvimfold*/
 	
 	int i,k;

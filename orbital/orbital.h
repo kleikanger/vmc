@@ -27,16 +27,16 @@ class orbital {
 		void setAlpha(double);
 		//input: position r of particle
 		//returns value of orbital in r.
-		const double valueWF(double*);
+		double const valueWF(double*);
 		//input: position r of particle, axis
 		//returns gradient in r along axis
-		const double D1(double*, int);
+		double const D1(double*, int);
 		//input: position r of particle
 		//returns laplacian in r.
-		const double D2(double*);
+		double const D2(double*);
 		//Functions that returns different object properties
-		const int angularMomentum();
-		const int energyLevel();
-		const bool spinUp();
+		int const angularMomentum();
+		int const energyLevel();
+		bool const spinUp();
 };
 

@@ -42,6 +42,7 @@ class ipdist{
 
 		// elements (r_ij)
 		double** ip_len;
+		// XXX remove ip_invlen !!
 		// inverse elements (1/r_ij)
 		double** ip_invlen;
 		// elements (r_ij)
@@ -87,7 +88,7 @@ class ipdist{
 		/*
 		   Return sum of inverse elements. e-e electrostatic energy = ee/sum
 		 */	   
-		const double sumInvlen();
+		double const sumInvlen();
 		/*
 		   Sum all elements where one of the indices = i_upd
 		   		( 
@@ -99,21 +100,21 @@ class ipdist{
 				,r_{i_upd,n-1} 
 				) 	
 		 */
-		const double sumPart(int i_upd);
+		double const sumPart(int i_upd);
 		/*
 		   returns R. exp(R_new-R_old) = the jastrow ratio when only one 
 		   particle r_{i_upd}  is moved.
 		   */
-		const double logJasR(int i_upd, double beta);
+		double const logJasR(int i_upd, double beta);
 		/*
 		   returns gradient of jastrow. i_upd part. in ret_vec will be changed to new 
 		   gradient. beta is the variational parameter, and r is the positionvector.
 		*/	   
-		const void jasGrad(double** ret_vec, double beta, double** r, int i_upd);
+		void const jasGrad(double** ret_vec, double beta, double** r, int i_upd);
 		/*
 		   Calculate laplacian. beta is the variational parameter.
 		   */
-		const double jasLapl(double beta, double** r);
+		double const jasLapl(double beta, double** r);
 		/*
 		   clear all malloced vars
 		 */

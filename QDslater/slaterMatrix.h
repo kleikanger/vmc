@@ -109,17 +109,17 @@ class slaterMatrix {
 		   Using the inverse matrixes to calculate the determinant. r_new is the position 
 		   of the new particle, i_upd the number of the particle.
 		 	*/
-		const double waveFunction(double*, int);
+		double const waveFunction(double*, int);
 		/*
 		   Calculate ( \nabla \Psi ) / \Psi.
 		   ret_vec changed to updated gradient. 
 		   TEST!
 		 	*/		   
-		const void grad(double** ret_vec, double** dR);// int axis, int i_upd);
+		void const grad(double** ret_vec, double** dR);// int axis, int i_upd);
 		/*
 		   Calculate the laplacian of the slatermatrixes.
 		   */
-		const double lapl(double** dR);
+		double const lapl(double** dR);
 		/*
 		   Print slatermatrices and the inverse.
 		   */

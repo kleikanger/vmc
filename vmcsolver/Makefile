@@ -6,6 +6,9 @@ NPROC=-n 2
 CC=mpic++
 GPROFOUT=gprof_testres.txt
 
+vmcsolver.out: all
+	$(CC) $(CFLAGS) vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o -o vmcsolver.out $(LFLAGS)
+
 all: vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o
 
 run: vmcsolver.out
@@ -16,9 +19,6 @@ profile: all
 	mpiexec $(NPROC) vmcsolver_gprof.out 
 	gprof ./vmcsolver_gprof.out gmon.out > $(GPROFOUT)
 	less $(GPROFOUT)
-
-vmcsolver.out: all
-	$(CC) $(CFLAGS) vmcsolver.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o -o vmcsolver.out $(LFLAGS)
 
 vmcsolver.o: vmcsolver.h vmcsolver.cpp
 	$(CC) $(CFLAGS) -c vmcsolver.h vmcsolver.cpp $(LFLAGS)

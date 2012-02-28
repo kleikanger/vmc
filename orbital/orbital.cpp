@@ -14,8 +14,8 @@ using std::cerr;
 //const. for calc. of derivatives.
 
 #define H 0.001
-#define ONE_OVER_H 1000
-#define ONE_OVER_H2 1000000
+#define ONE_OVER_H (double)1000
+#define ONE_OVER_H2 (double)1000000
 
 #ifndef ANALYTIC_D1
 #define ANALYTIC_D1 true
@@ -26,8 +26,6 @@ using std::cerr;
 #ifndef OMG
 #define OMG 1.
 #endif
-//squareroot of omega
-#define SQOMG 1. 
 
 //Orbitals
 inline double psi_10(double r_sqrd, double alpha)
@@ -35,21 +33,21 @@ inline double psi_10(double r_sqrd, double alpha)
 	return exp(-0.5 * alpha * OMG * r_sqrd);
 }
 //hermite polynomials. (h0=1);
-inline double h1(double x)
+inline double h1(double x, double alpha)
 {
-	return 2.*x*SQOMG; 
+	return 2.*x*sqrt(OMG*alpha); 
 }
-inline double h2(double x)
+inline double h2(double x, double alpha)
 {
-	return 4.*pow(x*SQOMG,2) - 2.; 
+	return 4.*x*x*OMG*alpha - 2.; 
 }
-inline double h3(double x)
+inline double h3(double x, double alpha)
 {
-	return 8.*pow(x*SQOMG,3) - 12.; 
+	return 8.*pow(x*sqrt(OMG*alpha),3) - 12.; 
 }
-inline double h4(double x)
+inline double h4(double x, double alpha)
 {
-	return 16.*pow(x*SQOMG,4) - 48.*pow(x*SQOMG,2) + 12.; 
+	return 16.*pow(x*sqrt(OMG*alpha),4) - 48.*pow(x*sqrt(alpha*OMG),2) + 12.; //swrt(O*a)**4=(o*a)**2
 }
 //Constructors
 orbital::orbital(){}
@@ -88,17 +86,17 @@ void orbital::setValues(int el,int am, bool su, int di){
 	} else if (energy_level*energy_level<angular_momentum*angular_momentum) {
 	cout<<"\nerror: |angular_momentum| larger than energy_level.\n";
 	exit(1);
-	} else {
-	//cout<<"particle initialized: energy_level: "<<energy_level
-	//			<<", angular momentum: "<<angular_momentum
-	//			<<", spin_up: "<<spin_up<<"\n"; 
+//	} else {
+//	cout<<"particle initialized: energy_level: "<<energy_level
+//				<<", angular momentum: "<<angular_momentum
+//				<<", spin_up: "<<spin_up<<"\n"; 
 	}
 }
 //endvimfold
 void orbital::setAlpha(double alph){
 	alpha = alph;/*//startvimfold*/
 }/*//endvimfold*/
-const double orbital::valueWF(double* dR){
+double const orbital::valueWF(double* dR){
 //startvimfold
 //CALCULATE: value of the orbital in some point dR.
 
@@ -113,8 +111,8 @@ const double orbital::valueWF(double* dR){
 		switch (energy_level) 
 		{
 			case 1: return psi_10(r_sqrd,alpha);
-			case 2: return h1(dR[0])*psi_10(r_sqrd,alpha);
-			case 3: return h1(dR[1])*psi_10(r_sqrd,alpha);
+			case 2: return h1(dR[0],alpha)*psi_10(r_sqrd,alpha);//n_x=1,n_y=0
+			case 3: return h1(dR[1],alpha)*psi_10(r_sqrd,alpha);//n_y=1,n_x=0
 			default: 
 					cerr<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
@@ -126,8 +124,8 @@ const double orbital::valueWF(double* dR){
 		switch (energy_level) 
 		{
 			case 1:	return psi_10(r_sqrd,alpha);
-			case 2: return h1(dR[0])*psi_10(r_sqrd,alpha);
-			case 3: return h1(dR[1])*psi_10(r_sqrd,alpha);
+			case 2: return h1(dR[0],alpha)*psi_10(r_sqrd,alpha);
+			case 3: return h1(dR[1],alpha)*psi_10(r_sqrd,alpha);
 			default:
 					cerr<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
@@ -136,7 +134,7 @@ const double orbital::valueWF(double* dR){
 	}	
 }//end of orbitalWavefunctions::orbitalWavefunctions()
 //endvimfold
-const double orbital::D1(double* dR, int axis){
+double const orbital::D1(double* dR, int axis){
 //startvimfold
 //CALCULATE: gradient along one axis. axis E {0,1,2,..}
 #if !ANALYTIC_D1
@@ -157,50 +155,30 @@ const double orbital::D1(double* dR, int axis){
 #else
 	//Analytic expressions for the gradients
 	//double abs_r = cblas_dnrm2(dim,dR,1);
-	if (spin_up) {
 
+//	if (spin_up) {
 		switch (energy_level) {
 			case 1: return -dR[axis]*alpha*OMG*valueWF(dR);
 			case 2:	//n_x=1 n_y=0
 					if (axis==0) return 
-					(2.*sqrt(OMG*alpha) / h1(dR[0])-dR[0]*OMG*alpha)*valueWF(dR);
+					( 2.*sqrt(OMG*alpha)/h1(dR[0],alpha)-dR[0]*OMG*alpha )*valueWF(dR);
 					else return 
-					(-dR[1]*OMG*alpha)*valueWF(dR);	
+					( -dR[1]*OMG*alpha )*valueWF(dR);	
 			case 3: //n_x=0 n_y=1
-					if (axis==0) return
-					(-dR[0]*OMG*alpha)*valueWF(dR);
+					if (axis==0) return 
+					( -dR[0]*OMG*alpha )*valueWF(dR);
 					else return
-					(2.*sqrt(OMG*alpha) / h1(dR[1])-dR[1]*OMG*alpha)*valueWF(dR);	
-			case 4: return 0;
+					( 2.*sqrt(OMG*alpha)/h1(dR[1],alpha)-dR[1]*OMG*alpha )*valueWF(dR);	
 			default: 
 					cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
 					exit(1);
-		}
-	} else {
-		switch (energy_level) {
-			case 1:	return -dR[axis]*alpha*OMG*valueWF(dR);	
-			case 2:	//n_x=1 //n_y=0
-					if (axis==0) return 
-					(2.*sqrt(OMG*alpha) / h1(dR[0])-dR[0]*OMG*alpha)*valueWF(dR);
-					else return 
-					(-dR[1]*OMG*alpha)*valueWF(dR);	
-			case 3: //n_x=0 n_y=1
-					if (axis==0) return
-					(-dR[0]*OMG*alpha)*valueWF(dR);
-					else return
-					(2.*sqrt(OMG*alpha) / h1(dR[1])-dR[1]*OMG*alpha)*valueWF(dR);	
-			case 4: return 0;
-			default:
-					cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
-						<<", energy_level= " <<energy_level<<"\n";
-					exit(1);
-		}
-	}	
+		}	
+//	} else {
 #endif
 }
 //endvimfold
-const double orbital::D2(double* dR){
+double const orbital::D2(double* dR){
 //startvimfold
 //calc: laplacian in some point dR.
 
@@ -228,48 +206,33 @@ const double orbital::D2(double* dR){
 	
 	double r_sq = cblas_ddot(dim,dR,1,dR,1);
 	
-	if (spin_up) {
-	
+	//if (spin_up) {
 		switch (energy_level) {
 			case 1: return alpha*OMG*(alpha*OMG*r_sq -2.)*valueWF(dR);
 			case 2:	return //n_x=1 n_y=0 
-					OMG*alpha*(OMG*alpha*r_sq-2.-4.*dR[0]/h1(dR[0]))*valueWF(dR);
+					OMG*alpha*( OMG*alpha*r_sq-2.-4.*sqrt(OMG*alpha)*dR[0]/h1(dR[0],alpha) )*valueWF(dR);
 			case 3: return //n_x=0 n_y=1 
-					OMG*alpha*(OMG*alpha*r_sq-2.-4.*dR[1]/h1(dR[1]))*valueWF(dR);
-			case 4: return 0;
+					OMG*alpha*( OMG*alpha*r_sq-2.-4.*sqrt(OMG*alpha)*dR[1]/h1(dR[1],alpha))*valueWF(dR);
 			default: 
 					cerr<<"\n error in orbital::D2(): energy_level out of bounds\n"
 						<<", energy_level= " <<energy_level<<"\n";
 					exit(1);
 		}
-	} else {
-		switch (energy_level) {
-			case 1:	return alpha*OMG*(alpha*OMG*r_sq - 2.)*valueWF(dR);
-			case 2:	return //n_x=1 n_y=0 
-					OMG*alpha*(OMG*alpha*r_sq-2.-4.*dR[0]/h1(dR[0]))*valueWF(dR);
-			case 3: return //n_x=0 n_y=1 
-					OMG*alpha*(OMG*alpha*r_sq-2.-4.*dR[1]/h1(dR[1]))*valueWF(dR);
-			case 4: return 0;
-			default:
-					cerr<<"\n error in orbital::D2(): energy_level out of bounds\n"
-						<<", energy_level= " <<energy_level<<"\n";
-					exit(1);
-		}
-	}	
+	//} else {
 #endif
 }
 //endvimfold
-const int orbital::angularMomentum(){
+int const orbital::angularMomentum(){
 //startvimfold
 	return angular_momentum;
 }
 //endvimfold
-const int orbital::energyLevel(){
+int const orbital::energyLevel(){
 //startvimfold
 	return energy_level;
 }
 //endvimfold
-const bool orbital::spinUp(){
+bool const orbital::spinUp(){
 //startvimfold
 //returns true if spin up
 	return spin_up;
