@@ -3,8 +3,11 @@
 	are needed, and n-1 elements needs to be updated every time a patricle is moved.
 	update O(n-1) instead of O(n(n-1)/2).
 
-	class keeping two matrices one for the interparticle distances r_ij, 
-	and one for the inverse elements 1/r_ij. 
+	class keeping two matrices one for the interparticle distances r_ij, and
+   	one	for corresponding elements for the old matrix. 
+
+	returns values for the gradient, the laplacian and the log of the jastrow function.
+	Maybe it will pay off to init a new matrix g_ij = r_ij /(1+beta*rij) ??
 
 	does not check if 1/r_ij is singular. that could in principle be a problem since 
 	a jump to a configuration where r_i=r_j will always be accepted by the metropolis-algo
@@ -23,6 +26,8 @@ class ipdist{
 		int dim;
 		//spin down particles: only for calculating jastrow grad and lapl
 		int iCutoff;
+		//variational parameter
+		double beta;
 		
 		/*
 		   lower triangular with no diag elements n(n-1)/2 elem.
@@ -42,13 +47,8 @@ class ipdist{
 
 		// elements (r_ij)
 		double** ip_len;
-		// XXX remove ip_invlen !!
-		// inverse elements (1/r_ij)
-		double** ip_invlen;
-		// elements (r_ij)
+		// elements (r_ij). old iplen.
 		double** ip_len_backup;
-		// inverse elements (1/r_ij)
-		double** ip_invlen_backup;
 
 	public: 
 		/*
@@ -57,10 +57,18 @@ class ipdist{
 		 */
 		ipdist(int n, int di, int iC);
 		/*
+		   clear all malloced vars
+		 */
+		~ipdist();
+		/*
 		   init all elements in ip_len and ip_invlen
 		   NB! one should check if any of these elements are 0.
 		 */
 		void init(double** x);
+		/*
+		   Set variational parameter beta
+		   */
+		void setBeta(double beta);
 		/*
 		   updates n-1 elements of ip_len and ip_invlen
 		   u_upd column and row.
@@ -90,35 +98,19 @@ class ipdist{
 		 */	   
 		double const sumInvlen();
 		/*
-		   Sum all elements where one of the indices = i_upd
-		   		( 
-		 		r_{i_upd,0}
-				,...
-				,r_{i_upd,i_upd-1}
-				,r_{i_upd,i_upd+1}
-				,...
-				,r_{i_upd,n-1} 
-				) 	
-		 */
-		double const sumPart(int i_upd);
-		/*
 		   returns R. exp(R_new-R_old) = the jastrow ratio when only one 
 		   particle r_{i_upd}  is moved.
 		   */
-		double const logJasR(int i_upd, double beta);
+		double const logJasR(int i_upd);
 		/*
 		   returns gradient of jastrow. i_upd part. in ret_vec will be changed to new 
 		   gradient. beta is the variational parameter, and r is the positionvector.
 		*/	   
-		void const jasGrad(double** ret_vec, double beta, double** r, int i_upd);
+		void const jasGrad(double** ret_vec, double** r);
 		/*
 		   Calculate laplacian. beta is the variational parameter.
 		   */
-		double const jasLapl(double beta, double** r);
-		/*
-		   clear all malloced vars
-		 */
-		void clear();
+		double const jasLapl(double** r);
 		//Testing
 		void print();
 		

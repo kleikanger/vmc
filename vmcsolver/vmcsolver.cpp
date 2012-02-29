@@ -35,14 +35,11 @@ using std::ios;
 #endif
 
 //name and path of ofile
-#ifndef OFNAMEB
-#define OFNAMEB "test1.dat"
+#ifndef WRITEOFB
+#define WRITEOFB false
 #endif
 #ifndef OFPATHB
 #define OFPATHB "/home/karleik/masterProgging/vmc/datafiles/zerotermalization.dat"
-#endif
-#ifndef OFNAMEB
-#define OFNAMEB "test2.dat"
 #endif
 
 vmcsolver::vmcsolver(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par)
@@ -121,7 +118,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	double** r_new = new double*[num_part];
 	for (i=0;i<num_part;i++) { r_new[i]=new double[dimension]; }
 
-  	idum = (int)abs(time(NULL)*(myrank+1));
+  	idum = 1;//(int)abs(time(NULL)*(myrank+1));
 //	cout<<" "<<idum<< " "<<myrank<<" "<<time(NULL)<<"\n";
 	//idum2 = (int)time(NULL);
 	int cseed=1;//diff sequence for different seed
@@ -263,6 +260,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 					r_new[active_part][i]=r_old[active_part][i];
 				}
 				//NB ONLY NECC FOR UP OR DOWN MATR
+			   	if (!((active_part+1)%spin_up_cutoff))	
 				for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)
 				{ 
 					sla_grad[i][j] = sla_grad_bu[i][j]; 
@@ -433,7 +431,6 @@ vmcsolver::~vmcsolver()
 	delete[] r_old;
 	
 	//make destructor for these classes
-	ipd->clear();
 	delete slater;
 	delete ipd;
 }//End function /*//endvimfold*/
