@@ -105,7 +105,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 	double greens_f;
 	int i,j,k,active_part;
 	int accepted=0;
-	//diffusion const D * delta_t = 0.5 * delta_t
+	//diffusion  D * delta_t = 0.5 * delta_t
 	double dt_x_D = 0.5 * delta_t;
 	//backup of jas_grad and sla_grad
 	double jas_grad_bu[num_part][dimension];
@@ -122,7 +122,7 @@ void vmcsolver::sample(int num_cycles, int thermalization, double* var_par, doub
 //	cout<<" "<<idum<< " "<<myrank<<" "<<time(NULL)<<"\n";
 	//idum2 = (int)time(NULL);
 	int cseed=1;//diff sequence for different seed
-	//init ran number generator. only necc once, move to constructor?
+	//init ran number generator. only necc once, move to ructor?
 	RAN_NORM_SET(&idum,cseed);
 	RAN_UNI_SET(&idum,cseed);
 	

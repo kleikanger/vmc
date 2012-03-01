@@ -1,4 +1,4 @@
-#include <cblas.h>
+#include <mkl_cblas.h>
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
@@ -132,7 +132,8 @@ void walker::initWalker(double* var_par, double delta_t)
 	slater->grad(sla_grad,r_old,0);
 	slater->grad(sla_grad,r_old,spin_up_cutoff);
 	//init gradient of jastrow
-	ipd->jasGrad(jas_grad, r_old);
+	for (i=0;i<num_part;i++)
+		ipd->jasGrad(jas_grad, r_new, r_old, i);
 	//init Q-force
 	for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
 	{
@@ -167,7 +168,7 @@ bool walker::tryRandomStep(int active_part)
 	jas_l_R *=2.;
 
 	//upd gradient of jastrow
-	ipd->jasGrad(jas_grad,r_new);
+	ipd->jasGrad(jas_grad,r_new,r_old, active_part);
 
 	//update inverse determinant and determinant
 	slater->update(r_new[active_part],active_part);
@@ -228,9 +229,20 @@ void walker::acceptStep(int active_part)
 	{ 
 		jas_grad_bu[i][j] = jas_grad[i][j]; 
 	}
-	for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)//only active matrix necc
-	{ 
-		sla_grad_bu[i][j] = sla_grad[i][j]; 
+	//only active matr necc to update
+	if (active_part<spin_up_cutoff)
+	{
+		for (i=0;i<spin_up_cutoff;i++) for (j=0;j<dimension;j++)
+		{ 
+			sla_grad_bu[i][j] = sla_grad[i][j]; 
+		}
+	}
+	else
+	{
+		for (i=spin_up_cutoff;i<num_part;i++) for (j=0;j<dimension;j++)
+		{ 
+			sla_grad_bu[i][j] = sla_grad[i][j]; 
+		}
 	}
 }/*//endvimfold*/
 
@@ -246,17 +258,28 @@ void walker::rejectStep(int active_part)
 	slater->reject(active_part);
 	ipd->reject(active_part);
 	//(ONLY NECC FOR UP OR DOWN MATR)
+	//only active matr necc to update
 	//reset slater gradient only if active_part is the last particle
 	//in the determinant (spin_up or spin_down)
 	if ( !((active_part+1)%spin_up_cutoff ))	
 	{
-		for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)
+	if (active_part<spin_up_cutoff)
+	{
+		for (i=0;i<spin_up_cutoff;i++) for (j=0;j<dimension;j++)
 		{ 
 			sla_grad[i][j] = sla_grad_bu[i][j]; 
 		}
 	}
-	//reset gradient only if the energy are calculated after this cycle
-	if (active_part==(num_part-1)) 
+	else
+	{
+		for (i=spin_up_cutoff;i<num_part;i++) for (j=0;j<dimension;j++)
+		{ 
+			sla_grad[i][j] = sla_grad_bu[i][j]; 
+		}
+	}
+	}
+	//Must reset every cycle because of new jastgrad routine
+	//if (active_part==(num_part-1)) 
 	{
 		for (i=0;i<num_part;i++) for (j=0;j<dimension;j++) 
 		{ 

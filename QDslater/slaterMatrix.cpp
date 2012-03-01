@@ -20,7 +20,7 @@
 #include "slaterMatrix.h"
 #include <iostream>
 #include "../lib/lib.h"
-#include <cblas.h>
+#include <mkl_cblas.h>
 
 using std::cout;
 
@@ -330,7 +330,6 @@ double const slaterMatrix::waveFunction(int i_upd){
 	//startvimfold
 	//returns ratio between new and old determinant when one particle moved.
 	int i;
-	//double new_vec[iCutoff];
 	
 	//double sum=0;
 	if (i_upd<iCutoff)
@@ -379,7 +378,7 @@ void const slaterMatrix::grad(double** ret_vec, double** dR, int active_part)//,
 				for (i=0;i<iCutoff;i++)
 				{
 					//temp1+=orbital_[i].D1(dR,axis)*inv_up_matr[i_upd][i];
-					d_upd[i]=orbital_[i].D1(dR[i_upd],axis);
+					d_upd[i]=orbital_[i].D1(dR[i_upd],axis)*spin_up_matr[i_upd][i];
 				}
 			//grad_up[axis]=cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
 			ret_vec[i_upd][axis] = cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
@@ -395,7 +394,7 @@ void const slaterMatrix::grad(double** ret_vec, double** dR, int active_part)//,
 				for (i=iCutoff;i<iNumPart;i++)
 				{
 					//temp2+=orbital_[i].D1(dR,axis)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
-					d_upd[i-iCutoff]=orbital_[i].D1(dR[i_upd],axis);
+					d_upd[i-iCutoff]=orbital_[i].D1(dR[i_upd],axis)*spin_down_matr[i_upd-iCutoff][i-iCutoff];
 				}
 			//grad_down[axis]=cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd-iCutoff],1);
 			ret_vec[i_upd][axis] = cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd-iCutoff],1);
@@ -415,7 +414,7 @@ double const slaterMatrix::lapl(double** dR){
 	{		
 		for (i=0;i<iCutoff;i++)
 		{
-			d_upd[i]=orbital_[i].D2(dR[j]);
+			d_upd[i]=orbital_[i].D2(dR[j])*spin_up_matr[j][i];
 		}
 		temp += cblas_ddot(iCutoff,d_upd,1,inv_up_matr[j],1);
 	}	
@@ -423,7 +422,7 @@ double const slaterMatrix::lapl(double** dR){
 	{
 		for (i=0;i<iCutoff;i++)
 		{
-			d_upd[i]=orbital_[i+iCutoff].D2(dR[j+iCutoff]);
+			d_upd[i]=orbital_[i+iCutoff].D2(dR[j+iCutoff])*spin_down_matr[j][i];
 		}
 		temp += cblas_ddot(iCutoff,d_upd,1,inv_down_matr[j],1);
 	}

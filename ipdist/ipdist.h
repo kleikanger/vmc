@@ -106,7 +106,7 @@ class ipdist{
 		   returns gradient of jastrow. i_upd part. in ret_vec will be changed to new 
 		   gradient. beta is the variational parameter, and r is the positionvector.
 		*/	   
-		void const jasGrad(double** ret_vec, double** r);
+		void const jasGrad(double** ret_vec, double** r, double** r_old, int i_upd);
 		/*
 		   Calculate laplacian. beta is the variational parameter.
 		   */

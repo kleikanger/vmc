@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
-#include <cblas.h>
+#include <mkl_cblas.h>
 
 using std::cout;
 
@@ -117,22 +117,108 @@ double const ipdist::sumInvlen()
 	}
 	return sum;
 }/*//endvimfold*/
-void const ipdist::jasGrad(double** ret_vec, double** r)
+void const ipdist::jasGrad(double** ret_vec, double** r, double** r_old, int i_upd)
 {//startvimfold
-	int j,k,i;
+	int j,i; //k
 	//temporary variable
 	double r_kj=0;
 	//jastrow par
 	double a=0.3333333333333333;
-	double temp, sum;
+	double temp;
 	//set all enements in ret_vec = 0
 	//XXX OPT: take away this summation. 
 	//sum as in mortens code
+	
+#if 1
+	//Oonly changing the elements that has nev values changed
+	int i_upd_mo;
+	//i_upd minus one
+	i_upd_mo=i_upd-1;
+	//n-1 elements in ip_len needs to be updated
+	
+	double r_kj_old, temp_old;
+	
+	
+	for (j=0;j<dim;j++)
+	{
+		ret_vec[i_upd][j]=0.0;
+	}
+
+	bool spin_up_particle = (i_upd<iCutoff);
+	for (i=0;i<i_upd;i++)
+	{
+		r_kj=ip_len[i_upd_mo][i];
+		r_kj_old=ip_len_backup[i_upd_mo][i];
+
+		if ((i<iCutoff)==(spin_up_particle)) 
+		{
+			temp =  a /(r_kj * pow(1.+beta*r_kj,2));
+			temp_old = a /(r_kj_old * pow(1.+beta*r_kj_old,2));
+		}
+		//particles with antiparallel spins
+		else	
+		{
+			//a=1.0
+			temp = 1.0 /(r_kj * pow(1.+beta*r_kj,2));
+			temp_old = 1.0 /(r_kj_old * pow(1.+beta*r_kj_old,2));
+		}
+/*
+		a = ((i<iCutoff)==(spin_up_particle)) ? .3333333333333333 : 1;
+		temp =  a /(r_kj * pow(1.+beta*r_kj,2));
+		temp_old = a /(r_kj_old * pow(1.+beta*r_kj_old,2));
+*/
+		for (j=0;j<dim;j++)
+		{
+			ret_vec[i][j]-=temp_old*(r_old[i][j]-r_old[i_upd][j]);
+			ret_vec[i][j]+=temp*(r[i][j]-r[i_upd][j]);
+		}
+
+		for (j=0;j<dim;j++)
+			ret_vec[i_upd][j]+=temp*(r[i_upd][j]-r[i][j]);
+		
+	}
+	for (i=i_upd;i<n_min_one;i++)
+	{
+		r_kj=ip_len[i][i_upd];
+		r_kj_old=ip_len_backup[i][i_upd];
+		
+		if (((i+1)<iCutoff)==(spin_up_particle)) 
+		{
+			temp =  a /(r_kj * pow(1.+beta*r_kj,2));
+			temp_old = a /(r_kj_old * pow(1.+beta*r_kj_old,2));
+
+		}
+		//particles with antiparallel spins
+		else	
+		{
+			//a=1.0
+			temp = 1.0 /(r_kj * pow(1.+beta*r_kj,2));
+			temp_old = 1.0 /(r_kj_old * pow(1.+beta*r_kj_old,2));
+		}
+		/*
+		a = (((i+1)<iCutoff)==(spin_up_particle)) ? .3333333333333333 : 1;
+		temp =  a /(r_kj * pow(1.+beta*r_kj,2));
+		temp_old = a /(r_kj_old * pow(1.+beta*r_kj_old,2));
+		*/
+		for (j=0;j<dim;j++)
+		{
+			ret_vec[i+1][j]-=temp_old*(r_old[i+1][j]-r_old[i_upd][j]);
+			ret_vec[i+1][j]+=temp*(r[i+1][j]-r[i_upd][j]);
+		}
+
+		for (j=0;j<dim;j++)
+			ret_vec[i_upd][j]+=temp*(r[i_upd][j]-r[i+1][j]);
+	}
+#else
+	//evt init jastgrad	
+		
+		
 	for (k=0;k<=n_min_one;k++)	
 		for (j=0;j<dim;j++)
 		{
 			ret_vec[k][j]=0.0;
 		}
+	
 
 	//Sum over all particles in j & k. j!=k	
 	for (k=0;k<=n_min_one;k++)
@@ -181,6 +267,7 @@ void const ipdist::jasGrad(double** ret_vec, double** r)
 			}
 		}
 	}
+#endif
 	//EVT set up temp matrix and use level 3 blas func.
 }//endvimfold
 double const ipdist::jasLapl(double** r)
@@ -196,7 +283,7 @@ double const ipdist::jasLapl(double** r)
 
 	for (k=0;k<=n_min_one;k++)
 	{
-#if 1
+#if 0
 		for (j=0;j<k;j++)
 		{   
 			//pick the correct matrix element	
@@ -231,8 +318,8 @@ double const ipdist::jasLapl(double** r)
 			}
 		}
 	}
-  	return sum;
-#if 0
+  //	return sum;
+#if 1
 	//will give same results if we do not sum the particle twice
 	return 2.*sum;
 #endif
@@ -241,26 +328,39 @@ double const ipdist::jasLapl(double** r)
 //endvimfold
 double const ipdist::logJasR(int i_upd)
 {/*//startvimfold*/
-	double r_12, a;
+	double r_12;
 	int i;
 	double sum=0.0;
-	double con=0.3333333333333333;
+	double a=0.3333333333333333;
 	bool i_upd_spin_up=(i_upd<iCutoff);
 	int i_upd_mo=i_upd-1;
 	//n-1 elements in ip_len needs to be summed
 	for (i=0;i<i_upd;i++)
 	{
-		(i_upd_spin_up==i<iCutoff) ? a=con : a=1.0; 
-		//if (i_upd_spin_up==(i<iCutoff))  a=con; else a=1.0; 
 		r_12=ip_len[i_upd_mo][i];
-		sum+=a*r_12/(1.0 + beta*r_12);
+		if (i_upd_spin_up==i<iCutoff) //? a=con : a=1.0; 
+		//if (i_upd_spin_up==(i<iCutoff))  a=con; else a=1.0; 
+		{
+			sum+=a*r_12/(1.0 + beta*r_12);
+		}
+		else
+		{
+			sum+=r_12/(1.0 + beta*r_12);
+		}
 	}
 	for (i=i_upd;i<n_min_one;i++)
 	{
-		(i_upd_spin_up==((i+1)<iCutoff)) ? a=con : a=1.0;
-		//if (i_upd_spin_up==((i+1)<iCutoff))  a=con; else a=1.0;
 		r_12=ip_len[i][i_upd];
-		sum+=a*r_12/(1.0 + beta*r_12);
+		if (i_upd_spin_up==((i+1)<iCutoff)) //? a=con : a=1.0;
+		//if (i_upd_spin_up==((i+1)<iCutoff))  a=con; else a=1.0;
+		{
+			sum+=a*r_12/(1.0 + beta*r_12);
+		}
+		else
+		{
+			sum+=r_12/(1.0 + beta*r_12);
+		}
+
 	}
 	return sum;
 }/*//endvimfold*/

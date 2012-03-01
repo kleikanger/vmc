@@ -13,6 +13,7 @@ class orbital {
 		int dim;
 		bool spin_up;
 		double alpha;
+		double sqalpha;
 
 		//int n_x
 		//int n_y

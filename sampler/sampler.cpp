@@ -1,4 +1,4 @@
-#include <cblas.h>
+#include <mkl_cblas.h>
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
