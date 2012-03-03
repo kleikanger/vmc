@@ -1,0 +1,311 @@
+\documentclass[a4paper,10pt,twocolumn]{article} %{{{
+%\documentclass[a4paper,10pt]{article} %{{{
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage{epsfig} %for å lime inn filer
+
+\usepackage{algorithmic}
+\usepackage{algorithm}  
+%\usepackage{babel}  
+
+\newcommand{\ts}[1]{\textbf{#1}}
+\newcommand{\bra}[1]{\langle{#1}|}
+\newcommand{\ket}[1]{|#1\rangle{}}
+%\newcommand{\braket}[1][2]{\langle{#1}|#2\rangle{}}
+\newcommand{\abs}[1]{\left|{#1}\right|}
+\newcommand{\expec}[1]{\langle{}{#1}\rangle{}}
+
+%Define theorem enviroment. 
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{assumption}[theorem]{Assumption}
+
+
+\newenvironment{proof}[1][Proof]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{definition}[1][Definition]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{example}[1][Example]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newenvironment{remark}[1][Remark]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+\newcommand{\qed}{\nobreak \ifvmode \relax \else
+      \ifdim\lastskip<1.5em \hskip-\lastskip
+      \hskip1.5em plus0em minus0.5em \fi \nobreak
+      \vrule height0.75em width0.5em depth0.25em\fi} %}}}
+
+%opening
+\title{ Project 1, Fys 4411 \\ }
+\author{Karl R. Leikanger}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}%{{{
+
+\end{abstract}%}}}
+
+\section{Quantum dots}% {{{1
+
+Our system of choice 
+%}}}1
+
+\section{The Monte Carlo method}%{{{1
+
+\subsection{Introduction}%{{{2
+Monte Carlo (MC) methods includes a wide range of computational methods for solving integrals. 
+The main idea is to sample the integrand $f(\vec r)$ in random points $\{\vec r_i\}$, 
+and finding an approximate solution to the integral by doing statistical analysis on the sampling data. 
+The statistical error will give us an immediate idea of the precicion of the result.
+%Statistical measures will give us an idea of the quality of the results
+
+In general, any integral can be written on the form
+\begin{align}
+\int_{\mathcal D} f(\vec r) d\vec r = 
+\int_{\mathcal D} P(\vec r) g(\vec r) d\vec r,
+\end{align} 
+where $P(\vec r)$ is a probability distribution. The integral can now be approximated by the sum 
+\begin{align}
+	\int_{\mathcal D} f(\vec r) d\vec r 
+\approx \frac1N\sum_{i=1}^Ng(\vec r_i),
+\end{align} 
+where $\{\vec{r_i}\}$ is a set of random numbers drawn from the statistical distribution $P(\vec r)$.
+
+The simplest example, possible whenever the region of the of the integral is finite,
+is when $P$ is a uniform distribution bounded by the integration limits. Then
+$P(\vec r)$ is a constant and $g(\vec r)=f(\ts r)$. However, for many integrals this method 
+will converge slowly and will require a very large number of samples to
+give accurate results. By choosing a smart $P(\vec r)$ that is large in the regions of interest, 
+%for example where $g(\ts r)$ is large or changing rapidly,  
+more samples will be drawn from the important regions, often leading to a more rapid convergence.  
+%}}}2
+
+\subsection{Markov Chain Monte Carlo}%{{{2
+
+Markov Chain Monte Carlo (MCMC) provides us with a method for drawing the correct samples from $P$. 
+Instead of drawing uncorrelated random samples we use a markow chain to generate a sequence $\{\vec r_n\}$ of vectors.
+A Markov chain is caracterized by a transition kernel $q(\vec x|\vec y)$ which is a probabitity density distribution 
+of the variable $\vec y$, and which tells us the probability of a transition from $\vec x$ to $\vec y$.
+For each $\vec r_n$, we draw a new $\vec r_{n+1}$ from the distribution $q(\vec r_n,\vec y)$. The distribution 
+of the vectors in the set 
+$\{\vec r_n\}$ will converge towards the distribution $P$ if the following 
+conditions are fulfilled (reference):
+\begin{itemize}
+\item
+	$P$ must an invariant of the kernel $q(\vec x|\vec y)$ in the sense that 
+	\begin{align}
+	\int_{\mathcal D} d\vec r_A\, P(\vec r_A) q(\vec r_A | \vec r_B) = P(\vec r_B) \label{eq221},
+	\end{align}
+\item
+	The chain must be ergodetic, which means that for ... . Can be expressed mathematically as ...
+\end{itemize}
+
+%More sophisticated methods exist, like the Metropolis-Hastings algorithm, where the drawing process is biased.
+%To compensate for the biased 
+%This method has the drawback that the samples are correlated which makes the analysis of the results somewhat more demanding. But the method also has
+%some important advantages. One of them, as we will see later, is that the probabilityfunction $P$ does not need to be normalised. 
+%This property comes very handy when dealing with many-particle wavefunctions in quantum mechanics.
+%
+%$P$ is sampled by generating a random new $\vec r_i$. The new position is then accepted by a probability 
+%
+%Both statements are actually quite intuitive, and i will now explain why(rewrite sentence):
+It is costumary to make the analogy to a set of random (possibly biased) walkers, where
+the density of walkers $P_w$ is stationary and proportional to $P$.
+In the limit of an infinite number of walkers, 
+the population of walkers in any point $\vec r_A$ must be constant,
+\begin{align}
+	\sum_n P_w(\vec r_A) q(\vec r_A|\vec r_n)  =	\sum_n P_w(\vec r_n) q(\vec r_n|\vec r_A) \label{eq222}
+\end{align} 
+This equation is equivalent to (\ref{eq221}) since both equaions states that the density is stationary.
+%Of course, in a computer simulation the number of walkers is finite, and this equation can only be seen as an approximation.
+%The markov chain must also be ergodetic. 
+%One are free to choose any equation for the trajectories of the random walkers (any transition kernel) as long as (\ref{eq222})
+The condition of detailed balance
+\begin{align}
+    P_w(\vec r_A) q(\vec r_A|\vec r_B)  =  P_w(\vec r_B) q(\vec r_B|\vec r_A).\label{detbal}
+\end{align}
+assures that (\ref{eq222}) is fulfilled. This equation is the basis for finding the transition 
+kernels that is used in the metropolis-Hastings algorithm.
+The markow chain must be ergodetic simply be.....
+If not (ergodetic in regions: can be tackled ? )
+%}}}2
+
+\subsection{Metropolis-Hasting algorithm}%{{{2
+We will now outline a general algorithm for the movement of the random walkers that fullfills (\ref{detbal}).
+We introduce new scalar field to our equation $\gamma(\vec r_A,\vec r_B)$, which is a measure of the 
+probability of accepting a move from $\vec r_A$ to $\vec r_B$.
+We split our transition kernel in two parts
+\begin{align}
+	q(\vec r_A|\vec r_b) 
+		\to 
+	\gamma(\vec r_A|\vec r_b)
+	g(\vec r_A|\vec r_b)
+\end{align} 
+We set $\gamma(\vec r_B|\vec r_A)=1$ when
+\begin{align}
+    &P_w(\vec r_A) g(\vec r_A|\vec r_B)  >  P_w(\vec r_B) g(\vec r_B|\vec r_A).
+\end{align}
+Then, by inserting this into (\ref{detbal}), we get
+\begin{align} 
+	\gamma(\vec r_A|\vec r_B)=max\left(
+	\frac
+	{P_w(\vec r_B) g(\vec r_B|\vec r_A)}
+    {P_w(\vec r_A) g(\vec r_A|\vec r_B)}\, 
+	,\, 1 \right)
+\end{align}
+By making this choice for $\gamma$, (\ref{detbal}) will be fulfilled and the sequence of $\{r_i\}$ will sample 
+$P$. This rule preserves the relative provability of the transitions between $r_A$ and $r_B$, and therefore preserves the 
+density of walkers in each point.  Note that only the relative ratio between the left and the right hand side of (eq) are of interest to us. Therefore, $P$ does not have to be normalized. 
+
+These equations are implemented in the well known Metropolis-Hastings algorithm as follows:
+\begin{algorithmic}
+\LOOP{}
+\STATE{$\vec r_B\gets$ random from distribution $g(\vec r_T|\vec r_B)$.}
+\STATE{$\mathcal X\gets$ random uniform. ($\mathcal X\in[0,1]$)}%??(0,1)}
+\STATE{Calculate $\gamma (\vec r_n|\vec r_T))$.}
+\IF{$\mathcal X \le \gamma$}
+\STATE{$\vec r_{n+1}\gets \vec r_T$}
+\ELSE
+\STATE{$\vec r_{n+1}\gets \vec r_n$}
+\ENDIF{}
+\STATE{$n\gets n+1$}
+\ENDLOOP{}
+\end{algorithmic}
+Write some more about the algo..
+Alternative algos, and their efficiency. refs.
+%(more about the algo: convergence and thermalization (implementation issues))
+
+%}}}2
+
+\subsection{Choice of transition kernel} %{{{2
+
+Brute force metropolis sampling: transition kernel $g(x|y)$ any distribution symmetric around x.\\
+Metropolis-Hastings: $g(x|y)$, trajectories gouverned by Langevin dynamics. (trajectories of walkers: the solution to 
+... equation).\\
+
+Special choice of g, g=cymmetric around 0: gives the original metropolis algorithm.
+Langevin eq and diffusion: not exact for dt>0, but gamma ensures that the sampling is correct. in the special case that 
+dt = 0, gamma = 1 always, and every suggested move should be accepted. 
+
+%}}}
+
+\begin{figure}[h]
+\begin{center}
+	\includegraphics[width=8cm]{../datafiles/4000steps6partw1emin.eps}
+\end{center}
+\caption{{\it\small Example of the path of one walker during 4000 steps. The dotted line shows the path and the crosses 
+marks the samplingpoints}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+	\includegraphics[width=8cm]{../plots/1pd_2ptdt05emin2e6c.eps}
+\end{center}
+\caption{{\it\small Normalysized densityplot for 2 pt. $\alpha=0.98$, $\omega=0.4$, $\delta t=0.05$. $10^6$ cycles. }}
+%\end{figure}
+
+%\begin{figure}[h]
+\begin{center}
+	\includegraphics[width=8cm]{../plots/1pd6ptw1emin.eps}
+\end{center}
+\caption{{\it\small Normalysized densityplot for 6 pt. $\alpha=0.92$, $\omega=0.565$, $\delta t=0.05$. $10^6$ cycles. }}
+%\end{figure}
+
+%\begin{figure}[h]
+\begin{center}
+	\includegraphics[width=8cm]{../plots/1pd_12ptdt05emin2e6c.eps}
+\end{center}
+\caption{{\it\small Normalysized densityplot for 12 pt. $\alpha=0.87$, $\omega=0.68$, $\delta t=0.05$. $10^6$ cycles. }}
+\end{figure}
+We will outlining the Metropolis algorithm.
+
+Marcow chains and random walkers.
+
+Metropolis hastings.
+
+%This method is referred to as importance sampling.
+
+For many integrals
+A possible problem doing importance sampling on the .. is to choose an .. that $P$ has to be normalized. In quantum monte carlo
+the metropolis algorithm...
+
+\subsection{The statistical analysis of the data}%{{{2
+
+In our simulations, we will sample each point on the track of one single walker. 
+This is possible as long as the system is ergodetic. That is, all $\vec r_n$ in $\mathcal D$ must be axessible to a 
+random walker starting in any point $\vec r_0$ in $\mathcal D$. 
+Otherwise, some parts of the integration domain would not be sampled.
+After a certain number of moves, the statistical correlation between
+the starting point $\vec r_0$ and the current position $\vec r_n$ will be very weak (there will be no). 
+((reference, weaker statement))
+If we denote the correlation time $\tau$ and $N$ is the total number of MCMC cycles, 
+our simulation can equally well be seen as $\tau$ cycles of $\tau/N$ walkers
+This set will converge to $P_w \propto P$.
+
+A method to find the correlation time.
+%}}}2
+
+
+An more sophisticated way of sampling P is the Metropolis - Hastings algorithm.
+
+\subsection{Quantum monte Carlo}%{{{2
+
+In the Heisenberg image, the expectation values for any observable $\hat O$ can be expressed on the general form
+\begin{align}
+	\expec{ O(t) } = \int d\vec r \Psi(\vec r) \hat O(t) \Psi(\vec r)^*,
+\end{align}
+where $\Psi(\vec r) = \sum_i \psi_i(\vec r)$, for some basis $\{ \vec \psi_i \}$. 
+%Generally, as long as we work in the heisenberg image and
+%the wavefunctions are time independent, 		%we can always assume that the wavefunctions are real valued.
+The integral can also be written 
+\begin{align}
+	\expec{ O(t) } = \int |\Psi(\vec r)|^2 \frac{ \hat O(t) \Psi(\vec r)^\dagger } {\Psi(\vec r)^\dagger},
+\end{align}
+Since $|\Psi(\vec r)|^2$ is a probability density distribution we see that
+\begin{align}
+	\expec{ O(t) } \approx \sum_{i=1}^N \frac{ \hat O(t) \Psi(\vec r_i)^\dagger } {\Psi(\vec r_i)^\dagger}, \label{RFQMC1} 
+\end{align}
+%
+where the set of numbers $\{\vec r_i\}$ are drawn from $|\Psi|^2$.
+This sum can be sampled using the metropolis algorithm with the metropolis ratio $|\Psi(r_i)|^2/|\Psi(r_{i+1})|^2$.
+%
+Note that $\Psi$ do not need to ne normalized in the above equations. This saves us a great deal of work since the normalization 
+of most wavefunctions would have to be done numerically for every new trial function.% ????
+%since any normalization constant will disappear both from the above fraction (\ref{RFQMC1}) and the metropolis ratio.
+
+Show/argue that the variance is exactly 0 for the correct wf.
+
+%next section
+For our system, $\hat O\gets\hat H$, and $\{ \psi_i \}$ is the lowest energy eigenstates of the system. 
+Since $[\hat H , \int dr \psi_i(\vec r)\psi_i(\vec r)]=0$, we can
+assume that the the basis functions $\{ \psi_i \}$ are real valued without losing generality.
+
+The quantum force:
+We will assume that 
+
+
+
+%}}}
+
+
+%}}}1
+
+\section{}%{{{1
+
+
+%}}}1
+
+\tableofcontents
+
+\end{document}
+
+% vim:foldmethod=marker
+

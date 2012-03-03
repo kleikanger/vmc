@@ -20,6 +20,7 @@
 #include "slaterMatrix.h"
 #include <iostream>
 #include "../lib/lib.h"
+#include "../newmatrix/newmatrix.h"
 #include <mkl_cblas.h>
 
 using std::cout;
@@ -45,6 +46,16 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 	//Allocating new matrices and arrays
 	//grad_up = new double[dim];
 	//grad_down = new double[dim];
+	
+	spin_up_matr = (double**)matrix(iCutoff,iCutoff,sizeof(double));
+	spin_down_matr = (double**)matrix(iCutoff,iCutoff,sizeof(double));
+	spin_up_backup = (double**)matrix(iCutoff,iCutoff,sizeof(double));
+	spin_down_backup = (double**)matrix(iCutoff,iCutoff,sizeof(double));
+	inv_up_matr = (double**)matrix(iCutoff,iCutoff,sizeof(double));
+	inv_down_matr = (double**)matrix(iCutoff,iCutoff,sizeof(double));
+	inv_up_backup = (double**)matrix(iCutoff,iCutoff,sizeof(double));
+	inv_down_backup = (double**)matrix(iCutoff,iCutoff,sizeof(double));
+	/*
 	spin_up_matr = new double*[iCutoff];
 	for (int i=0; i<iCutoff; i++){spin_up_matr[i] = new double[iCutoff];}
 	spin_down_matr = new double*[iCutoff];
@@ -62,7 +73,7 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 	for (int i=0; i<iCutoff; i++){inv_up_backup[i] = new double[iCutoff];}
 	inv_down_backup = new double*[iCutoff];
 	for (int i=0; i<iCutoff; i++){inv_down_backup[i] = new double[iCutoff];}
-		
+	*/	
 	//Initializing orbital objects
 	orbital_ = new orbital[iNumPart];
 	//States 0-(iCutoff-1) enters inv_up_matr. 
@@ -76,6 +87,7 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 /*//endvimfold*/
 slaterMatrix::~slaterMatrix(){
 //startvimfold
+	/*
 	//delete variational_parameters;
 	for (int i=0; i<iCutoff; i++){
 		delete [] inv_down_matr[i];
@@ -97,6 +109,17 @@ slaterMatrix::~slaterMatrix(){
 	delete [] inv_up_backup;
 	delete [] spin_up_backup;
 	delete [] spin_down_backup;
+	*/
+	
+	free_matrix((void **) spin_up_matr);
+	free_matrix((void **) spin_down_matr);
+	free_matrix((void **) spin_up_backup);
+	free_matrix((void **) spin_down_backup);
+	free_matrix((void **) inv_up_matr);
+	free_matrix((void **) inv_down_matr);
+	free_matrix((void **) inv_up_backup);
+	free_matrix((void **) inv_down_backup);
+	
 	delete [] orbital_; //DELETE ORBITAL[i]
 }
 //endvimfold

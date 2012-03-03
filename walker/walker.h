@@ -11,8 +11,10 @@ class walker {
 		int dimension;
 		int num_of_var_par;
 
+		//delta_t not necc. DELETE
 		double delta_t;
 		double dt_x_D;
+		double sq_delta_t;
 
 		//seed for the random number generator	
 		int idum;
@@ -20,6 +22,7 @@ class walker {
 
 		//DELETE XXX REMOVE
 		double* var_par;
+
 		//new and old particle positions 
 		double** r_new;
 		double** r_old;
@@ -69,4 +72,8 @@ class walker {
 		   and calculate all new interparticle distances
 		   */
 		void getNewPos(int active_part, double* ipd_upd);
+		/*
+		   Copy position of particle i_w to x.
+		   */
+		void getRi(int i_w, double* x);
 };  

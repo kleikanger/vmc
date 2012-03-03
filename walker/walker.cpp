@@ -9,6 +9,7 @@
 //Ref: Jurgen A. Doornik 2005.
 #include "../ziggurat/zigrandom.h"
 #include "../ziggurat/zignor.h"
+#include "../newmatrix/newmatrix.h"
 #include "walker.h"
 //#include "../QDslater/slaterMatrix.h"
 //#include "../ipdist/ipdist.h"
@@ -42,18 +43,28 @@ walker::walker(int num_part, int spin_up_cutoff, int dimension, int num_of_var_p
 	//double* r = new (nothrow) double[n];
 	//if (r==0) { cout<<"...\n"; exit(1);}
 
+	r_old = (double**)matrix(num_part,dimension,sizeof(double));
+	r_new = (double**)matrix(num_part,dimension,sizeof(double));
+	jas_grad = (double**)matrix(num_part,dimension,sizeof(double));
+	sla_grad = (double**)matrix(num_part,dimension,sizeof(double));
+	jas_grad_bu = (double**)matrix(num_part,dimension,sizeof(double));
+	sla_grad_bu = (double**)matrix(num_part,dimension,sizeof(double));
+	q_force_new = (double**)matrix(num_part,dimension,sizeof(double));
+	q_force_old = (double**)matrix(num_part,dimension,sizeof(double));
+	
+	/*
 	r_old = new double*[num_part];
 	for (int i=0; i<num_part; i++)
 		r_old[i] = new double[dimension];
 	r_new = new double*[num_part];
 	for (int i=0; i<num_part; i++)
 		r_new[i] = new double[dimension];
-
+*/
 	//handling of the slater matrix
 	slater = new slaterMatrix(num_part,spin_up_cutoff,num_of_var_par,dimension);
 	//handling of the interparticle distances
 	ipd = new ipdist(num_part,dimension,spin_up_cutoff);
-	
+/*	
 	//Gradients of jastrow and laplacian
 	jas_grad=new double*[num_part];
 	for (int i=0;i<num_part;i++) jas_grad[i]=new double[dimension];
@@ -69,7 +80,7 @@ walker::walker(int num_part, int spin_up_cutoff, int dimension, int num_of_var_p
 	for (int i=0;i<num_part;i++) q_force_new[i]=new double[dimension];
 	q_force_old = new double*[num_part];
 	for (int i=0;i<num_part;i++) q_force_old[i]=new double[dimension];
-  
+  */
 	//initialize random number generator	
 	idum = (int)abs(time(NULL)*(myrank+1));
 	int cseed=1;//diff sequence for different seed
@@ -81,7 +92,7 @@ walker::walker(int num_part, int spin_up_cutoff, int dimension, int num_of_var_p
 
 walker::~walker()
 {/*//startvimfold*/
-	for (int i=0; i<num_part; i++)
+	/*for (int i=0; i<num_part; i++)
 	{
 		delete [] r_old[i];
 		delete [] r_new[i];
@@ -100,6 +111,17 @@ walker::~walker()
 	delete [] sla_grad_bu;
 	delete [] q_force_new;
 	delete [] q_force_old;
+	*/
+	
+	free_matrix((void **) r_old);
+	free_matrix((void **) r_new);
+	free_matrix((void **) jas_grad);
+	free_matrix((void **) jas_grad_bu);
+	free_matrix((void **) sla_grad);
+	free_matrix((void **) sla_grad_bu);
+	free_matrix((void **) q_force_new);
+	free_matrix((void **) q_force_old);
+	
 	delete slater;
 	delete ipd;
 }/*//endvimfold*/
@@ -109,6 +131,7 @@ void walker::initWalker(double* var_par, double delta_t)
 	this-> delta_t=delta_t;
 	//delta_t*diffusion constant
 	dt_x_D=delta_t*0.5;
+	sq_delta_t=sqrt(delta_t);
 	int i,j;
 
 	double init_sigma = 3.0;	
@@ -185,8 +208,7 @@ bool walker::tryRandomStep(int active_part)
 
 	//calculate log of greens ratio
 	greens_f=0.0;
-	for (i=0; i<num_part; i++) 
-	for (j=0; j<dimension; j++)
+	for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
 	{
 		if (i!=active_part)
 		{
@@ -328,7 +350,7 @@ void walker::getNewPos(int active_part, double* ipd_upd)
 	for (k = 0; k < dimension; k++)
 	{ 
 		r_new[active_part][k] += dt_x_D * q_force_old[active_part][k] 
-					+ RAN_NORM() * sqrt(delta_t);
+					+ RAN_NORM() * sq_delta_t;
 	}
 
 	//New ipd : calculating new lengths betw particles.
@@ -352,6 +374,14 @@ void walker::getNewPos(int active_part, double* ipd_upd)
 		}
 		//if (temp<1e-5) temp=1e-5;
 		ipd_upd[i-1]=sqrt(temp);
+	}
+}/*//endvimfold*/
+
+void walker::getRi(int i_w, double* x)
+{/*//startvimfold*/
+	for (int i=0;i<dimension;i++)
+	{
+		x[i]=r_old[i_w][i];
 	}
 }/*//endvimfold*/
 

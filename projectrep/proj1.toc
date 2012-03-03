@@ -1,0 +1,9 @@
+\contentsline {section}{\numberline {1}Quantum dots}{1}
+\contentsline {section}{\numberline {2}The Monte Carlo method}{1}
+\contentsline {subsection}{\numberline {2.1}Introduction}{1}
+\contentsline {subsection}{\numberline {2.2}Markov Chain Monte Carlo}{1}
+\contentsline {subsection}{\numberline {2.3}Metropolis-Hasting algorithm}{2}
+\contentsline {subsection}{\numberline {2.4}Choice of transition kernel}{2}
+\contentsline {subsection}{\numberline {2.5}The statistical analysis of the data}{2}
+\contentsline {subsection}{\numberline {2.6}Quantum monte Carlo}{3}
+\contentsline {section}{\numberline {3}}{3}

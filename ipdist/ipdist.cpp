@@ -1,4 +1,5 @@
 #include "ipdist.h"
+#include "../newmatrix/newmatrix.h"
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
@@ -12,19 +13,27 @@ ipdist::ipdist(int n, int di, int iC)
 	n_min_one=n-1;
 	dim=di;
 	iCutoff=iC;
-	//allocating arrays of length's between particles
-	ip_len = new double*[n_min_one];
-	for (int i=0; i<n_min_one; i++) ip_len[i] = new double[i+1];
-	//and corresponding backupmatr	
-	ip_len_backup = new double*[n_min_one];
-	for (int i=0; i<n_min_one; i++) ip_len_backup[i] = new double[i+1];
+	//allocating arrays of length's between particles and corresponding backupmatr	
+	//triangular matrix with matrixdimension (n-1)
+	ip_len = (double**)tria_matrix(n_min_one,sizeof(double));
+	ip_len_backup = (double**)tria_matrix(n_min_one,sizeof(double));
+	
+	//ip_len_backup = new double*[n_min_one];
+	//for (int i=0; i<n_min_one; i++) ip_len_backup[i] = new double[i+1];
+
+	//ip_len = new double*[n_min_one];
+	//for (int i=0; i<n_min_one; i++) ip_len[i] = new double[i+1];
+	//ip_len_backup = new double*[n_min_one];
+	//for (int i=0; i<n_min_one; i++) ip_len_backup[i] = new double[i+1];
 }/*//endvimfold*/
 ipdist::~ipdist()
 {/*//startvimfold*/
-	for (int i=0; i<n_min_one; i++) delete ip_len[i];
-	delete ip_len;
-	for (int i=0; i<n_min_one; i++) delete ip_len_backup[i];
-	delete ip_len_backup;
+	free_matrix((void **) ip_len);
+	free_matrix((void **) ip_len_backup);
+	//for (int i=0; i<n_min_one; i++) delete ip_len[i];
+	//delete ip_len;
+	//for (int i=0; i<n_min_one; i++) delete ip_len_backup[i];
+	//delete ip_len_backup;
 }/*//endvimfold*/
 void ipdist::init(double** r)
 {/*//startvimfold*/

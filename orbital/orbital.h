@@ -14,7 +14,8 @@ class orbital {
 		bool spin_up;
 		double alpha;
 		double sqalpha;
-
+		double sq_omg_alp;
+		double omg_alp;
 		//int n_x
 		//int n_y
 

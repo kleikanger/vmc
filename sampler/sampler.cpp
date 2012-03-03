@@ -19,11 +19,19 @@ using std::ios;
 //using namespace std;
 
 //name and path of ofile
+//blocking data
 #ifndef WRITEOFB
 #define WRITEOFB false
 #endif
+//single particle density
+#ifndef WRITEOFC
+#define WRITEOFC false
+#endif
 #ifndef OFPATHB
 #define OFPATHB "/home/karleik/masterProgging/vmc/datafiles/zerotermalization.dat"
+#endif
+#ifndef OFPATHC
+#define OFPATHC "/home/karleik/masterProgging/vmc/datafiles/xXXspd_2partdt05eopt.dat"
 #endif
 
 sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank)
@@ -66,6 +74,10 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	ofile<<"------------------------------------------------------\n";
 	//cout<<writing to file ((std::string)OFPATHB)((std::string)OFNAMEB);
 #endif
+#if WRITEOFC
+	ofstream ofilec;
+	ofilec.open((OFPATHC));
+#endif
 
 	double e_local=0.0;
 	double e_local_squared=0.0;
@@ -86,11 +98,9 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		//move all particles, one at a time
 		for (int active_part=0; active_part<num_part; active_part++)
 		{
-			//possible to move two part. at a time, one in each SD?
-			bool metropolis_test = quantum_dot->tryRandomStep(active_part);
-
+			//NB:possible to move two part at a time, one in each sd?
 			//metropolis-hastings test
-			if ( metropolis_test ) 
+			if ( quantum_dot->tryRandomStep(active_part) ) 
 			{
 				quantum_dot->acceptStep(active_part);
 				if (loop_c>thermalization) { accepted++; } 
@@ -121,6 +131,23 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 			ofile << setw(16) << setprecision(16) << e_local_temp <<"\n";
 		}
 #endif
+#if WRITEOFC // write to file : single particle density
+		if (myrank==0)
+		{
+			double* x_v = new double[dimension];
+			quantum_dot->getRi(0,x_v);	
+			{
+				ofilec << setiosflags(ios::showpoint | ios::uppercase);
+				for (i=0;i<dimension;i++)
+				{
+					ofilec << setw(16) << setprecision(16) << x_v[i] <<"\t";
+				}
+				ofilec<<"\n";
+			}
+			delete [] x_v;
+		}
+#endif
+
 	} //************************** END OF MC sampling **************************
 
 	cout<<setprecision(4)<<"alpha: "<<var_par[1];
@@ -136,6 +163,9 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 
 #if WRITEOFB
 	ofile.close();
+#endif
+#if WRITEOFC
+	ofilec.close();
 #endif
 
 }/*//endvimfold*/
