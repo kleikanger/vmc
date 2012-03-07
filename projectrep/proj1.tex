@@ -105,7 +105,8 @@ conditions are fulfilled (reference):
 	\int_{\mathcal D} d\vec r_A\, P(\vec r_A) q(\vec r_A | \vec r_B) = P(\vec r_B) \label{eq221},
 	\end{align}
 \item
-	The chain must be ergodetic, which means that for ... . Can be expressed mathematically as ...
+	The chain must be ergodetic, which means that all $\vec r_n$ in $\mathcal D$ must be axessible to a 
+	random walker starting in any point $\vec r_0$ in $\mathcal D$ during a finite number of steps. 
 \end{itemize}
 
 %More sophisticated methods exist, like the Metropolis-Hastings algorithm, where the drawing process is biased.
@@ -117,14 +118,17 @@ conditions are fulfilled (reference):
 %$P$ is sampled by generating a random new $\vec r_i$. The new position is then accepted by a probability 
 %
 %Both statements are actually quite intuitive, and i will now explain why(rewrite sentence):
-It is costumary to make the analogy to a set of random (possibly biased) walkers, where
-the density of walkers $P_w$ is stationary and proportional to $P$.
-In the limit of an infinite number of walkers, 
-the population of walkers in any point $\vec r_A$ must be constant,
+It is costumary to make the analogy to a set of $\lambda$ biased random walkers, where
+the density of walkers $P_w$ is (close to) stationary and proportional to $P$.
+This analogy is reasonable as long as the sequence $\{\vec r_n\}$ can be split into $\lambda$ 
+subsequences $\{\vec r_n^\lambda\}$ which are uncorrelated. Then we can equally well interpret out retults as $N$ samples
+from one markov chain, as $N/\lambda$ samples from $\lambda$ markov chains.
+
+For $P_w$ to be stationary (), the population of walkers in any point $\vec r_A$ must be () constant,
 \begin{align}
-	\sum_n P_w(\vec r_A) q(\vec r_A|\vec r_n)  =	\sum_n P_w(\vec r_n) q(\vec r_n|\vec r_A) \label{eq222}
+	\sum_n P_w(\vec r_A) q(\vec r_A|\vec r_n)  \approx	\sum_n P_w(\vec r_n) q(\vec r_n|\vec r_A) \label{eq222}
 \end{align} 
-This equation is equivalent to (\ref{eq221}) since both equaions states that the density is stationary.
+This equation resembles('') (\ref{eq221}) since both equaions states that the density is stationary.
 %Of course, in a computer simulation the number of walkers is finite, and this equation can only be seen as an approximation.
 %The markov chain must also be ergodetic. 
 %One are free to choose any equation for the trajectories of the random walkers (any transition kernel) as long as (\ref{eq222})
@@ -132,9 +136,9 @@ The condition of detailed balance
 \begin{align}
     P_w(\vec r_A) q(\vec r_A|\vec r_B)  =  P_w(\vec r_B) q(\vec r_B|\vec r_A).\label{detbal}
 \end{align}
-assures that (\ref{eq222}) is fulfilled. This equation is the basis for finding the transition 
-kernels that is used in the metropolis-Hastings algorithm.
-The markow chain must be ergodetic simply be.....
+assures that (\ref{eq222}) is fulfilled. 
+%This equation is the basis for finding the transition kernels that is used in the metropolis-Hastings algorithm.
+As long as the markow chain is ergodetic the entire integration domain will be sampled.
 If not (ergodetic in regions: can be tackled ? )
 %}}}2
 
@@ -149,11 +153,13 @@ We split our transition kernel in two parts
 	\gamma(\vec r_A|\vec r_b)
 	g(\vec r_A|\vec r_b)
 \end{align} 
-We set $\gamma(\vec r_B|\vec r_A)=1$ when
+We set 
 \begin{align}
+&\gamma(\vec r_B|\vec r_A)=1 \text{ when }\notag\\
+%\begin{align}
     &P_w(\vec r_A) g(\vec r_A|\vec r_B)  >  P_w(\vec r_B) g(\vec r_B|\vec r_A).
 \end{align}
-Then, by inserting this into (\ref{detbal}), we get
+Then, by inserting this equations into (\ref{detbal}), we get
 \begin{align} 
 	\gamma(\vec r_A|\vec r_B)=max\left(
 	\frac
@@ -216,14 +222,14 @@ marks the samplingpoints}}
 \begin{center}
 	\includegraphics[width=8cm]{../plots/1pd6ptw1emin.eps}
 \end{center}
-\caption{{\it\small Normalysized densityplot for 6 pt. $\alpha=0.92$, $\omega=0.565$, $\delta t=0.05$. $10^6$ cycles. }}
+\caption{{\it\small Normalized density plot for 6 pt. $\alpha=0.92$, $\omega=0.565$, $\delta t=0.05$. $10^6$ cycles. }}
 %\end{figure}
 
 %\begin{figure}[h]
 \begin{center}
 	\includegraphics[width=8cm]{../plots/1pd_12ptdt05emin2e6c.eps}
 \end{center}
-\caption{{\it\small Normalysized densityplot for 12 pt. $\alpha=0.87$, $\omega=0.68$, $\delta t=0.05$. $10^6$ cycles. }}
+\caption{{\it\small Normalized density plot for 12 pt. $\alpha=0.87$, $\omega=0.68$, $\delta t=0.05$. $10^6$ cycles. }}
 \end{figure}
 We will outlining the Metropolis algorithm.
 

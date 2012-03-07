@@ -39,10 +39,6 @@ walker::walker(int num_part, int spin_up_cutoff, int dimension, int num_of_var_p
 	this->dimension=dimension;
 	this->num_of_var_par=num_of_var_par;
 
-	//init pos.vecs.
-	//double* r = new (nothrow) double[n];
-	//if (r==0) { cout<<"...\n"; exit(1);}
-
 	r_old = (double**)matrix(num_part,dimension,sizeof(double));
 	r_new = (double**)matrix(num_part,dimension,sizeof(double));
 	jas_grad = (double**)matrix(num_part,dimension,sizeof(double));
@@ -52,35 +48,10 @@ walker::walker(int num_part, int spin_up_cutoff, int dimension, int num_of_var_p
 	q_force_new = (double**)matrix(num_part,dimension,sizeof(double));
 	q_force_old = (double**)matrix(num_part,dimension,sizeof(double));
 	
-	/*
-	r_old = new double*[num_part];
-	for (int i=0; i<num_part; i++)
-		r_old[i] = new double[dimension];
-	r_new = new double*[num_part];
-	for (int i=0; i<num_part; i++)
-		r_new[i] = new double[dimension];
-*/
 	//handling of the slater matrix
 	slater = new slaterMatrix(num_part,spin_up_cutoff,num_of_var_par,dimension);
 	//handling of the interparticle distances
 	ipd = new ipdist(num_part,dimension,spin_up_cutoff);
-/*	
-	//Gradients of jastrow and laplacian
-	jas_grad=new double*[num_part];
-	for (int i=0;i<num_part;i++) jas_grad[i]=new double[dimension];
-	sla_grad=new double*[num_part];
-	for (int i=0;i<num_part;i++) sla_grad[i]=new double[dimension];
-	//old gradients
-	jas_grad_bu=new double*[num_part];
-	for (int i=0;i<num_part;i++) jas_grad_bu[i]=new double[dimension];
-	sla_grad_bu=new double*[num_part];
-	for (int i=0;i<num_part;i++) sla_grad_bu[i]=new double[dimension];
-	//quantum force (for importance sampling)
-	q_force_new = new double*[num_part];
-	for (int i=0;i<num_part;i++) q_force_new[i]=new double[dimension];
-	q_force_old = new double*[num_part];
-	for (int i=0;i<num_part;i++) q_force_old[i]=new double[dimension];
-  */
 	//initialize random number generator	
 	idum = (int)abs(time(NULL)*(myrank+1));
 	int cseed=1;//diff sequence for different seed
@@ -92,27 +63,6 @@ walker::walker(int num_part, int spin_up_cutoff, int dimension, int num_of_var_p
 
 walker::~walker()
 {/*//startvimfold*/
-	/*for (int i=0; i<num_part; i++)
-	{
-		delete [] r_old[i];
-		delete [] r_new[i];
-		delete [] jas_grad[i];
-		delete [] jas_grad_bu[i];
-		delete [] sla_grad[i];
-		delete [] sla_grad_bu[i];
-		delete [] q_force_new[i];
-		delete [] q_force_old[i];
-	}
-	delete [] r_old;
-	delete [] r_new;
-	delete [] jas_grad;
-	delete [] jas_grad_bu;
-	delete [] sla_grad;
-	delete [] sla_grad_bu;
-	delete [] q_force_new;
-	delete [] q_force_old;
-	*/
-	
 	free_matrix((void **) r_old);
 	free_matrix((void **) r_new);
 	free_matrix((void **) jas_grad);
@@ -121,7 +71,6 @@ walker::~walker()
 	free_matrix((void **) sla_grad_bu);
 	free_matrix((void **) q_force_new);
 	free_matrix((void **) q_force_old);
-	
 	delete slater;
 	delete ipd;
 }/*//endvimfold*/
@@ -279,8 +228,6 @@ void walker::rejectStep(int active_part)
 	//reject updates in slatermatrix and jastrow
 	slater->reject(active_part);
 	ipd->reject(active_part);
-	//(ONLY NECC FOR UP OR DOWN MATR)
-	//only active matr necc to update
 	//reset slater gradient only if active_part is the last particle
 	//in the determinant (spin_up or spin_down)
 	if ( !((active_part+1)%spin_up_cutoff ))	
@@ -310,7 +257,7 @@ void walker::rejectStep(int active_part)
 	}
 }/*//endvimfold*/
 
-double const walker::calcLocalEnergy(double* var_par)
+double walker::calcLocalEnergy(double* var_par) const 
 {	/*//startvimfold*/
 	int i;	
 	double e_kinetic=0;
@@ -341,7 +288,7 @@ double const walker::calcLocalEnergy(double* var_par)
 	return e_potential+e_kinetic;
 }/*//endvimfold*/
 
-void walker::getNewPos(int active_part, double* ipd_upd)
+void walker::getNewPos(int const &active_part, double* ipd_upd)
 {/*//startvimfold*/
 	
 	int i,k;

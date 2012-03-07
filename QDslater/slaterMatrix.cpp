@@ -43,10 +43,6 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 	variational_parameters = new double[inovp];
 	iNumber_of_variational_parameters=inovp;
 	
-	//Allocating new matrices and arrays
-	//grad_up = new double[dim];
-	//grad_down = new double[dim];
-	
 	spin_up_matr = (double**)matrix(iCutoff,iCutoff,sizeof(double));
 	spin_down_matr = (double**)matrix(iCutoff,iCutoff,sizeof(double));
 	spin_up_backup = (double**)matrix(iCutoff,iCutoff,sizeof(double));
@@ -55,25 +51,6 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 	inv_down_matr = (double**)matrix(iCutoff,iCutoff,sizeof(double));
 	inv_up_backup = (double**)matrix(iCutoff,iCutoff,sizeof(double));
 	inv_down_backup = (double**)matrix(iCutoff,iCutoff,sizeof(double));
-	/*
-	spin_up_matr = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){spin_up_matr[i] = new double[iCutoff];}
-	spin_down_matr = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){spin_down_matr[i] = new double[iCutoff];}
-	inv_up_matr = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){inv_up_matr[i] = new double[iCutoff];}
-	inv_down_matr = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){inv_down_matr[i] = new double[iCutoff];}
-
-	spin_up_backup = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){spin_up_backup[i] = new double[iCutoff];}
-	spin_down_backup = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){spin_down_backup[i] = new double[iCutoff];}
-	inv_up_backup = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){inv_up_backup[i] = new double[iCutoff];}
-	inv_down_backup = new double*[iCutoff];
-	for (int i=0; i<iCutoff; i++){inv_down_backup[i] = new double[iCutoff];}
-	*/	
 	//Initializing orbital objects
 	orbital_ = new orbital[iNumPart];
 	//States 0-(iCutoff-1) enters inv_up_matr. 
@@ -87,30 +64,6 @@ slaterMatrix::slaterMatrix(int iNp,int iCo,int inovp, int di){
 /*//endvimfold*/
 slaterMatrix::~slaterMatrix(){
 //startvimfold
-	/*
-	//delete variational_parameters;
-	for (int i=0; i<iCutoff; i++){
-		delete [] inv_down_matr[i];
-		delete [] inv_up_matr[i];
-		delete [] spin_up_matr[i];
-		delete [] spin_down_matr[i];
-		delete [] inv_down_backup[i];
-		delete [] inv_up_backup[i];
-		delete [] spin_up_backup[i];
-		delete [] spin_down_backup[i];
-	}
-	//delete grad_up;
-	//delete grad_down;
-	delete [] inv_down_matr;
-	delete [] inv_up_matr;
-	delete [] spin_up_matr;
-	delete [] spin_down_matr;
-	delete [] inv_down_backup;
-	delete [] inv_up_backup;
-	delete [] spin_up_backup;
-	delete [] spin_down_backup;
-	*/
-	
 	free_matrix((void **) spin_up_matr);
 	free_matrix((void **) spin_down_matr);
 	free_matrix((void **) spin_up_backup);
@@ -119,11 +72,10 @@ slaterMatrix::~slaterMatrix(){
 	free_matrix((void **) inv_down_matr);
 	free_matrix((void **) inv_up_backup);
 	free_matrix((void **) inv_down_backup);
-	
 	delete [] orbital_; //DELETE ORBITAL[i]
 }
 //endvimfold
-void slaterMatrix::setVarPar(double alpha){
+void slaterMatrix::setVarPar(const double &alpha) const{
 	for (int i=0; i<iNumPart; i++)/*//startvimfold*/
 	{
 		orbital_[i].setAlpha(alpha); 
@@ -223,7 +175,7 @@ void slaterMatrix::findInverse(){
 
 }//End function slatermatrix::updateCofactors()
 //endvimfold
-void slaterMatrix::update(double* d_R, int i_upd){
+void slaterMatrix::update(double* d_R, const int &i_upd){
 //startvimfold	
 //XXX OPT: dcopy & daxpy much slower than 2D loop, dscal same, ddot 2x faster	
 	int k,j;
@@ -349,7 +301,7 @@ void slaterMatrix::accept(int i_upd)
 		}
 	}
 }/*//endvimfold*/
-double const slaterMatrix::waveFunction(int i_upd){
+double slaterMatrix::waveFunction(const int &i_upd) const{
 	//startvimfold
 	//returns ratio between new and old determinant when one particle moved.
 	int i;
@@ -380,7 +332,7 @@ double const slaterMatrix::waveFunction(int i_upd){
 
 }
 //endvimfold
-void const slaterMatrix::grad(double** ret_vec, double** dR, int active_part)//, int axis, int i_upd)
+void slaterMatrix::grad(double** ret_vec, double** dR, const int &active_part) const//, int axis, int i_upd)
 {//startvimfold
 //OPTIMALIZATION: only one some grads needs to be updated.
 //Grad_{iaxis}. Full gradient/DET_old = Sum_axis Sum_i Grad_{i,axis} \vec e_{i,axis}.
@@ -426,7 +378,7 @@ void const slaterMatrix::grad(double** ret_vec, double** dR, int active_part)//,
 	}
 }
 //endvimfold
-double const slaterMatrix::lapl(double** dR){
+double slaterMatrix::lapl(double** dR) const{
 //startvimfold
 	//OPTIMALIZATION: only one of the matrices needs to be calculated.
 	//probably faster method than using double loops

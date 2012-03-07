@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  3 MAR 2012 23:06
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  4 MAR 2012 20:48
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -400,57 +400,52 @@ File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 103.
-
-Underfull \hbox (badness 1189) in paragraph at lines 126--132
-\OT1/cmr/m/n/10 This equa-tion is equiv-a-lent to (3[]) since both
- []
-
-[1
+ [1
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 168--170
+Underfull \hbox (badness 10000) in paragraph at lines 174--176
 
  []
 
 
-Underfull \hbox (badness 2913) in paragraph at lines 189--192
+Underfull \hbox (badness 2913) in paragraph at lines 196--199
 \OT1/cmr/m/n/10 Metropolis-Hastings: $\OML/cmm/m/it/10 g\OT1/cmr/m/n/10 (\OML/c
 mm/m/it/10 x\OMS/cmsy/m/n/10 j\OML/cmm/m/it/10 y\OT1/cmr/m/n/10 )$, tra-jec-to-
 ries gou-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 189--192
+Underfull \hbox (badness 10000) in paragraph at lines 196--199
 
  []
 
 File: ../datafiles/4000steps6partw1emin.eps Graphic file (type eps)
 <../datafiles/4000steps6partw1emin.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 201--202
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 208--209
  [] 
  []
 
 File: ../plots/1pd_2ptdt05emin2e6c.eps Graphic file (type eps)
 <../plots/1pd_2ptdt05emin2e6c.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 209--210
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 216--217
  [] 
  []
 
 File: ../plots/1pd6ptw1emin.eps Graphic file (type eps)
 <../plots/1pd6ptw1emin.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 216--217
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 223--224
  [] 
  []
 
 File: ../plots/1pd_12ptdt05emin2e6c.eps Graphic file (type eps)
 <../plots/1pd_12ptdt05emin2e6c.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 223--224
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 230--231
  [] 
  []
 
 
-LaTeX Warning: Float too large for page by 97.51326pt on input line 226.
+LaTeX Warning: Float too large for page by 97.51326pt on input line 233.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -465,10 +460,10 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 Here is how much of TeX's memory you used:
  2033 strings out of 495062
  22781 string characters out of 1182644
- 82660 words of memory out of 3000000
+ 83660 words of memory out of 3000000
  5176 multiletter control sequences out of 15000+50000
  14358 words of font info for 55 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  32i,11n,22p,673b,371s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (4 pages, 16404 bytes).
+Output written on proj1.dvi (4 pages, 16888 bytes).

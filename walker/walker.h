@@ -66,12 +66,12 @@ class walker {
 		/*
 		   Return local energy in the current position
 		 */
-		double const calcLocalEnergy(double* var_par);
+		double calcLocalEnergy(double* var_par) const; 
 		/*
 		   Find a new random position for the given particle. Update position
 		   and calculate all new interparticle distances
 		   */
-		void getNewPos(int active_part, double* ipd_upd);
+		void getNewPos(const int &active_part, double* ipd_upd);
 		/*
 		   Copy position of particle i_w to x.
 		   */

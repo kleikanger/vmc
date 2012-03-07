@@ -74,7 +74,7 @@ class slaterMatrix {
 		/*
 		   Change variational parameter alpha in orbital objects
 		   */
-		void setVarPar(double alpha);
+		void setVarPar(const double &alpha) const;
 		/*
 		   Input - position vector.
 		   Initializing or updating slater matrix when more then one particle have new coords.	
@@ -94,7 +94,7 @@ class slaterMatrix {
 		   particle i_upd is moved to coords r_new. 
 		   2 - Update the slater matrices.
 		*/
-		void update(double* r_new, int i_upd);
+		void update(double* r_new, const int &i_upd);
 		/*
 		   Reset matrices to last value before update (backup'matr)
 		   */
@@ -109,17 +109,17 @@ class slaterMatrix {
 		   Using the inverse matrixes to calculate the determinant. r_new is the position 
 		   of the new particle, i_upd the number of the particle.
 		 	*/
-		double const waveFunction(int);
+		double waveFunction(const int&) const;
 		/*
 		   Calculate ( \nabla \Psi ) / \Psi.
 		   ret_vec changed to updated gradient. 
 		   TEST!
 		 	*/		   
-		void const grad(double** ret_vec, double** dR, int active_part);// int axis, int i_upd);
+		void grad(double** ret_vec, double** dR, const int &active_part) const;// int axis, int i_upd);
 		/*
 		   Calculate the laplacian of the slatermatrixes.
 		   */
-		double const lapl(double** dR);
+		double lapl(double** dR) const;
 		/*
 		   Print slatermatrices and the inverse.
 		   */

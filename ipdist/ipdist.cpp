@@ -17,23 +17,11 @@ ipdist::ipdist(int n, int di, int iC)
 	//triangular matrix with matrixdimension (n-1)
 	ip_len = (double**)tria_matrix(n_min_one,sizeof(double));
 	ip_len_backup = (double**)tria_matrix(n_min_one,sizeof(double));
-	
-	//ip_len_backup = new double*[n_min_one];
-	//for (int i=0; i<n_min_one; i++) ip_len_backup[i] = new double[i+1];
-
-	//ip_len = new double*[n_min_one];
-	//for (int i=0; i<n_min_one; i++) ip_len[i] = new double[i+1];
-	//ip_len_backup = new double*[n_min_one];
-	//for (int i=0; i<n_min_one; i++) ip_len_backup[i] = new double[i+1];
 }/*//endvimfold*/
 ipdist::~ipdist()
 {/*//startvimfold*/
 	free_matrix((void **) ip_len);
 	free_matrix((void **) ip_len_backup);
-	//for (int i=0; i<n_min_one; i++) delete ip_len[i];
-	//delete ip_len;
-	//for (int i=0; i<n_min_one; i++) delete ip_len_backup[i];
-	//delete ip_len_backup;
 }/*//endvimfold*/
 void ipdist::init(double** r)
 {/*//startvimfold*/
@@ -62,9 +50,9 @@ void ipdist::init(double** r)
 		}
 	}
 }/*//endvimfold*/
-void ipdist::setBeta(double ibeta)
+void ipdist::setBeta(double betaARG)
 {/*//startvimfold*/
-	beta=ibeta;
+	beta=betaARG;
 }/*//endvimfold*/
 void ipdist::update(double* r, int i_upd)
 {/*//startvimfold*/
@@ -111,7 +99,7 @@ void ipdist::reject(int i_upd)
 		ip_len[i][i_upd]=ip_len_backup[i][i_upd];
 	}
 }/*//endvimfold*/
-double const ipdist::sumInvlen()
+double ipdist::sumInvlen() const 
 {/*//startvimfold*/
 	double sum=0.0;
 	int i,j;
@@ -126,7 +114,7 @@ double const ipdist::sumInvlen()
 	}
 	return sum;
 }/*//endvimfold*/
-void const ipdist::jasGrad(double** ret_vec, double** r, double** r_old, int i_upd)
+void ipdist::jasGrad(double** ret_vec, double** r, double** r_old, const int & i_upd) const 
 {//startvimfold
 	int j,i; //k
 	//temporary variable
@@ -134,12 +122,8 @@ void const ipdist::jasGrad(double** ret_vec, double** r, double** r_old, int i_u
 	//jastrow par
 	double a=0.3333333333333333;
 	double temp;
-	//set all enements in ret_vec = 0
-	//XXX OPT: take away this summation. 
-	//sum as in mortens code
 	
-#if 1
-	//Oonly changing the elements that has nev values changed
+	//Only changing the elements that has nev values changed
 	int i_upd_mo;
 	//i_upd minus one
 	i_upd_mo=i_upd-1;
@@ -218,68 +202,9 @@ void const ipdist::jasGrad(double** ret_vec, double** r, double** r_old, int i_u
 		for (j=0;j<dim;j++)
 			ret_vec[i_upd][j]+=temp*(r[i_upd][j]-r[i+1][j]);
 	}
-#else
-	//evt init jastgrad	
-		
-		
-	for (k=0;k<=n_min_one;k++)	
-		for (j=0;j<dim;j++)
-		{
-			ret_vec[k][j]=0.0;
-		}
-	
-
-	//Sum over all particles in j & k. j!=k	
-	for (k=0;k<=n_min_one;k++)
-	{
-		for (j=0;j<k;j++)
-		{       
-			//pick the correct element from the ip_len matrix
-			r_kj=ip_len[k-1][j]; 
-
-			//Particles with parallel spins:
-			if ((j<iCutoff)==(k<iCutoff)) 
-			{
-				temp =  a /(r_kj * pow(1.+beta*r_kj,2));
-			}
-			//particles with antiparallel spins
-			else	
-			{
-				//a=1.0
-				temp = 1.0 /(r_kj * pow(1.+beta*r_kj,2));
-			}
-			for (i=0;i<dim;i++)
-			{
-				ret_vec[k][i]+=temp*(r[k][i]-r[j][i]);
-			}
-				
-		}
-		for (j=k+1;j<=n_min_one;j++)
-		{
-			//pick the correct element from the ip_len matrix
-			r_kj=ip_len[j-1][k];
-
-			//Particles with parallel spins:
-			if ((k<iCutoff)==(j<iCutoff)) 
-			{
-				temp =  a / (r_kj * pow(1+beta*r_kj,2));
-			}
-			//particles with antiparallel spins
-			else	
-			{
-				//a=1.0
-				temp = 1.0 / (r_kj * pow(1+beta*r_kj,2));
-			}
-			for (i=0;i<dim;i++)
-			{
-				ret_vec[k][i]+=temp*(r[k][i]-r[j][i]);
-			}
-		}
-	}
-#endif
 	//EVT set up temp matrix and use level 3 blas func.
 }//endvimfold
-double const ipdist::jasLapl(double** r)
+double ipdist::jasLapl(double** r) const 
 {//startvimfold
 	//summation indexes
 	int j,k;
@@ -335,7 +260,7 @@ double const ipdist::jasLapl(double** r)
 	
 }//End function slaterMatrix::jastrow()
 //endvimfold
-double const ipdist::logJasR(int i_upd)
+double ipdist::logJasR(const int &i_upd) const 
 {/*//startvimfold*/
 	double r_12;
 	int i;

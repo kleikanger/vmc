@@ -103,7 +103,7 @@ void orbital::setAlpha(double alph){
 	sqalpha = sqrt(alph);
 	sq_omg_alp = sqrt(alpha*OMG);
 }/*//endvimfold*/
-double const orbital::valueWF(double* dR){
+double orbital::valueWF(double* dR) const {
 //startvimfold
 //CALCULATE: value of the orbital in some point dR.
 
@@ -128,7 +128,7 @@ double const orbital::valueWF(double* dR){
 	}
 }//end of orbitalWavefunctions::orbitalWavefunctions()
 //endvimfold
-double const orbital::D1(double* dR, int axis){
+double orbital::D1(double* dR, const int &axis) const {
 //startvimfold
 //CALCULATE: gradient along one axis. axis E {0,1,2,..}
 #if !ANALYTIC_D1
@@ -190,7 +190,7 @@ double const orbital::D1(double* dR, int axis){
 #endif
 }
 //endvimfold
-double const orbital::D2(double* dR){
+double orbital::D2(double* dR) const {
 //startvimfold
 //calc: laplacian in some point dR.
 //Does not work as long as we are multiplying with psi in slatermatrix
@@ -249,17 +249,17 @@ double const orbital::D2(double* dR){
 #endif
 }
 //endvimfold
-int const orbital::angularMomentum(){
+int orbital::angularMomentum() const {
 //startvimfold
 	return angular_momentum;
 }
 //endvimfold
-int const orbital::energyLevel(){
+int orbital::energyLevel() const {
 //startvimfold
 	return energy_level;
 }
 //endvimfold
-bool const orbital::spinUp(){
+bool orbital::spinUp() const {
 //startvimfold
 //returns true if spin up
 	return spin_up;

@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <mpi.h>
 #include <fstream>
+#include <sstream>
 #include "sampler.h"
 
 using std::cout;
@@ -15,24 +16,28 @@ using std::setprecision;
 using std::setiosflags;
 using std::setw;
 using std::ios;
+using std::ostringstream;
 
 //using namespace std;
-
 //name and path of ofile
 //blocking data
 #ifndef WRITEOFB
-#define WRITEOFB false
+#define WRITEOFB true
 #endif
 //single particle density
 #ifndef WRITEOFC
 #define WRITEOFC false
 #endif
 #ifndef OFPATHB
-#define OFPATHB "/home/karleik/masterProgging/vmc/datafiles/zerotermalization.dat"
+#define OFPATHB "/home/karleik/masterProgging/vmc/blocking/B_test2"//.dat
 #endif
 #ifndef OFPATHC
 #define OFPATHC "/home/karleik/masterProgging/vmc/datafiles/xXXspd_2partdt05eopt.dat"
 #endif
+
+//only for writing to file
+#define OMG 1
+
 
 sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank)
 {/*//startvimfold*/
@@ -55,26 +60,19 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 #if WRITEOFB
 	//Only for rank 0 proc
 	//if (rank=0) ?
+	//if (num_cycles>1.1e7)
+    //ofile.open(OFPATHB);
+	double* all_energies = new double[num_cycles + 1];
+	//cout<<writing to file ((std::string)OFPATHB)((std::string)OFNAMEB);
+#endif
+#if WRITEOFC
 	if (num_cycles>1.1e7)
 	{
 		//
 		cerr<<"Warning: sampler::sample(). Max size for num_cycles (=" 
-			<<num_cycles<<")is set to 1e6 when WRITEOFB == true. Terminating";
+			<<num_cycles<<")is set to 1e6 when WRITEOFC == true. Terminating";
 		exit(1);
 	}
-	ofstream ofile;
-	ofile.open((OFPATHB));
-	ofile<<"num_cycles:     "<<num_cycles<<"\n";
-	ofile<<"thermalization: "<<thermalization<<"\n";
-	ofile<<"delta_t:        "<<delta_t<<"\n";
-	ofile<<"num_part:       "<<num_part<<"\n";
-	ofile<<"omega           "<<OMG<<"\n"; 
-	ofile<<"alpha           "<<var_par[1]<<"\n"; 
-	ofile<<"beta            "<<var_par[0]<<"\n"; 
-	ofile<<"------------------------------------------------------\n";
-	//cout<<writing to file ((std::string)OFPATHB)((std::string)OFNAMEB);
-#endif
-#if WRITEOFC
 	ofstream ofilec;
 	ofilec.open((OFPATHC));
 #endif
@@ -85,11 +83,8 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 
 	int i,j,k,active_part;
 	int accepted=0;
-	
-	//diffusion const D * delta_t = 0.5 * delta_t
-	double dt_x_D = 0.5 * delta_t;
 
-	//INITIATE ATOM
+	//init walker object
 	quantum_dot->initWalker(var_par, delta_t);
 
 	//******** START Monte Carlo SAMPLING LOOP ***********
@@ -114,22 +109,10 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		if (loop_c<thermalization) { continue; }
 		e_local_temp = quantum_dot->calcLocalEnergy(var_par);
 		e_local += e_local_temp;
-		e_local_squared += e_local_temp*e_local_temp; 	
-#if WRITEOFB
-		//evt:
-		/*
-		e_chunk+=e_local;
-		//chunksize = 10
-		if (!(loop_c%10)) {
-		ofile.write(e_chunk)
-		e_chunk=0.0;
-		}
-		   */
-		if (myrank==0)
-		{
-			ofile << setiosflags(ios::showpoint | ios::uppercase);
-			ofile << setw(16) << setprecision(16) << e_local_temp <<"\n";
-		}
+		e_local_squared += e_local_temp*e_local_temp;	
+
+#if WRITEOFB //write to file blocking data
+		all_energies[loop_c-thermalization]=e_local_temp;
 #endif
 #if WRITEOFC // write to file : single particle density
 		if (myrank==0)
@@ -149,27 +132,34 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 #endif
 
 	} //************************** END OF MC sampling **************************
-
+	
+	//KEEP THE BELOW LINES WHILE DEVELOPING
 	cout<<setprecision(4)<<"alpha: "<<var_par[1];
 	cout<<setprecision(4)<<" beta: "<<var_par[0]<<"\t";
 	cout<<setprecision(10)<< "Local energy: "<<(e_local/(double)num_cycles);	
 	cout<<setprecision(5)<<" variance^2: "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
 	cout<<setprecision(5)<<" Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
-	//cout<<"beta :\t\t"<<var_par[0]<<"\n";
-
+	
 	//return values
 	result[0]=(e_local/(double)num_cycles);
+	cout<<result[0]<<"\n";
 	result[1]=(e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
 
 #if WRITEOFB
-	ofile.close();
+	ofstream blockofile;
+  	//char *blockoutfilename;
+	ostringstream ost;
+	ost << OFPATHB << myrank << ".dat";
+	blockofile.open(ost.str().c_str(),ios::out|ios::binary);
+	blockofile.write((char*)(all_energies+1),num_cycles * sizeof (double));
+	blockofile.close();
+	delete [] all_energies;
 #endif
 #if WRITEOFC
 	ofilec.close();
 #endif
 
 }/*//endvimfold*/
-
 
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold
