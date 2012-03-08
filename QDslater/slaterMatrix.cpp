@@ -19,11 +19,11 @@
 #include <cmath>
 #include "slaterMatrix.h"
 #include <iostream>
-#include "../lib/lib.h"
 #include "../newmatrix/newmatrix.h"
 #include <mkl_cblas.h>
 
 using std::cout;
+using std::setprecision;
 
 //LAPACK functions.
 extern "C" {
@@ -75,10 +75,10 @@ slaterMatrix::~slaterMatrix(){
 	delete [] orbital_; //DELETE ORBITAL[i]
 }
 //endvimfold
-void slaterMatrix::setVarPar(const double &alpha) const{
+void slaterMatrix::setVarPar(const double &alpha, const double &omega) const{
 	for (int i=0; i<iNumPart; i++)/*//startvimfold*/
 	{
-		orbital_[i].setAlpha(alpha); 
+		orbital_[i].setOmgAlp(alpha,omega); 
 	}
 }/*//endvimfold*/
 void slaterMatrix::initSlaterMatrix(double** partPos){

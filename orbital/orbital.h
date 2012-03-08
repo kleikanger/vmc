@@ -26,7 +26,7 @@ class orbital {
 		//setValues(int energy_level, int angular_momentum, bool spin_up, int dim)
 		void setValues(int,int,bool,int);
 		//Set variational parameter alpha
-		void setAlpha(double);
+		void setOmgAlp(double,double);
 		//input: position r of particle
 		//returns value of orbital in r.
 		double valueWF(double*) const;

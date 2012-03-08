@@ -15,6 +15,7 @@ class walker {
 		double delta_t;
 		double dt_x_D;
 		double sq_delta_t;
+		double omega;
 
 		//seed for the random number generator	
 		int idum;

@@ -23,12 +23,6 @@ using std::cerr;
 #ifndef ANALYTIC_D2
 #define ANALYTIC_D2 true
 #endif
-#ifndef OMG
-#define OMG 1.
-#endif
-#ifndef SQOMG
-#define SQOMG 1.
-#endif
 
 //Orbitals
 inline double psi_10(double r_sqrd, double omg_alp)
@@ -44,14 +38,14 @@ inline double h2(double x, double omg_alp)
 {
 	return 4.*x*x*omg_alp - 2.; 
 }
-inline double h3(double x, double sqalpha)
+inline double h3(double x, double sq_omg_alp)
 {
-	return 8.*pow(x*SQOMG*sqalpha,3) - 12.; 
+	return 8.*pow(x*sq_omg_alp,3) - 12.; 
 }
-inline double h4(double x, double alpha)
+inline double h4(double x, double omg_alp)
 {
-	return 16.*pow(x,4)*pow(OMG*alpha,2) - 
-		48.*pow(x,2)*OMG*alpha + 12.;
+	return 16.*pow(x,4)*pow(omg_alp,2) - 
+		48.*pow(x,2)*omg_alp + 12.;
 }
 //Constructors
 orbital::orbital(){}
@@ -97,11 +91,10 @@ void orbital::setValues(int el,int am, bool su, int di){
 	}
 }
 //endvimfold
-void orbital::setAlpha(double alph){
-	alpha = alph;/*//startvimfold*/
-	omg_alp = OMG*alpha;
-	sqalpha = sqrt(alph);
-	sq_omg_alp = sqrt(alpha*OMG);
+void orbital::setOmgAlp(double alphaARG, double omegaARG){
+	omg_alp = omegaARG*alphaARG;/*//startvimfold*/
+	sqalpha = sqrt(alphaARG);
+	sq_omg_alp = sqrt(alphaARG*omegaARG);
 }/*//endvimfold*/
 double orbital::valueWF(double* dR) const {
 //startvimfold
@@ -155,7 +148,7 @@ double orbital::D1(double* dR, const int &axis) const {
 	// returns gradient/phi. Multiply with psi for the correct result
 	switch (energy_level) 
 	{
-		case 1: return -dR[axis]*alpha*OMG;
+		case 1: return -dR[axis]*omg_alp;
 		case 2:	//n_x=1 n_y=0
 				if (axis==0) return 
 				( 2.*sq_omg_alp/h1(dR[0],sq_omg_alp)-dR[0]*omg_alp );
@@ -229,7 +222,7 @@ double orbital::D2(double* dR) const {
 						-4.*sq_omg_alp*dR[0]/h1(dR[0],sq_omg_alp)) ;
 		case 3: return //n_x=0 n_y=1 
 				omg_alp*( omg_alp*r_sq-2.
-						-4.*SQOMG*sq_omg_alp*dR[1]/h1(dR[1],sq_omg_alp));
+						-4.*sq_omg_alp*dR[1]/h1(dR[1],sq_omg_alp));
 		case 4: return //x0,y2
 				omg_alp*(8./h2(dR[1],omg_alp)+omg_alp*r_sq
 						-8.*sq_omg_alp*dR[1]*h1(dR[1],sq_omg_alp)/h2(dR[1],omg_alp)-2.);

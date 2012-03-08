@@ -1,12 +1,11 @@
-#arguments infile(a0.dat=a) numprocs outfile(plot)
+#arguments infile(a0.dat=a) nomber_of_files(filename<number>.dat) outfile(plot)
+#runs blocking.cpp and generates plot
 
 import sys
 import os
 import matplotlib as plt
 import numpy as np
 from pylab import *
-
-print(len(sys.argv))
 
 datafile=""
 numprocs=0
@@ -19,13 +18,12 @@ if (len(sys.argv)==4):
 if (len(sys.argv)!=4):
 	print('error: wrong number of args')
 
-
 os.system("g++ -O3 blocking.cpp -o blocking.out")
-os.system("./blocking.out 100 4000 4 %i %s  %s"%(numprocs,datafile,datafile))
+os.system("./blocking.out 100 3000 2 %i %s  %s"%(numprocs,datafile,datafile))
 
 #datafile=datafile[0:len(datafile)-4]
 datafile=datafile+".txt" 
-print datafile
+print("writing to datafile %s"%datafile)
 data = np.genfromtxt(fname=datafile)
 
 fig=plt.figure()

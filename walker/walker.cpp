@@ -23,14 +23,13 @@ using std::setiosflags;
 using std::setw;
 using std::ios;
 
-#ifndef OMG
-#define OMG 1.0
-#endif
+//Defining random number generators RAN_NORM,RAN_NORM_SET,RAN_UNI,RAN_UNI_SET
+#include "../definitions/randomNumberGenerators.h"
 
-#define RAN_NORM_SET RanNormalSetSeedZig32
-#define RAN_NORM DRanNormalZig32
-#define	RAN_UNI_SET RanSetSeed_MWC8222
-#define RAN_UNI DRan_MWC8222
+//#define RAN_NORM DRanNormalZig32
+//#define RAN_NORM_SET RanNormalSetSeedZig32
+//#define RAN_UNI DRan_MWC8222
+//#define RAN_UNI_SET RanSetSeed_MWC8222
 
 walker::walker(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank)
 {/*//startvimfold*/
@@ -81,6 +80,7 @@ void walker::initWalker(double* var_par, double delta_t)
 	//delta_t*diffusion constant
 	dt_x_D=delta_t*0.5;
 	sq_delta_t=sqrt(delta_t);
+	omega=var_par[2];
 	int i,j;
 
 	double init_sigma = 3.0;	
@@ -93,7 +93,7 @@ void walker::initWalker(double* var_par, double delta_t)
 	}
 
 	//update alpha in orbitals
-	slater->setVarPar(var_par[1]);
+	slater->setVarPar(var_par[1],var_par[2]);
 	ipd->setBeta(var_par[0]);
 	//initialize slatermatrix and ipd-matrix
 	slater->initSlaterMatrix(r_old);	
@@ -281,7 +281,7 @@ double walker::calcLocalEnergy(double* var_par) const
 	{
 		e_potential+=cblas_ddot(dimension,r_old[i],1,r_old[i],1);
 	}
-	e_potential*=0.5*OMG*OMG;
+	e_potential*=0.5*omega*omega;
 	// e-e electrostatic interaction
 	e_potential += ipd->sumInvlen();
 

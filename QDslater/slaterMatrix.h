@@ -74,7 +74,7 @@ class slaterMatrix {
 		/*
 		   Change variational parameter alpha in orbital objects
 		   */
-		void setVarPar(const double &alpha) const;
+		void setVarPar(const double &alpha, const double &omega) const;
 		/*
 		   Input - position vector.
 		   Initializing or updating slater matrix when more then one particle have new coords.	

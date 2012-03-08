@@ -18,26 +18,23 @@ using std::setw;
 using std::ios;
 using std::ostringstream;
 
+#include "../definitions/sampler_Def.h"
 //using namespace std;
 //name and path of ofile
 //blocking data
-#ifndef WRITEOFB
-#define WRITEOFB true
-#endif
+//#ifndef WRITEOFB
+//#define WRITEOFB true
+//#endif
 //single particle density
-#ifndef WRITEOFC
-#define WRITEOFC false
-#endif
-#ifndef OFPATHB
-#define OFPATHB "/home/karleik/masterProgging/vmc/blocking/B_test2"//.dat
-#endif
-#ifndef OFPATHC
-#define OFPATHC "/home/karleik/masterProgging/vmc/datafiles/xXXspd_2partdt05eopt.dat"
-#endif
-
-//only for writing to file
-#define OMG 1
-
+//#ifndef WRITEOFC
+//#define WRITEOFC false
+//#endif
+//#ifndef OFPATHB
+//#define OFPATHB "/home/karleik/masterProgging/vmc/blocking/E_"//.dat
+//#endif
+//#ifndef OFPATHC
+//#define OFPATHC "/home/karleik/masterProgging/vmc/datafiles/xXXspd_2partdt05eopt.dat"
+//#endif
 
 sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank)
 {/*//startvimfold*/
@@ -130,7 +127,6 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 			delete [] x_v;
 		}
 #endif
-
 	} //************************** END OF MC sampling **************************
 	
 	//KEEP THE BELOW LINES WHILE DEVELOPING
@@ -149,7 +145,8 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	ofstream blockofile;
   	//char *blockoutfilename;
 	ostringstream ost;
-	ost << OFPATHB << myrank << ".dat";
+	ost <<OFPATHB<<"p"<<num_part<<"a"<<var_par[1]<<"b"<<var_par[0]
+		<<"w"<<var_par[2]<<"r"<<myrank<<".dat";
 	blockofile.open(ost.str().c_str(),ios::out|ios::binary);
 	blockofile.write((char*)(all_energies+1),num_cycles * sizeof (double));
 	blockofile.close();
