@@ -1,0 +1,4 @@
+time:2012.3.8.221321, num_particles:2, a_min:0.987, a_max:1.0, a_variations:1, b_min:0.398, b_max:1.0, b_variations:1, omega:1.0, delta_t:0.01, sampl_cyc:200000.0, therm_cyc:400000.0
+time:2012.3.8.221348, num_particles:2, a_min:0.987, a_max:1.0, a_variations:1, b_min:0.398, b_max:1.0, b_variations:1, omega:1.0, delta_t:0.01, sampl_cyc:200000.0, therm_cyc:400000.0
+time:2012.3.8.221352, num_particles:2, a_min:0.987, a_max:1.0, a_variations:1, b_min:0.398, b_max:1.0, b_variations:1, omega:1.0, delta_t:0.025, sampl_cyc:200000.0, therm_cyc:400000.0
+time:2012.3.8.221354, num_particles:2, a_min:0.987, a_max:1.0, a_variations:1, b_min:0.398, b_max:1.0, b_variations:1, omega:1.0, delta_t:0.05, sampl_cyc:200000.0, therm_cyc:400000.0
