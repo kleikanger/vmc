@@ -145,8 +145,10 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	ofstream blockofile;
   	//char *blockoutfilename;
 	ostringstream ost;
-	ost <<OFPATHB<<"p"<<num_part<<"a"<<var_par[1]<<"b"<<var_par[0]
-		<<"w"<<var_par[2]<<"r"<<myrank<<".dat";
+	ost <<OFPATHB<<
+		//"p"<<num_part<<"a"<<var_par[1]<<"b"<<var_par[0]
+		//<<"w"<<var_par[2]<<
+		"r"<<myrank<<".dat";
 	blockofile.open(ost.str().c_str(),ios::out|ios::binary);
 	blockofile.write((char*)(all_energies+1),num_cycles * sizeof (double));
 	blockofile.close();

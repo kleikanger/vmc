@@ -4,6 +4,11 @@
 \contentsline {subsection}{\numberline {2.2}Markov Chain Monte Carlo}{1}
 \contentsline {subsection}{\numberline {2.3}Metropolis-Hasting algorithm}{2}
 \contentsline {subsection}{\numberline {2.4}Choice of transition kernel}{2}
-\contentsline {subsection}{\numberline {2.5}The statistical analysis of the data}{2}
-\contentsline {subsection}{\numberline {2.6}Quantum monte Carlo}{3}
-\contentsline {section}{\numberline {3}}{3}
+\contentsline {section}{\numberline {3}Statistical analysis of the data}{3}
+\contentsline {section}{\numberline {4}Quantum monte Carlo}{3}
+\contentsline {subsection}{\numberline {4.1}Introduction}{3}
+\contentsline {subsection}{\numberline {4.2}Variational Monte Carlo}{3}
+\contentsline {subsection}{\numberline {4.3}The trial wave functions}{4}
+\contentsline {subsection}{\numberline {4.4}Brute force sampling}{4}
+\contentsline {subsection}{\numberline {4.5}Sampling based on Langevin dynamics}{4}
+\contentsline {section}{\numberline {5}Implementation}{4}

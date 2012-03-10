@@ -1,5 +1,5 @@
-\documentclass[a4paper,10pt,twocolumn]{article} %{{{
-%\documentclass[a4paper,10pt]{article} %{{{
+\documentclass[a4paper,10pt,twocolumn]{article} %{{{1
+%\documentclass[a4paper,10pt]{article} 
 \usepackage[utf8]{inputenc}
 
 \usepackage{amsmath}
@@ -38,25 +38,26 @@
 \newcommand{\qed}{\nobreak \ifvmode \relax \else
       \ifdim\lastskip<1.5em \hskip-\lastskip
       \hskip1.5em plus0em minus0.5em \fi \nobreak
-      \vrule height0.75em width0.5em depth0.25em\fi} %}}}
+      \vrule height0.75em width0.5em depth0.25em\fi} %}}}1
 
-%opening
 \title{ Project 1, Fys 4411 \\ }
 \author{Karl R. Leikanger}
-
 
 \begin{document}
 
 \maketitle
+\tableofcontents
 
-\begin{abstract}%{{{
-
-\end{abstract}%}}}
+\begin{abstract}%{{{1
+blablabla
+\end{abstract}%}}}1
 
 \section{Quantum dots}% {{{1
 
 Our system of choice 
+
 %}}}1
+
 
 \section{The Monte Carlo method}%{{{1
 
@@ -100,13 +101,20 @@ $\{\vec r_n\}$ will converge towards the distribution $P$ if the following
 conditions are fulfilled (reference):
 \begin{itemize}
 \item
-	$P$ must an invariant of the kernel $q(\vec x|\vec y)$ in the sense that 
+	$P$ is an invariant of the kernel $q(\vec x|\vec y)$ in the sense that 
 	\begin{align}
 	\int_{\mathcal D} d\vec r_A\, P(\vec r_A) q(\vec r_A | \vec r_B) = P(\vec r_B) \label{eq221},
 	\end{align}
 \item
-	The chain must be ergodetic, which means that all $\vec r_n$ in $\mathcal D$ must be axessible to a 
-	random walker starting in any point $\vec r_0$ in $\mathcal D$ during a finite number of steps. 
+	The chain is ergodetic, which means that any point $\vec r_n$ is axessible in a finite number transitions from any starting point $\vec r_0$. 
+	\begin{align}
+		0>&q(r_0|r_1)q(r_1|r_2)\dots q(r_{n-1}|r_n),\notag\\
+		&\{r_0,r_1,\dots,r_n\}\in\mathcal D 
+	\end{align}
+	for all $r_0,r_n$. 	
+	(more?reference!)
+%all $\vec r$ in $\mathcal D$% must be axessible to a random walker
+%starting in any point $\vec r_0$ in $\mathcal D$ during a finite number of transitions. 
 \end{itemize}
 
 %More sophisticated methods exist, like the Metropolis-Hastings algorithm, where the drawing process is biased.
@@ -121,7 +129,7 @@ conditions are fulfilled (reference):
 It is costumary to make the analogy to a set of $\lambda$ biased random walkers, where
 the density of walkers $P_w$ is (close to) stationary and proportional to $P$.
 This analogy is reasonable as long as the sequence $\{\vec r_n\}$ can be split into $\lambda$ 
-subsequences $\{\vec r_n^\lambda\}$ which are uncorrelated. Then we can equally well interpret out retults as $N$ samples
+subsequences $\{\vec r_n^\lambda\}$ which are uncorrelated. Then one can equally well interpret the samples as $N$ samples
 from one markov chain, as $N/\lambda$ samples from $\lambda$ markov chains.
 
 For $P_w$ to be stationary (), the population of walkers in any point $\vec r_A$ must be () constant,
@@ -138,8 +146,9 @@ The condition of detailed balance
 \end{align}
 assures that (\ref{eq222}) is fulfilled. 
 %This equation is the basis for finding the transition kernels that is used in the metropolis-Hastings algorithm.
-As long as the markow chain is ergodetic the entire integration domain will be sampled.
-If not (ergodetic in regions: can be tackled ? )
+As long as the markow chain is ergodetic the walkers will have axcess to all regions of the integration domain.
+% ad the entire integration domain will be sampled.
+%If not (ergodetic in regions: can be tackled ? )
 %}}}2
 
 \subsection{Metropolis-Hasting algorithm}%{{{2
@@ -151,9 +160,9 @@ We split our transition kernel in two parts
 	q(\vec r_A|\vec r_b) 
 		\to 
 	\gamma(\vec r_A|\vec r_b)
-	g(\vec r_A|\vec r_b)
+	g(\vec r_A|\vec r_b).
 \end{align} 
-We set 
+i will refer to $g(r_A|r_B)$ as the suggestion density, and $\gamma(\vec r_A|\gamma \vec r_B)$ as the acceptance probability. We set
 \begin{align}
 &\gamma(\vec r_B|\vec r_A)=1 \text{ when }\notag\\
 %\begin{align}
@@ -165,13 +174,17 @@ Then, by inserting this equations into (\ref{detbal}), we get
 	\frac
 	{P_w(\vec r_B) g(\vec r_B|\vec r_A)}
     {P_w(\vec r_A) g(\vec r_A|\vec r_B)}\, 
-	,\, 1 \right)
+	,\, 1 \right) \label{gamma}
 \end{align}
 By making this choice for $\gamma$, (\ref{detbal}) will be fulfilled and the sequence of $\{r_i\}$ will sample 
-$P$. This rule preserves the relative provability of the transitions between $r_A$ and $r_B$, and therefore preserves the 
-density of walkers in each point.  Note that only the relative ratio between the left and the right hand side of (eq) are of interest to us. Therefore, $P$ does not have to be normalized. 
-
+$P$. 
+%This rule preserves the relative provability of the transitions between $r_A$ and $r_B$, and preserves the 
+%density of walkers in each point.  
+Note that only the relative ratio between the left and the right hand side of (eq) are 
+of interest to us. Therefore, $P$ does not have to be normalized. 
 These equations are implemented in the well known Metropolis-Hastings algorithm as follows:
+%
+%\begin{algorithm}[h]
 \begin{algorithmic}
 \LOOP{}
 \STATE{$\vec r_B\gets$ random from distribution $g(\vec r_T|\vec r_B)$.}
@@ -185,92 +198,99 @@ These equations are implemented in the well known Metropolis-Hastings algorithm 
 \STATE{$n\gets n+1$}
 \ENDLOOP{}
 \end{algorithmic}
-Write some more about the algo..
-Alternative algos, and their efficiency. refs.
+%\label{alg1}
+%\caption{\it The Metropolis-Hastings algorithm. $g(\vec r_T|\vec r_B)$ is the Markov transition kernel and 
+%$\gamma (\vec r_n|\vec r_T))$ is the acceptance probability as explained in the text.}
+%\end{algorithm}
+%
+%This algorithm is a 
+%Write some more about the algo..
+%Alternative algos, and their efficiency. refs.
 %(more about the algo: convergence and thermalization (implementation issues))
 
 %}}}2
 
 \subsection{Choice of transition kernel} %{{{2
 
-Brute force metropolis sampling: transition kernel $g(x|y)$ any distribution symmetric around x.\\
-Metropolis-Hastings: $g(x|y)$, trajectories gouverned by Langevin dynamics. (trajectories of walkers: the solution to 
-... equation).\\
+The transition kernel can be written as
+\begin{align}
+	q(\vec r_n|\vec r_{n+1}) = \gamma(\vec r_n|\vec r_{n+1}) g(\vec r_n|\vec r_{n+1}), 
+\end{align}
+where $\gamma(\vec r_{n}|\vec r_{n+1})$ is given by eq. (\ref{gamma}). 
+The set $\{r_n\}$ will converge tovards the same distribution $P_w$ regardless of which $g(\vec r_n|\vec r_{n+1})$ we use. 
+(As long as the markov chain defined by $g(\vec r_n|\vec r_{n+1})$ and $\gamma(\vec r_n|\vec r_{n+1})$ is ergodetic.)
+However, the rate of convergence can .. from one sugg.dens. to an other.
+%But the rate of convergence can differ widely.
 
-Special choice of g, g=cymmetric around 0: gives the original metropolis algorithm.
+The transition kernel suggested by Markov ... in his original article ... corresponds to a suggestion density $g(\vec r_n|\vec r_{n+1})$ 
+that is symmetric around $\vec r_n$ along all axis. In this case $\gamma(\vec r_n|\vec r_{n+1})$ can be expressed as
+\begin{align} 
+	\gamma(\vec r_A|\vec r_B)=max\left(
+	\frac
+	{P_w(\vec r_B)}
+    {P_w(\vec r_A)}\, 
+	,\, 1 \right) \label{gamma_bruteforce}
+\end{align}
+A common choice is to set
+\begin{align}
+	g(\vec r_n|\vec r_{n+1}) = \sum_i l\left(\mathcal U(\vec r_{n+1}-\vec r_n) - \frac12\right)
+\end{align}
+where $l$ is a constant which we will refer to as the steplength, and $\mathcal U(\vec r)$ is the uniform distribution
+\begin{equation}
+	\mathcal U(\vec r) = \left\{ 
+	\begin{split} 
+		&1, \text{ for all } \vec r \cdot \vec e_i \in [0,1]\\
+		&0, \text{ otherwise }\\
+	\end{split}
+	\right..
+\end{equation} 
+Here $\vec e_i$ is the unit vectors of $\mathcal D$. 
+By choosing testing different steplengths $l$ will alter the number of 
+accepted steps during a simulation, and will have an effect on the rate of convergence. %For example, if nearly all steps are accepted, 
+The class of sampling algorithms using a symmetric suggestion density is often referred to as brute force sampling.
+
+An other class of sampling algorithms is based on the ..., where the random walkers ... the Langevin equation for 
+The trajectories of ... is gouverned by Langevin dynamics. 
+...
+...
+discretization of the langevin equation.
+...
+...
 Langevin eq and diffusion: not exact for dt>0, but gamma ensures that the sampling is correct. in the special case that 
 dt = 0, gamma = 1 always, and every suggested move should be accepted. 
-
 %}}}
 
-\begin{figure}[h]
-\begin{center}
-	\includegraphics[width=8cm]{../datafiles/4000steps6partw1emin.eps}
-\end{center}
-\caption{{\it\small Example of the path of one walker during 4000 steps. The dotted line shows the path and the crosses 
-marks the samplingpoints}}
-\end{figure}
+%}}}1
 
-\begin{figure}[h]
-\begin{center}
-	\includegraphics[width=8cm]{../plots/1pd_2ptdt05emin2e6c.eps}
-\end{center}
-\caption{{\it\small Normalysized densityplot for 2 pt. $\alpha=0.98$, $\omega=0.4$, $\delta t=0.05$. $10^6$ cycles. }}
-%\end{figure}
+\section{Statistical analysis of the data}%{{{1
 
-%\begin{figure}[h]
-\begin{center}
-	\includegraphics[width=8cm]{../plots/1pd6ptw1emin.eps}
-\end{center}
-\caption{{\it\small Normalized density plot for 6 pt. $\alpha=0.92$, $\omega=0.565$, $\delta t=0.05$. $10^6$ cycles. }}
-%\end{figure}
+The statistical error.
 
-%\begin{figure}[h]
-\begin{center}
-	\includegraphics[width=8cm]{../plots/1pd_12ptdt05emin2e6c.eps}
-\end{center}
-\caption{{\it\small Normalized density plot for 12 pt. $\alpha=0.87$, $\omega=0.68$, $\delta t=0.05$. $10^6$ cycles. }}
-\end{figure}
-We will outlining the Metropolis algorithm.
-
-Marcow chains and random walkers.
-
-Metropolis hastings.
-
-%This method is referred to as importance sampling.
-
-For many integrals
-A possible problem doing importance sampling on the .. is to choose an .. that $P$ has to be normalized. In quantum monte carlo
-the metropolis algorithm...
-
-\subsection{The statistical analysis of the data}%{{{2
-
-In our simulations, we will sample each point on the track of one single walker. 
-This is possible as long as the system is ergodetic. That is, all $\vec r_n$ in $\mathcal D$ must be axessible to a 
-random walker starting in any point $\vec r_0$ in $\mathcal D$. 
-Otherwise, some parts of the integration domain would not be sampled.
+%In our simulations, we will sample each point on the track of one single walker. 
+%This is possible as long as the system is ergodetic. 
+%That is, all $\vec r_n$ in $\mathcal D$ must be axessible to a 
+%random walker starting in any point $\vec r_0$ in $\mathcal D$. 
+%Otherwise, some parts of the integration domain would not be sampled.
+The correlation between ,,
 After a certain number of moves, the statistical correlation between
 the starting point $\vec r_0$ and the current position $\vec r_n$ will be very weak (there will be no). 
 ((reference, weaker statement))
 If we denote the correlation time $\tau$ and $N$ is the total number of MCMC cycles, 
-our simulation can equally well be seen as $\tau$ cycles of $\tau/N$ walkers
-This set will converge to $P_w \propto P$.
+we will have $\tau/N$ uncorrelates samples. 
 
 A method to find the correlation time.
-%}}}2
+%}}}1
 
+\section{Quantum monte Carlo}%{{{1 
 
-An more sophisticated way of sampling P is the Metropolis - Hastings algorithm.
+\subsection{Introduction}%{{{2
 
-\subsection{Quantum monte Carlo}%{{{2
-
-In the Heisenberg image, the expectation values for any observable $\hat O$ can be expressed on the general form
+%In the Heisenberg image, t
+The expectation values for any observable $\hat O(t)$ can be expressed on the general form
 \begin{align}
-	\expec{ O(t) } = \int d\vec r \Psi(\vec r) \hat O(t) \Psi(\vec r)^*,
+	\expec{ O(t) } = \int d\vec r \Psi(\vec r) \hat O(t) \Psi(\vec r)^*,\label{exv}
 \end{align}
 where $\Psi(\vec r) = \sum_i \psi_i(\vec r)$, for some basis $\{ \vec \psi_i \}$. 
-%Generally, as long as we work in the heisenberg image and
-%the wavefunctions are time independent, 		%we can always assume that the wavefunctions are real valued.
 The integral can also be written 
 \begin{align}
 	\expec{ O(t) } = \int |\Psi(\vec r)|^2 \frac{ \hat O(t) \Psi(\vec r)^\dagger } {\Psi(\vec r)^\dagger},
@@ -281,35 +301,114 @@ Since $|\Psi(\vec r)|^2$ is a probability density distribution we see that
 \end{align}
 %
 where the set of numbers $\{\vec r_i\}$ are drawn from $|\Psi|^2$.
-This sum can be sampled using the metropolis algorithm with the metropolis ratio $|\Psi(r_i)|^2/|\Psi(r_{i+1})|^2$.
+This sum can be sampled using the Metropolis-Hastings algorithm with the acceptance probability 
+\begin{align}
+	\gamma(r_i|r_i+1)=\frac
+		{g(r_i|r_{i+1})\Psi(r_i)|^2}
+		{g(r_{i+1}|r_i)|\Psi(r_{i+1})|^2}.
+\end{align} 
+$g(r_i|r_{i+1})$ is the suggestion density as desctibed earlier.
 %
 Note that $\Psi$ do not need to ne normalized in the above equations. This saves us a great deal of work since the normalization 
 of most wavefunctions would have to be done numerically for every new trial function.% ????
-%since any normalization constant will disappear both from the above fraction (\ref{RFQMC1}) and the metropolis ratio.
 
+%}}}2
+
+\subsection{Variational Monte Carlo}%{{{2
+
+Variational Monte Carlo (VMC) is used to calculate the lowest energy state $\epsilon_0$ in a quantum mechanical system.
+According to the ritz principle, the expectationvalue for the energy 
+\begin{align}
+	\epsilon_0\ge\bra{\Psi_T} \hat H \ket{\Psi_T}\,\forall\,\ket{\Psi_T}\in\mathcal H.
+\end{align} 
+%And if $\bra\Psi\hat H \ket\Psi = \epsilon_0$ then $\ket\Psi=\ket{\phi_0}$ where $\ket{\phi_0}$ is the ground state of the hamiltonian. 
+%
+This means that any expectation value $\expec{\hat H}$ sets an upper limit to the energy of the system. 
+%
+This principle allows us to perform a systematic search for the lowest $\expec{\hat H}$ using a set of trial wave function 
+$\ket{\Psi_T,\alpha,\beta,\dots}$ where $\alpha,\beta,\dots$ are variational parameters. % that changes the shape of the wave functions.
+
+The search in the parameterspace $(\alpha,\beta, \dots)$ can be done by performing MCMC calculations on a grid. 
+More sophisticated methods are also in use, like the conjugate gradient approach which will be described later in this text.
+
+Since the variance $\expec{\hat H^2}-\expec{\hat H}^2=0$ for the eigenfunctions of $\hat H$, the variance is a measure of how close 
+$\ket{\Psi_T,\alpha,\beta,\dots}$ is to the 'true' ground state wave function of the system. Even is the lowest energy obtained in our simulations will be closest 
+to the ground state energy, the trial function with the lowest variance migt be a better fit to the 'true' groundstate wave function.
+%}}}2
+
+\subsection{The trial wave functions}%{{{2
+
+Our system is a closed shell model with a hamiltonian 
+\begin{align} 
+	\hat H = -\frac{\nabla ^2}2 + \omega |\vec R|^2 - \sum_{i<j}\frac1{r_{ij}} 
+\end{align}
+
+Our trial wave function can be written on the form
+\begin{align}
+	\Psi_T(\vec r) = \Psi_\downarrow^{\alpha}(\vec r) \Psi_\uparrow^\alpha(\vec r) \mathcal J^\beta(\vec r) 
+\end{align}
+Here $\Psi_\uparrow(\vec r)$is a slater determinant consisting of the one particle soultions of the stationary schrödinger equation
+\begin{align}
+	\phi_{n_xn_y}^\alpha(\vec r_i) = H_{n_y}(\sqrt{\omega\alpha}y)H_{n_x}(\sqrt{\omega\alpha}x)\notag\\
+	\times \exp(-\frac12\omega\alpha|\vec r_i|^2) 
+\end{align}
+and $\vec r = (\vec r_0, \vec r_1,\dots,\vec r_n)$ is a vector containing the position of all electrons in the system.
+The energy level $n=n_x+n_y$ will be $n+1$ times degenerated. ...
+
+
+$\Psi_\downarrow^\beta(\vec r)$ is the corresponding determinant for the spin down states.
+The jastrov factor $\mathcal J^\beta$
+	
+We will choose trial functions $\Psi_T$
+For the 
 Show/argue that the variance is exactly 0 for the correct wf.
+%}}}2
 
-%next section
-For our system, $\hat O\gets\hat H$, and $\{ \psi_i \}$ is the lowest energy eigenstates of the system. 
-Since $[\hat H , \int dr \psi_i(\vec r)\psi_i(\vec r)]=0$, we can
-assume that the the basis functions $\{ \psi_i \}$ are real valued without losing generality.
+\subsection{Brute force sampling}%{{{2
 
-The quantum force:
-We will assume that 
+%}}}2
 
+\subsection{Sampling based on Langevin dynamics}%{{{2
+The quantum force
 
+%}}}2
 
-%}}}
+%}}}1
+
+\section{Implementation}%{{{1
 
 
 %}}}1
 
-\section{}%{{{1
 
-
-%}}}1
-
-\tableofcontents
+%\begin{figure}[h]
+%\begin{center}
+%	\includegraphics[width=8cm]{../datafiles/4000steps6partw1emin.eps}
+%\end{center}
+%\caption{{\it\small Example of the path of one walker during 4000 steps. The dotted line shows the path and the crosses 
+%marks the samplingpoints}}
+%\end{figure}
+%
+%\begin{figure}[h]
+%\begin{center}
+%	\includegraphics[width=8cm]{../plots/1pd_2ptdt05emin2e6c.eps}
+%\end{center}
+%\caption{{\it\small Normalysized densityplot for 2 pt. $\alpha=0.98$, $\omega=0.4$, $\delta t=0.05$. $10^6$ cycles. }}
+%\end{figure}
+%
+%\begin{figure}[h]
+%\begin{center}
+%	\includegraphics[width=8cm]{../plots/1pd6ptw1emin.eps}
+%\end{center}
+%\caption{{\it\small Normalized density plot for 6 pt. $\alpha=0.92$, $\omega=0.565$, $\delta t=0.05$. $10^6$ cycles. }}
+%\end{figure}
+%
+%\begin{figure}[h]
+%begin{center}
+%	\includegraphics[width=8cm]{../plots/1pd_12ptdt05emin2e6c.eps}
+%\end{center}
+%\caption{{\it\small Normalized density plot for 12 pt. $\alpha=0.87$, $\omega=0.68$, $\delta t=0.05$. $10^6$ cycles. }}
+%\end{figure}
 
 \end{document}
 

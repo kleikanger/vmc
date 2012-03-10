@@ -24,12 +24,13 @@ using std::setw;
 using std::ios;
 
 //Defining random number generators RAN_NORM,RAN_NORM_SET,RAN_UNI,RAN_UNI_SET
+//File automatically generated in python script and looks like this:
+//
+// #define RAN_NORM DRanNormalZig32
+// #define RAN_NORM_SET RanNormalSetSeedZig32
+// #define RAN_UNI DRan_MWC8222
+// #define RAN_UNI_SET RanSetSeed_MWC8222
 #include "../definitions/randomNumberGenerators.h"
-
-//#define RAN_NORM DRanNormalZig32
-//#define RAN_NORM_SET RanNormalSetSeedZig32
-//#define RAN_UNI DRan_MWC8222
-//#define RAN_UNI_SET RanSetSeed_MWC8222
 
 walker::walker(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank)
 {/*//startvimfold*/
@@ -332,5 +333,6 @@ void walker::getRi(int i_w, double* x)
 	}
 }/*//endvimfold*/
 
+double walker::getdPhioverdA(int )
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  4 MAR 2012 20:48
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  10 MAR 2012 15:56
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -370,100 +370,77 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
  (./proj1.aux)
 \openout1 = `proj1.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Try loading font information for U+msa on input line 50.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Try loading font information for U+msa on input line 48.
 
 (/usr/share/texmf-texlive/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 50.
+LaTeX Font Info:    Try loading font information for U+msb on input line 48.
 
 (/usr/share/texmf-texlive/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
-)
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 103.
+) (./proj1.toc)
+\tf@toc=\write3
+\openout3 = `proj1.toc'.
+
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 104.
 
 
 (/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 103.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 104.
  [1
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 174--176
-
+Underfull \hbox (badness 1668) in paragraph at lines 178--189
+\OT1/cmr/m/n/10 These equa-tions are im-ple-mented in the well
  []
 
 
-Underfull \hbox (badness 2913) in paragraph at lines 196--199
-\OT1/cmr/m/n/10 Metropolis-Hastings: $\OML/cmm/m/it/10 g\OT1/cmr/m/n/10 (\OML/c
-mm/m/it/10 x\OMS/cmsy/m/n/10 j\OML/cmm/m/it/10 y\OT1/cmr/m/n/10 )$, tra-jec-to-
-ries gou-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 196--199
+Underfull \hbox (badness 10000) in paragraph at lines 178--189
 
  []
 
-File: ../datafiles/4000steps6partw1emin.eps Graphic file (type eps)
-<../datafiles/4000steps6partw1emin.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 208--209
- [] 
+[2]
+
+Package amsmath Warning: Cannot use `split' here;
+(amsmath)                trying to recover with `aligned' on input line 244.
+
+
+Underfull \hbox (badness 1275) in paragraph at lines 265--265
+[]\OT1/cmr/bx/n/14.4 Statistical anal-y-sis of the
  []
 
-File: ../plots/1pd_2ptdt05emin2e6c.eps Graphic file (type eps)
-<../plots/1pd_2ptdt05emin2e6c.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 216--217
- [] 
+[3]
+Underfull \hbox (badness 1552) in paragraph at lines 362--366
+[]\OT1/cmr/m/n/10 We will choose trial func-tions $	[]$ For the
  []
 
-File: ../plots/1pd6ptw1emin.eps Graphic file (type eps)
-<../plots/1pd6ptw1emin.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 223--224
- [] 
- []
-
-File: ../plots/1pd_12ptdt05emin2e6c.eps Graphic file (type eps)
-<../plots/1pd_12ptdt05emin2e6c.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 230--231
- [] 
- []
-
-
-LaTeX Warning: Float too large for page by 97.51326pt on input line 233.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[2] (./proj1.toc)
-\tf@toc=\write3
-\openout3 = `proj1.toc'.
-
- [3] [4
+[4
 
 ] (./proj1.aux) ) 
 Here is how much of TeX's memory you used:
- 2033 strings out of 495062
- 22781 string characters out of 1182644
- 83660 words of memory out of 3000000
- 5176 multiletter control sequences out of 15000+50000
- 14358 words of font info for 55 fonts, out of 3000000 for 9000
+ 2010 strings out of 495062
+ 22422 string characters out of 1182644
+ 86660 words of memory out of 3000000
+ 5166 multiletter control sequences out of 15000+50000
+ 12122 words of font info for 47 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 32i,11n,22p,673b,371s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,11n,22p,222b,371s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (4 pages, 16888 bytes).
+Output written on proj1.dvi (4 pages, 21732 bytes).
