@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include "sampler.h"
+#include "../newmatrix/newmatrix.h"
 
 using std::cout;
 using std::cerr;
@@ -35,6 +36,7 @@ using std::ostringstream;
 //#ifndef OFPATHC
 //#define OFPATHC "/home/karleik/masterProgging/vmc/datafiles/xXXspd_2partdt05eopt.dat"
 //#endif
+#define CONJGRAD true
 
 sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank)
 {/*//startvimfold*/
@@ -44,12 +46,21 @@ sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var
 	this->dimension=dimension;
 	this->num_of_var_par=num_of_var_par;
 	quantum_dot = new walker(num_part, spin_up_cutoff, dimension, num_of_var_par, myrank);
+	
+	//OBS : OMEGA PART OF VARPAR TODO CHANGE 
+	// NUM OF VAR PAR = 3 : TODO set to 2
+	energy_gradient = new double[num_of_var_par]; 
 }/*//endvimfold*/
 
 sampler::~sampler()
 {/*//startvimfold*/
 	delete quantum_dot;
 }//End function /*//endvimfold*/
+
+double sampler::getEnergyGrad(int i)
+{
+	return energy_gradient[i];
+}
 
 void sampler::sample(int num_cycles, int thermalization, double* var_par, double delta_t, double* result)
 {/*//startvimfold*/
@@ -72,6 +83,12 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	}
 	ofstream ofilec;
 	ofilec.open((OFPATHC));
+#endif
+#if CONJGRAD
+	//dim: num of varpar-1, 2
+	double **e_grad_temp = (double**)matrix(2,2,sizeof(double));
+	e_grad_temp[0][0] 	= e_grad_temp[1][0] = e_grad_temp[0][1]
+						= e_grad_temp[1][1] = 0.0;
 #endif
 
 	double e_local=0.0;
@@ -108,6 +125,11 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		e_local += e_local_temp;
 		e_local_squared += e_local_temp*e_local_temp;	
 
+#if CONJGRAD
+		quantum_dot->getVarParGrad(e_grad_temp[0]);
+		e_grad_temp[1][0]+=e_grad_temp[0][0]*e_local_temp;
+		e_grad_temp[1][1]+=e_grad_temp[0][1]*e_local_temp;
+#endif
 #if WRITEOFB //write to file blocking data
 		all_energies[loop_c-thermalization]=e_local_temp;
 #endif
@@ -128,19 +150,21 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		}
 #endif
 	} //************************** END OF MC sampling **************************
-	
+
 	//KEEP THE BELOW LINES WHILE DEVELOPING
 	cout<<setprecision(4)<<"alpha: "<<var_par[1];
 	cout<<setprecision(4)<<" beta: "<<var_par[0]<<"\t";
 	cout<<setprecision(10)<< "Local energy: "<<(e_local/(double)num_cycles);	
 	cout<<setprecision(5)<<" variance^2: "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
 	cout<<setprecision(5)<<" Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
-	
 	//return values
-	result[0]=(e_local/(double)num_cycles);
-	cout<<result[0]<<"\n";
-	result[1]=(e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
+	result[0] = (e_local/(double)num_cycles);
+	result[1] = (e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
 
+#if CONJGRAD
+	energy_gradient[0] = 2.0*(e_grad_temp[1][0]-e_grad_temp[0][0]*result[0])/(double)num_cycles;
+	energy_gradient[1] = 2.0*(e_grad_temp[1][1]-e_grad_temp[0][1]*result[0])/(double)num_cycles;
+#endif
 #if WRITEOFB
 	ofstream blockofile;
   	//char *blockoutfilename;

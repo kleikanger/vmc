@@ -9,9 +9,9 @@ GPROFOUT=gprof_testres.txt
 
 vmcmain.out: all
 	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o \
-		zignor.o zigrandom.o newmatrix.o -o runVMC.out $(LFLAGS)
+		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o -o runVMC.out $(LFLAGS)
 
-all: vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o
+all: vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o cgm.o
 
 run: vmcmain.out
 	$(EXEC) $(NPROC) runVMC.out
@@ -26,10 +26,10 @@ profile: all
 vmcmain.o: $(PAT)/vmcmain/vmcmain.cpp $(PAT)/definitions/vmcmain_Def.h
 	$(CC) $(CFLAGS) -c $(PAT)/vmcmain/vmcmain.cpp 
 
-sampler.o: $(PAT)/sampler/sampler.h $(PAT)/sampler/sampler.cpp walker.o $(PAT)/definitions/sampler_Def.h
+sampler.o: $(PAT)/sampler/sampler.h $(PAT)/sampler/sampler.cpp walker.o newmatrix.o $(PAT)/definitions/sampler_Def.h
 	$(CC) $(CFLAGS) -c $(PAT)/sampler/sampler.h $(PAT)/sampler/sampler.cpp
 
-walker.o: $(PAT)/walker/walker.h $(PAT)/walker/walker.cpp $(PAT)/definitions/randomNumberGenerators.h  slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o
+walker.o: $(PAT)/walker/walker.h $(PAT)/walker/walker.cpp $(PAT)/definitions/randomNumberGenerators.h slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o
 	$(CC) $(CFLAGS) -c $(PAT)/walker/walker.h $(PAT)/walker/walker.cpp 
 
 slaterMatrix.o: $(PAT)/QDslater/slaterMatrix.h $(PAT)/QDslater/slaterMatrix.cpp orbital.o newmatrix.o
@@ -49,6 +49,12 @@ zigrandom.o: $(PAT)/ziggurat/zigrandom.h $(PAT)/ziggurat/zigrandom.c
 
 newmatrix.o: $(PAT)/newmatrix/newmatrix.h $(PAT)/newmatrix/newmatrix.cpp
 	$(CC) $(CFLAGS) -c $(PAT)/newmatrix/newmatrix.h $(PAT)/newmatrix/newmatrix.cpp
+
+cgm.o: $(PAT)/cgm/cgm.h $(PAT)/cgm/cgm.cpp vectormatrixclass.o sampler.o 
+	$(CC) $(CFLAGS) -c $(PAT)/cgm/cgm.h $(PAT)/cgm/cgm.cpp 
+
+vectormatrixclass.o: $(PAT)/cgm/vectormatrixclass.h $(PAT)/cgm/vectormatrixclass.cpp
+	$(CC) $(CFLAGS) -c $(PAT)/cgm/vectormatrixclass.h $(PAT)/cgm/vectormatrixclass.cpp  
 
 clear:
 	rm *.out *.o

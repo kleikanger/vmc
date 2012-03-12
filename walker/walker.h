@@ -1,3 +1,5 @@
+#ifndef WALKER_H
+#define WALKER_H
 
 #include "../QDslater/slaterMatrix.h"
 #include "../ipdist/ipdist.h"
@@ -77,4 +79,9 @@ class walker {
 		   Copy position of particle i_w to x.
 		   */
 		void getRi(int i_w, double* x);
-};  
+		/*
+		   Returning ... for calculating the minima via the conjugate gradient method
+		   */
+		void getVarParGrad(double* grad_var_par) const;
+};
+#endif

@@ -121,6 +121,10 @@ class slaterMatrix {
 		   */
 		double lapl(double** dR) const;
 		/*
+		   Return the value of the derived of the wavefunction w.r.t. alpha.
+		   */
+		double getdPdAoveA(double** dR) const;
+		/*
 		   Print slatermatrices and the inverse.
 		   */
 		void print();

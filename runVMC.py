@@ -14,17 +14,13 @@ import time
 #vmc variables
 omega 				= 1.0
 delta_t				=.05
-
 min_alpha 	 		= 0.987
-max_alpha 		 	= 1.01
+max_alpha 		 	= 0.987
 alpha_variations 	= 1 #min 1
-
 min_beta 	 		= 0.398
-max_beta 		 	= 4.0
+max_beta 		 	= 0.398
 beta_variations 	= 1 #min 1
-
 number_of_particles = 2
-
 sampling_cycles 	= 2e6 #total number on all procs
 thermal_cycles 		= 4e5
 
@@ -35,8 +31,8 @@ thermal_cycles 		= 4e5
 #write running parameters to log (then all data will be traceable)
 log_run				= False 
 #mpirun flags
-number_of_processors= 2
-#running mode #NOT ACTIVE, find out how to chance CC in Makefile
+number_of_processors= 1
+#running mode #NOT ACTIVE, find out how to change CC in Makefile
 debug 				= False
 profile 			= False
 
@@ -48,7 +44,7 @@ profile 			= False
 write_blocking_data = 'false'
 filepath_blck 		= 'blocking/blc_'
 #write variational data to file
-write_var_result 	= 'true'
+write_var_result 	= 'false'
 filepath_var 		= 'datafilesVAR/var_'
 #write one particle density to file 
 write_opd 			= 'false'
@@ -123,7 +119,8 @@ def run():
 	gen_sampl_h()
 	gen_vmcmain_h()
 	running_arguments = (('%s %s %s %s %s %s %s %s %s %s %s')%(all_param()[0:-1]))
-	if (os.system('make --silent')==0):
+	if (os.system('make ')==0): #--silent
+		os.system("echo 'Compilation successful.'")
 		os.system('mpirun -n %i runVMC.out %s'%(number_of_processors,running_arguments))
 	else:
 		exit(1)

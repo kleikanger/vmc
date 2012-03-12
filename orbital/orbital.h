@@ -13,7 +13,7 @@ class orbital {
 		int dim;
 		bool spin_up;
 		double alpha;
-		double sqalpha;
+		double omega;
 		double sq_omg_alp;
 		double omg_alp;
 		//int n_x
@@ -36,9 +36,12 @@ class orbital {
 		//input: position r of particle
 		//returns laplacian in r.
 		double D2(double*) const;
+		//Return wavefunction derived w.r.t. alpha
+		double valuedPdA(double* dR);
+		//setting sq_omg_alp and omg_alp
+		inline void updOmgAlp(double alphaARG, double omegaARG);
 		//Functions that returns different object properties
 		int angularMomentum() const;
 		int energyLevel() const;
 		bool spinUp() const;
 };
-

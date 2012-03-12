@@ -301,8 +301,8 @@ void slaterMatrix::accept(int i_upd)
 		}
 	}
 }/*//endvimfold*/
-double slaterMatrix::waveFunction(const int &i_upd) const{
-	//startvimfold
+double slaterMatrix::waveFunction(const int &i_upd) const
+{	//startvimfold
 	//returns ratio between new and old determinant when one particle moved.
 	int i;
 	
@@ -404,6 +404,22 @@ double slaterMatrix::lapl(double** dR) const{
 	return temp;
 }//End function 
 //endvimfold
+double slaterMatrix::getdPdAoveA(double** dR) const
+{	//startvimfold
+	int i, i_upd;
+	double sum=0;
+
+	for (i_upd=0;i_upd<iCutoff;i_upd++) for (i=0;i<iCutoff;i++)
+	{
+		sum+=orbital_[i].valuedPdA(dR[i_upd])*inv_up_matr[i_upd][i];
+	}
+	for (i_upd=iCutoff;i_upd<iNumPart;i_upd++) for (i=iCutoff;i<iNumPart;i++)
+	{
+		//TODO FIX INDEX'es 
+		sum+=orbital_[i].valuedPdA(dR[i_upd])*inv_down_matr[i_upd-iCutoff][i-iCutoff];
+	}
+	return sum;
+} //endvimfold
 void slaterMatrix::print(){
 //startvimfold	
 	cout<<"\ninvUp\n";

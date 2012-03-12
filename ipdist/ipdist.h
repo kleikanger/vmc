@@ -111,6 +111,12 @@ class ipdist{
 		   Calculate laplacian. beta is the variational parameter.
 		   */
 		double jasLapl(double** r) const;
+		/*
+			Returns the derivative of the jastrow w.r.t. beta.
+			Analytical expression:
+			\sum_{i<j} \frac{ a r_{12}^2 }{ ( 1 + \beta r_{ij} )^2 }
+		   */
+		double getdPdA();
 		//Testing
 		void print();
 		

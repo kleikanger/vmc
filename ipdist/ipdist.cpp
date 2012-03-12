@@ -5,6 +5,9 @@
 #include <cstdlib>
 #include <mkl_cblas.h>
 
+#define H 0.001
+#define ONE_OVER_H (double)1000
+
 using std::cout;
 
 ipdist::ipdist(int n, int di, int iC)
@@ -298,6 +301,36 @@ double ipdist::logJasR(const int &i_upd) const
 	}
 	return sum;
 }/*//endvimfold*/
+#define A 0.3333333333333333
+double ipdist::getdPdA() 
+{/*//startvimfold*/
+	int i,j,l;
+	double sum=0.0, fac;
+	bool i_spin_up;
+	
+	//sum over all particles
+	for (i=0; i<n_min_one; i++)
+	{
+		i_spin_up=((i+1)<iCutoff);
+		for (j=0; j<=i;j++)
+		{	
+			fac = ip_len[i][j]/(1.+beta*ip_len[i][j]);
+			fac *= fac;
+				
+			if ( i_spin_up == (j<iCutoff) ) //? a=con : a=1.0; 
+			{ 	
+				sum -= A*fac;
+			}
+			else
+			{
+				sum -= fac;
+			}
+		}
+	}
+	return sum; //2xsum?
+}/*//endvimfold*/
+#undef A
+
 void ipdist::print()
 {/*//startvimfold*/
 	int i,j;

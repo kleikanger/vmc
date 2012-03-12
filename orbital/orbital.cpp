@@ -25,27 +25,32 @@ using std::cerr;
 #endif
 
 //Orbitals
-inline double psi_10(double r_sqrd, double omg_alp)
+inline double psi_10(double &r_sqrd, double omg_alp)
 {
 	return exp(-0.5 * omg_alp * r_sqrd);
 }
 //hermite polynomials. (h0=1);
-inline double h1(double x, double sq_omg_alp)
+inline double h1(double &x, double sq_omg_alp)
 {
 	return 2.*x*sq_omg_alp; 
 }
-inline double h2(double x, double omg_alp)
+inline double h2(double &x, double omg_alp)
 {
 	return 4.*x*x*omg_alp - 2.; 
 }
-inline double h3(double x, double sq_omg_alp)
+inline double h3(double &x, double sq_omg_alp)
 {
 	return 8.*pow(x*sq_omg_alp,3) - 12.; 
 }
-inline double h4(double x, double omg_alp)
+inline double h4(double &x, double omg_alp)
 {
 	return 16.*pow(x,4)*pow(omg_alp,2) - 
 		48.*pow(x,2)*omg_alp + 12.;
+}
+inline void orbital::updOmgAlp(double alphaARG, double omegaARG)
+{
+	omg_alp = omegaARG*alphaARG;
+	sq_omg_alp = sqrt(alphaARG*omegaARG);
 }
 //Constructors
 orbital::orbital(){}
@@ -91,10 +96,11 @@ void orbital::setValues(int el,int am, bool su, int di){
 	}
 }
 //endvimfold
-void orbital::setOmgAlp(double alphaARG, double omegaARG){
-	omg_alp = omegaARG*alphaARG;/*//startvimfold*/
-	sqalpha = sqrt(alphaARG);
-	sq_omg_alp = sqrt(alphaARG*omegaARG);
+void orbital::setOmgAlp(double alphaARG, double omegaARG)
+{/*//startvimfold*/
+	alpha = alphaARG; 
+	omega = omegaARG; 
+	updOmgAlp(alphaARG,omegaARG);//calling inline func
 }/*//endvimfold*/
 double orbital::valueWF(double* dR) const {
 //startvimfold
@@ -183,8 +189,8 @@ double orbital::D1(double* dR, const int &axis) const {
 #endif
 }
 //endvimfold
-double orbital::D2(double* dR) const {
-//startvimfold
+double orbital::D2(double* dR) const 
+{//startvimfold
 //calc: laplacian in some point dR.
 //Does not work as long as we are multiplying with psi in slatermatrix
 
@@ -242,6 +248,20 @@ double orbital::D2(double* dR) const {
 #endif
 }
 //endvimfold
+double orbital::valuedPdA(double* dR) 
+{
+	double f_min, f_plus;
+	//resetting sqrt(alpha*omega) and alpha*omega since only these
+	//functions are used in the valueWF, D1 and D2.
+	updOmgAlp(alpha+H,omega);//calling inline func
+	f_plus=valueWF(dR);
+	updOmgAlp(alpha-H,omega);
+	f_min=valueWF(dR);
+	//reset alpha*omega 
+	//OBS Not resetting alpha and omega
+	updOmgAlp(alpha,omega);
+	return (f_plus-f_min)*ONE_OVER_H*0.5;
+}
 int orbital::angularMomentum() const {
 //startvimfold
 	return angular_momentum;
@@ -260,4 +280,3 @@ bool orbital::spinUp() const {
 //endvimfold
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold
-

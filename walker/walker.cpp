@@ -24,7 +24,7 @@ using std::setw;
 using std::ios;
 
 //Defining random number generators RAN_NORM,RAN_NORM_SET,RAN_UNI,RAN_UNI_SET
-//File automatically generated in python script and looks like this:
+//File automatically generated in python script and looks approx like this:
 //
 // #define RAN_NORM DRanNormalZig32
 // #define RAN_NORM_SET RanNormalSetSeedZig32
@@ -333,6 +333,12 @@ void walker::getRi(int i_w, double* x)
 	}
 }/*//endvimfold*/
 
-double walker::getdPhioverdA(int )
+void walker::getVarParGrad(double* grad_var_par) const
+{/*//startvimfold*/
+	grad_var_par[0]= ipd->getdPdA(); //TODO Change name to getdPdNoveP
+	// TODO	grad_var_par[0] = ipd->getdPdBoveB();//maybe not oveB ?? jastrow already calculated in sampling loop.
+	//opdim: only for one slatermatrix the gradient needs to be updated!
+	grad_var_par[1] = slater->getdPdAoveA(r_old); //Change name to getdPdAoveP
+}/*//endvimfold*/
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold
