@@ -7,22 +7,34 @@ import sys
 import os
 import time
 
+#################
+#sampling method#
+#################
+
+#####################
+#optimization method#
+#####################
+
+conjugate_gradient 	= 'true' 
+sample_on_grid 		= 'false'
+
 ###########
 #variables#
 ###########
 
 #vmc variables
+#(for cgm, min_alpha, min_beta is the starting point)
 omega 				= 1.0
 delta_t				=.05
-min_alpha 	 		= 0.987
+min_alpha 	 		= 0.91
 max_alpha 		 	= 0.987
 alpha_variations 	= 1 #min 1
-min_beta 	 		= 0.398
+min_beta 	 		= 0.55
 max_beta 		 	= 0.398
 beta_variations 	= 1 #min 1
-number_of_particles = 2
-sampling_cycles 	= 2e6 #total number on all procs
-thermal_cycles 		= 4e5
+number_of_particles = 6
+sampling_cycles 	= 3e5 #total number on all procs
+thermal_cycles 		= 2e5
 
 ####################
 #running parameters#

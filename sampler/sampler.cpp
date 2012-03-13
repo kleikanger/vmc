@@ -58,9 +58,9 @@ sampler::~sampler()
 }//End function /*//endvimfold*/
 
 double sampler::getEnergyGrad(int i)
-{
+{/*//startvimfold*/
 	return energy_gradient[i];
-}
+}/*//endvimfold*/
 
 void sampler::sample(int num_cycles, int thermalization, double* var_par, double delta_t, double* result)
 {/*//startvimfold*/
@@ -126,9 +126,12 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		e_local_squared += e_local_temp*e_local_temp;	
 
 #if CONJGRAD
-		quantum_dot->getVarParGrad(e_grad_temp[0]);
-		e_grad_temp[1][0]+=e_grad_temp[0][0]*e_local_temp;
-		e_grad_temp[1][1]+=e_grad_temp[0][1]*e_local_temp;
+		double delete_this_var[2];
+		quantum_dot->getVarParGrad(delete_this_var);
+		e_grad_temp[0][0]+=delete_this_var[0];
+		e_grad_temp[0][1]+=delete_this_var[1];
+		e_grad_temp[1][0]+=delete_this_var[0]*e_local_temp;
+		e_grad_temp[1][1]+=delete_this_var[1]*e_local_temp;
 #endif
 #if WRITEOFB //write to file blocking data
 		all_energies[loop_c-thermalization]=e_local_temp;
@@ -162,8 +165,12 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	result[1] = (e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
 
 #if CONJGRAD
-	energy_gradient[0] = 2.0*(e_grad_temp[1][0]-e_grad_temp[0][0]*result[0])/(double)num_cycles;
-	energy_gradient[1] = 2.0*(e_grad_temp[1][1]-e_grad_temp[0][1]*result[0])/(double)num_cycles;
+	//for CGM minimization. see: sampler::getEnergyGrad()
+	energy_gradient[0] = 2*(e_grad_temp[1][0]-e_grad_temp[0][0]*result[0]
+			)/(double)num_cycles;
+	energy_gradient[1] = 2*(e_grad_temp[1][1]-e_grad_temp[0][1]*result[0]
+			)/(double)num_cycles;
+	cout<<"ea: "<<energy_gradient[1]<<"  eb: "<<energy_gradient[0]<<"\n";
 #endif
 #if WRITEOFB
 	ofstream blockofile;

@@ -220,7 +220,6 @@ double ipdist::jasLapl(double** r) const
 
 	for (k=0;k<=n_min_one;k++)
 	{
-#if 0
 		for (j=0;j<k;j++)
 		{   
 			//pick the correct matrix element	
@@ -237,7 +236,7 @@ double ipdist::jasLapl(double** r) const
 				sum +=  ( 1.0-beta*r_kj ) / ( r_kj * pow((1.0+r_kj*beta),3) );
 			}
 		}
-#endif
+#if 0
 		for (j=k+1;j<=n_min_one;j++)
 		{
 			//pick the correct element from the ip_len matrix
@@ -254,6 +253,7 @@ double ipdist::jasLapl(double** r) const
 				sum +=  ( 1.0-beta*r_kj ) / ( r_kj * pow((1.0+r_kj*beta),3) );
 			}
 		}
+#endif
 	}
   //	return sum;
 #if 1

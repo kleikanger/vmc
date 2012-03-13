@@ -335,7 +335,7 @@ void walker::getRi(int i_w, double* x)
 
 void walker::getVarParGrad(double* grad_var_par) const
 {/*//startvimfold*/
-	grad_var_par[0]= ipd->getdPdA(); //TODO Change name to getdPdNoveP
+	grad_var_par[0] = ipd->getdPdA(); //TODO Change name to getdPdNoveP
 	// TODO	grad_var_par[0] = ipd->getdPdBoveB();//maybe not oveB ?? jastrow already calculated in sampling loop.
 	//opdim: only for one slatermatrix the gradient needs to be updated!
 	grad_var_par[1] = slater->getdPdAoveA(r_old); //Change name to getdPdAoveP
