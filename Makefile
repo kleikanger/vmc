@@ -9,9 +9,9 @@ GPROFOUT=gprof_testres.txt
 
 vmcmain.out: all
 	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o \
-		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o -o runVMC.out $(LFLAGS)
+		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o mcongrid.o -o runVMC.out $(LFLAGS)
 
-all: vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o cgm.o
+all: vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o cgm.o mcongrid.o
 
 run: vmcmain.out
 	$(EXEC) $(NPROC) runVMC.out
@@ -52,6 +52,9 @@ newmatrix.o: $(PAT)/newmatrix/newmatrix.h $(PAT)/newmatrix/newmatrix.cpp
 
 cgm.o: $(PAT)/cgm/cgm.h $(PAT)/cgm/cgm.cpp vectormatrixclass.o sampler.o 
 	$(CC) $(CFLAGS) -c $(PAT)/cgm/cgm.h $(PAT)/cgm/cgm.cpp 
+
+mcongrid.o: $(PAT)/mcongrid/mcongrid.h $(PAT)/mcongrid/mcongrid.cpp sampler.o 
+	$(CC) $(CFLAGS) -c $(PAT)/mcongrid/mcongrid.h $(PAT)/mcongrid/mcongrid.cpp 
 
 vectormatrixclass.o: $(PAT)/cgm/vectormatrixclass.h $(PAT)/cgm/vectormatrixclass.cpp
 	$(CC) $(CFLAGS) -c $(PAT)/cgm/vectormatrixclass.h $(PAT)/cgm/vectormatrixclass.cpp  

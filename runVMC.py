@@ -15,8 +15,9 @@ import time
 #optimization method#
 #####################
 
-conjugate_gradient 	= 'true' 
-sample_on_grid 		= 'false'
+#choose only one to be true for a optimalized program
+conjugate_gradient 	= True 
+sample_on_grid 		= False
 
 ###########
 #variables#
@@ -25,16 +26,16 @@ sample_on_grid 		= 'false'
 #vmc variables
 #(for cgm, min_alpha, min_beta is the starting point)
 omega 				= 1.0
-delta_t				=.05
-min_alpha 	 		= 0.91
-max_alpha 		 	= 0.987
+delta_t				= .05
+min_alpha 	 		= 0.87 #init value cgm-method
+max_alpha 		 	= 0.9
 alpha_variations 	= 1 #min 1
-min_beta 	 		= 0.55
-max_beta 		 	= 0.398
+min_beta 	 		= 0.67 #init value cgm-method
+max_beta 		 	= 0.9
 beta_variations 	= 1 #min 1
 number_of_particles = 6
-sampling_cycles 	= 3e5 #total number on all procs
-thermal_cycles 		= 2e5
+sampling_cycles 	= 6e5 #total number on all procs
+thermal_cycles 		= 4e5
 
 ####################
 #running parameters#
@@ -43,7 +44,7 @@ thermal_cycles 		= 2e5
 #write running parameters to log (then all data will be traceable)
 log_run				= False 
 #mpirun flags
-number_of_processors= 1
+number_of_processors= 2
 #running mode #NOT ACTIVE, find out how to change CC in Makefile
 debug 				= False
 profile 			= False
@@ -61,6 +62,12 @@ filepath_var 		= 'datafilesVAR/var_'
 #write one particle density to file 
 write_opd 			= 'false'
 filepath_opd 		= 'datafilesSPD/spd_'
+#use conjugate gradient method minimization
+use_cgm_minimization = ''
+if conjugate_gradient:
+	use_cgm_minimization = 'true'
+else: 
+	use_cgm_minimization = 'false'
 
 #set random number generator
 RAN_NORM 			= 'DRanNormalZig32'
@@ -88,6 +95,7 @@ def gen_sampl_h():
 	os.system("echo '#define OFPATHB  %s' >> definitions/sampler_Def.h"%f_name_B)
 	os.system("echo '#define WRITEOFC %s' >> definitions/sampler_Def.h"%write_opd)
 	os.system("echo '#define OFPATHC %s' >> definitions/sampler_Def.h"%f_name_C)
+	os.system("echo '#define CONJGRAD %s' >> definitions/sampler_Def.h"%use_cgm_minimization)
 #write variational data to file (include in vmcmain.cpp)
 def gen_vmcmain_h():
 	f_name_A='"%s%s.dat"'%(filepath_var,time_now())
@@ -103,6 +111,8 @@ a_inc=abs(max_alpha-min_alpha)/alpha_variations
 a_ini=min_alpha-a_inc
 b_inc=abs(max_beta-min_beta)/beta_variations 
 b_ini=min_beta-b_inc
+conjugate_gradient 	= int(conjugate_gradient) 
+sample_on_grid 		= int(sample_on_grid)
 
 def write_to_log():
 	os.system(("echo\
@@ -122,7 +132,8 @@ def all_param():
 		b_ini,b_inc,beta_variations,\
 		number_of_particles,\
 		cyc,thermal_cycles,\
-		number_of_processors)
+		conjugate_gradient,\
+		sample_on_grid)
 
 #rewrite h-files, recompile and run with current parameters
 def run():
@@ -130,8 +141,8 @@ def run():
 		write_to_log()
 	gen_sampl_h()
 	gen_vmcmain_h()
-	running_arguments = (('%s %s %s %s %s %s %s %s %s %s %s')%(all_param()[0:-1]))
-	if (os.system('make ')==0): #--silent
+	running_arguments = (('%s %s %s %s %s %s %s %s %s %s %s %s %s')%(all_param()))
+	if (os.system('make --silent')==0): #--silent
 		os.system("echo 'Compilation successful.'")
 		os.system('mpirun -n %i runVMC.out %s'%(number_of_processors,running_arguments))
 	else:

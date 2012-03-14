@@ -36,7 +36,7 @@ using std::ostringstream;
 //#ifndef OFPATHC
 //#define OFPATHC "/home/karleik/masterProgging/vmc/datafiles/xXXspd_2partdt05eopt.dat"
 //#endif
-#define CONJGRAD true
+//#define CONJGRAD true
 
 sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank)
 {/*//startvimfold*/
@@ -64,7 +64,6 @@ double sampler::getEnergyGrad(int i)
 
 void sampler::sample(int num_cycles, int thermalization, double* var_par, double delta_t, double* result)
 {/*//startvimfold*/
-
 #if WRITEOFB
 	//Only for rank 0 proc
 	//if (rank=0) ?
@@ -88,9 +87,8 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	//dim: num of varpar-1, 2
 	double **e_grad_temp = (double**)matrix(2,2,sizeof(double));
 	e_grad_temp[0][0] 	= e_grad_temp[1][0] = e_grad_temp[0][1]
-						= e_grad_temp[1][1] = 0.0;
+						= e_grad_temp[1][1] = 0.0; //[num_var_par-1][2]
 #endif
-
 	double e_local=0.0;
 	double e_local_squared=0.0;
 	double e_local_temp=0.0;
@@ -127,7 +125,7 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 
 #if CONJGRAD
 		double delete_this_var[2];
-		quantum_dot->getVarParGrad(delete_this_var);
+		quantum_dot->getVarParGrad(delete_this_var); //TODO NEW NAME
 		e_grad_temp[0][0]+=delete_this_var[0];
 		e_grad_temp[0][1]+=delete_this_var[1];
 		e_grad_temp[1][0]+=delete_this_var[0]*e_local_temp;
@@ -155,22 +153,20 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	} //************************** END OF MC sampling **************************
 
 	//KEEP THE BELOW LINES WHILE DEVELOPING
-	cout<<setprecision(4)<<"alpha: "<<var_par[1];
-	cout<<setprecision(4)<<" beta: "<<var_par[0]<<"\t";
-	cout<<setprecision(10)<< "Local energy: "<<(e_local/(double)num_cycles);	
-	cout<<setprecision(5)<<" variance^2: "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
-	cout<<setprecision(5)<<" Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
+	//cout<<setprecision(4)<<"alpha: "<<var_par[1];
+	//cout<<setprecision(4)<<" beta: "<<var_par[0]<<"\t";
+	//cout<<setprecision(10)<< "Local energy: "<<(e_local/(double)num_cycles);	
+	//cout<<setprecision(5)<<" variance^2: "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
+	//cout<<setprecision(5)<<" Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
 	//return values
 	result[0] = (e_local/(double)num_cycles);
 	result[1] = (e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
-
 #if CONJGRAD
 	//for CGM minimization. see: sampler::getEnergyGrad()
 	energy_gradient[0] = 2*(e_grad_temp[1][0]-e_grad_temp[0][0]*result[0]
 			)/(double)num_cycles;
 	energy_gradient[1] = 2*(e_grad_temp[1][1]-e_grad_temp[0][1]*result[0]
 			)/(double)num_cycles;
-	cout<<"ea: "<<energy_gradient[1]<<"  eb: "<<energy_gradient[0]<<"\n";
 #endif
 #if WRITEOFB
 	ofstream blockofile;
