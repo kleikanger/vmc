@@ -3,7 +3,8 @@
    Each object an orbital with quantum nr. n,ml and spin+-1.
    methods that returns laplacian + grad + object properties.
 */
-
+#ifndef ORBITAL_H
+#define ORBITAL_H
 class orbital {
 	
 	private:
@@ -45,3 +46,4 @@ class orbital {
 		int energyLevel() const;
 		bool spinUp() const;
 };
+#endif

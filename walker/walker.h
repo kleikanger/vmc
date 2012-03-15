@@ -1,9 +1,15 @@
+#ifndef POPCONTROL_H
+	#include "../popControl/popControl.h"
+#endif
+#ifndef SLATERMATRIX_H
+	#include "../QDslater/slaterMatrix.h"
+#endif
+#ifndef IPDIST_H
+	#include "../ipdist/ipdist.h"
+#endif
+
 #ifndef WALKER_H
 #define WALKER_H
-
-#include "../QDslater/slaterMatrix.h"
-#include "../ipdist/ipdist.h"
-
 class walker {
 
 	private:
@@ -55,6 +61,10 @@ class walker {
 		   */
 		void initWalker(double* var_par, double delta_t);
 		/*
+		   Initialize walker with no start values. For DMC initialization.
+		   */
+		void initEmptyWalker(double* var_par, double delta_t);
+		/*
 		   Moving one particle and returning result of metropolis-hastings test.
 		   */
 		bool tryRandomStep(int active_part);
@@ -83,5 +93,7 @@ class walker {
 		   Returning ... for calculating the minima via the conjugate gradient method
 		   */
 		void getVarParGrad(double* grad_var_par) const;
+	
+	friend class popControl;
 };
 #endif

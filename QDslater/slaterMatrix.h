@@ -8,8 +8,14 @@ calculate laplacian or the gradient along
 some axis, ...
  
  */
-	
-#include "../orbital/orbital.h"
+#ifndef POPCONTROL_H
+	#include "../popControl/popControl.h"
+#endif
+#ifndef ORBITAL_H
+	#include "../orbital/orbital.h"
+#endif
+#ifndef SLATERMATRIX_H
+#define SLATERMATRIX_H
 
 class slaterMatrix {
 	private:
@@ -141,4 +147,7 @@ class slaterMatrix {
 		   Updating slater matrix when particle i_upd are moved to coord r_new.  
 			*/
 		void updateSlaterMatrix(double* r_new, int i_upd);
+
+		friend class popControl;
 };
+#endif

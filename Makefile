@@ -8,10 +8,12 @@ EXEC=mpirun
 GPROFOUT=gprof_testres.txt
 
 vmcmain.out: all
-	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o \
-		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o mcongrid.o -o runVMC.out $(LFLAGS)
+	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o\
+		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o mcongrid.o dmcsampler.o\
+		popControl.o -o runVMC.out $(LFLAGS)
 
-all: vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o cgm.o mcongrid.o
+all: vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o\
+	   	newmatrix.o cgm.o mcongrid.o dmcsampler.o popControl.o
 
 run: vmcmain.out
 	$(EXEC) $(NPROC) runVMC.out
@@ -23,13 +25,18 @@ profile: all
 	gprof ./vmcmain_gprof.out gmon.out > $(GPROFOUT)
 	less $(GPROFOUT)
 
-vmcmain.o: $(PAT)/vmcmain/vmcmain.cpp $(PAT)/definitions/vmcmain_Def.h
+vmcmain.o: $(PAT)/vmcmain/vmcmain.cpp
 	$(CC) $(CFLAGS) -c $(PAT)/vmcmain/vmcmain.cpp 
 
 sampler.o: $(PAT)/sampler/sampler.h $(PAT)/sampler/sampler.cpp walker.o newmatrix.o $(PAT)/definitions/sampler_Def.h
 	$(CC) $(CFLAGS) -c $(PAT)/sampler/sampler.h $(PAT)/sampler/sampler.cpp
 
-walker.o: $(PAT)/walker/walker.h $(PAT)/walker/walker.cpp $(PAT)/definitions/randomNumberGenerators.h slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o
+dmcsampler.o: $(PAT)/dmcsampler/dmcsampler.h $(PAT)/dmcsampler/dmcsampler.cpp walker.o newmatrix.o\
+	   	popControl.o $(PAT)/definitions/sampler_Def.h zigrandom.o zignor.o
+	$(CC) $(CFLAGS) -c $(PAT)/dmcsampler/dmcsampler.h $(PAT)/dmcsampler/dmcsampler.cpp
+
+walker.o: $(PAT)/walker/walker.h $(PAT)/walker/walker.cpp $(PAT)/definitions/randomNumberGenerators.h\
+	   	slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o
 	$(CC) $(CFLAGS) -c $(PAT)/walker/walker.h $(PAT)/walker/walker.cpp 
 
 slaterMatrix.o: $(PAT)/QDslater/slaterMatrix.h $(PAT)/QDslater/slaterMatrix.cpp orbital.o newmatrix.o
@@ -53,8 +60,11 @@ newmatrix.o: $(PAT)/newmatrix/newmatrix.h $(PAT)/newmatrix/newmatrix.cpp
 cgm.o: $(PAT)/cgm/cgm.h $(PAT)/cgm/cgm.cpp vectormatrixclass.o sampler.o 
 	$(CC) $(CFLAGS) -c $(PAT)/cgm/cgm.h $(PAT)/cgm/cgm.cpp 
 
-mcongrid.o: $(PAT)/mcongrid/mcongrid.h $(PAT)/mcongrid/mcongrid.cpp sampler.o 
+mcongrid.o: $(PAT)/mcongrid/mcongrid.h $(PAT)/mcongrid/mcongrid.cpp $(PAT)/definitions/mcongrid_Def.h sampler.o 
 	$(CC) $(CFLAGS) -c $(PAT)/mcongrid/mcongrid.h $(PAT)/mcongrid/mcongrid.cpp 
+
+popControl.o: $(PAT)/popControl/popControl.h $(PAT)/popControl/popControl.cpp $(PAT) walker.o slaterMatrix.o ipdist.o
+	$(CC) $(CFLAGS) -c $(PAT)/popControl/popControl.h $(PAT)/popControl/popControl.cpp
 
 vectormatrixclass.o: $(PAT)/cgm/vectormatrixclass.h $(PAT)/cgm/vectormatrixclass.cpp
 	$(CC) $(CFLAGS) -c $(PAT)/cgm/vectormatrixclass.h $(PAT)/cgm/vectormatrixclass.cpp  

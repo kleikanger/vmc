@@ -278,6 +278,12 @@ the starting point $\vec r_0$ and the current position $\vec r_n$ will be very w
 If we denote the correlation time $\tau$ and $N$ is the total number of MCMC cycles, 
 we will have $\tau/N$ uncorrelates samples. 
 
+When the curve flattens, this does not mean that the configuration of the particles are in step $n$ is uncorrelated with the initial configuration.
+Rather it means that the energies is weakly correlated in after n steps when the system is equilibriated.( and that the error is close to its actual value). 
+Even if the correlationlength is rather short, say 2000 steps, the thermalization phase might be longer...
+Ex: for brute force sampling, the configuration of the particles will never be truly uncorrelated because every move is limited by a finite steplength.
+Eg. if the steplength is one, the fastest one particle can move from x=0 to x=1e6 is in 1e6 steps...
+
 A method to find the correlation time.
 %}}}1
 

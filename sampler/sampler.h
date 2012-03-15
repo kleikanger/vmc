@@ -1,7 +1,9 @@
+#ifndef WALKER_H
+	#include "../walker/walker.h"
+#endif
 #ifndef SAMPLER_H
 #define SAMPLER_H
 
-#include "../walker/walker.h"
 
 class sampler {
 

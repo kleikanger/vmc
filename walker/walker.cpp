@@ -123,6 +123,18 @@ void walker::initWalker(double* var_par, double delta_t)
 	}
 }/*//endvimfold*/
 
+void walker::initEmptyWalker(double* var_par, double delta_t)
+{/*//startvimfold*/
+	this-> delta_t=delta_t;
+	//delta_t*diffusion constant
+	dt_x_D=delta_t*0.5;
+	sq_delta_t=sqrt(delta_t);
+	omega=var_par[2];
+	//update alpha in orbitals
+	slater->setVarPar(var_par[1],var_par[2]);
+	ipd->setBeta(var_par[0]);
+}/*//endvimfold*/
+
 bool walker::tryRandomStep(int active_part) 
 {/*//startvimfold*/
 	double jas_l_R, wf_R, greens_f;

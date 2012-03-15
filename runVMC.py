@@ -15,8 +15,8 @@ import time
 #optimization method#
 #####################
 
-#choose only one to be true for a optimalized program
-conjugate_gradient 	= True 
+#choose only one should be true for a fast code
+conjugate_gradient 	= False 
 sample_on_grid 		= False
 
 ###########
@@ -27,14 +27,14 @@ sample_on_grid 		= False
 #(for cgm, min_alpha, min_beta is the starting point)
 omega 				= 1.0
 delta_t				= .05
-min_alpha 	 		= 0.87 #init value cgm-method
+min_alpha 	 		= 0.98 #init value cgm-method
 max_alpha 		 	= 0.9
 alpha_variations 	= 1 #min 1
-min_beta 	 		= 0.67 #init value cgm-method
+min_beta 	 		= 0.4 #init value cgm-method
 max_beta 		 	= 0.9
 beta_variations 	= 1 #min 1
-number_of_particles = 6
-sampling_cycles 	= 6e5 #total number on all procs
+number_of_particles = 2
+sampling_cycles 	= 6e2 #total number on all procs
 thermal_cycles 		= 4e5
 
 ####################
@@ -44,7 +44,7 @@ thermal_cycles 		= 4e5
 #write running parameters to log (then all data will be traceable)
 log_run				= False 
 #mpirun flags
-number_of_processors= 2
+number_of_processors= 1
 #running mode #NOT ACTIVE, find out how to change CC in Makefile
 debug 				= False
 profile 			= False
@@ -99,8 +99,8 @@ def gen_sampl_h():
 #write variational data to file (include in vmcmain.cpp)
 def gen_vmcmain_h():
 	f_name_A='"%s%s.dat"'%(filepath_var,time_now())
-	os.system("echo '#define WRITEOFA %s'  > definitions/vmcmain_Def.h"%write_var_result)
-	os.system("echo '#define OFPATHA  %s' >> definitions/vmcmain_Def.h"%f_name_A)
+	os.system("echo '#define WRITEOFA %s'  > definitions/mcongrid_Def.h"%write_var_result)
+	os.system("echo '#define OFPATHA  %s' >> definitions/mcongrid_Def.h"%f_name_A)
 
 ###############
 #preparing run#

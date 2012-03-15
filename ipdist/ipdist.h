@@ -16,6 +16,11 @@
 	/ mc-cycle.
 
 */
+#ifndef POPCONTROL_H
+	#include "../popControl/popControl.h"
+#endif
+#ifndef IPDIST_H
+#define IPDIST_H
 class ipdist{
 
 	private: 
@@ -124,4 +129,7 @@ class ipdist{
 		//const double** allLen();
 		//const double* iInvlen(int i_upd);
 		//friend: jast?
+
+		friend class popControl;
 };
+#endif

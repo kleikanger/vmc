@@ -49,7 +49,9 @@ sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var
 	
 	//OBS : OMEGA PART OF VARPAR TODO CHANGE 
 	// NUM OF VAR PAR = 3 : TODO set to 2
-	energy_gradient = new double[num_of_var_par]; 
+//#if CONJGRAD
+	energy_gradient = new double[num_of_var_par];
+//#endif
 }/*//endvimfold*/
 
 sampler::~sampler()
@@ -64,7 +66,7 @@ double sampler::getEnergyGrad(int i)
 
 void sampler::sample(int num_cycles, int thermalization, double* var_par, double delta_t, double* result)
 {/*//startvimfold*/
-#if WRITEOFB
+#if WRITEOFB/*//startvimfold*/
 	//Only for rank 0 proc
 	//if (rank=0) ?
 	//if (num_cycles>1.1e7)
@@ -73,13 +75,13 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	//cout<<writing to file ((std::string)OFPATHB)((std::string)OFNAMEB);
 #endif
 #if WRITEOFC
-	if (num_cycles>1.1e7)
-	{
-		//
-		cerr<<"Warning: sampler::sample(). Max size for num_cycles (=" 
-			<<num_cycles<<")is set to 1e6 when WRITEOFC == true. Terminating";
-		exit(1);
-	}
+	//if (num_cycles>1.1e7)
+	//{
+	//	
+	//	cerr<<"Warning: sampler::sample(). Max size for num_cycles (=" 
+	//		<<num_cycles<<")is set to 1e6 when WRITEOFC == true. Terminating";
+	//	exit(1);
+	//}
 	ofstream ofilec;
 	ofilec.open((OFPATHC));
 #endif
@@ -88,7 +90,7 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	double **e_grad_temp = (double**)matrix(2,2,sizeof(double));
 	e_grad_temp[0][0] 	= e_grad_temp[1][0] = e_grad_temp[0][1]
 						= e_grad_temp[1][1] = 0.0; //[num_var_par-1][2]
-#endif
+#endif/*//endvimfold*/
 	double e_local=0.0;
 	double e_local_squared=0.0;
 	double e_local_temp=0.0;
