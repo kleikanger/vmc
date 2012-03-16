@@ -49,6 +49,9 @@ class walker {
 		//handling of the interparticle distances
 		ipdist* ipd;
 				
+		//Must be able to return the sign of this value for the fixed node approw in dmc
+		double wf_R;
+
 	public:
 
 		//constructor, destructor
@@ -93,6 +96,12 @@ class walker {
 		   Returning ... for calculating the minima via the conjugate gradient method
 		   */
 		void getVarParGrad(double* grad_var_par) const;
+		/*
+		   Returning the value of the sign of wf_R to check whether a walker has crossed a node.
+		   if true : node crossed
+		   if false: node not crossed
+		   */
+		bool nodeCrossed();
 	
 	friend class popControl;
 };

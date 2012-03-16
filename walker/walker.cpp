@@ -137,7 +137,8 @@ void walker::initEmptyWalker(double* var_par, double delta_t)
 
 bool walker::tryRandomStep(int active_part) 
 {/*//startvimfold*/
-	double jas_l_R, wf_R, greens_f;
+	double jas_l_R, greens_f; 
+	//wf_R is a class variable. See h-file for explanation.
 	double* ipd_upd = new double[num_part];
 	int i,j;
 
@@ -159,6 +160,7 @@ bool walker::tryRandomStep(int active_part)
 	slater->update(r_new[active_part],active_part);
 	//wave func ratio
 	wf_R=slater->waveFunction(active_part);
+
 	//update gradient of slatermatrix
 	slater->grad(sla_grad,r_new,active_part);
 
@@ -352,5 +354,12 @@ void walker::getVarParGrad(double* grad_var_par) const
 	//opdim: only for one slatermatrix the gradient needs to be updated!
 	grad_var_par[1] = slater->getdPdAoveA(r_old); //Change name to getdPdAoveP
 }/*//endvimfold*/
+bool walker::nodeCrossed()
+{
+	if (wf_R<=0) // < ??
+		return true;
+	else
+		return false;
+}
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold

@@ -18,33 +18,42 @@ import time
 #choose only one should be true for a fast code
 conjugate_gradient 	= False 
 sample_on_grid 		= False
+use_dmc_sampler 	= True
 
 ###########
 #variables#
 ###########
 
 #vmc variables
-#(for cgm, min_alpha, min_beta is the starting point)
+#(for cgm and , min_alpha, min_beta is the starting point)
 omega 				= 1.0
-delta_t				= .05
-min_alpha 	 		= 0.98 #init value cgm-method
+delta_t				= .01
+min_alpha 	 		= 0.93 #init value cgm-method and DMC
 max_alpha 		 	= 0.9
 alpha_variations 	= 1 #min 1
-min_beta 	 		= 0.4 #init value cgm-method
+min_beta 	 		= 0.56 #init value cgm-method and DMC
 max_beta 		 	= 0.9
 beta_variations 	= 1 #min 1
-number_of_particles = 2
+number_of_particles = 6
 sampling_cycles 	= 6e2 #total number on all procs
-thermal_cycles 		= 4e5
+
+thermal_cycles 		= 4e2 #also used in initialization of DMC 
+
+#dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56
+number_of_walkers 	= 1000 #total number on all procs
+num_cycles_main_loop= 100
+num_c_etria_upd_loop= 200 #O(100)-O(1000)
+num_c_equilibri_loop= 5000
+initial_e_trial 	= 20.190004
 
 ####################
 #running parameters#
 ####################
 
+#mpirun flags
+number_of_processors= 4
 #write running parameters to log (then all data will be traceable)
 log_run				= False 
-#mpirun flags
-number_of_processors= 1
 #running mode #NOT ACTIVE, find out how to change CC in Makefile
 debug 				= False
 profile 			= False
@@ -113,6 +122,8 @@ b_inc=abs(max_beta-min_beta)/beta_variations
 b_ini=min_beta-b_inc
 conjugate_gradient 	= int(conjugate_gradient) 
 sample_on_grid 		= int(sample_on_grid)
+use_dmc_sampler 	= int(use_dmc_sampler)
+number_of_walkers/=number_of_processors;
 
 def write_to_log():
 	os.system(("echo\
@@ -133,7 +144,13 @@ def all_param():
 		number_of_particles,\
 		cyc,thermal_cycles,\
 		conjugate_gradient,\
-		sample_on_grid)
+		sample_on_grid,\
+		initial_e_trial,
+		num_cycles_main_loop,
+		num_c_etria_upd_loop,
+		num_c_equilibri_loop,
+		number_of_walkers,
+		use_dmc_sampler)
 
 #rewrite h-files, recompile and run with current parameters
 def run():
@@ -141,7 +158,7 @@ def run():
 		write_to_log()
 	gen_sampl_h()
 	gen_vmcmain_h()
-	running_arguments = (('%s %s %s %s %s %s %s %s %s %s %s %s %s')%(all_param()))
+	running_arguments = (('%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s')%(all_param()))
 	if (os.system('make --silent')==0): #--silent
 		os.system("echo 'Compilation successful.'")
 		os.system('mpirun -n %i runVMC.out %s'%(number_of_processors,running_arguments))
