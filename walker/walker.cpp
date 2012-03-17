@@ -354,12 +354,13 @@ void walker::getVarParGrad(double* grad_var_par) const
 	//opdim: only for one slatermatrix the gradient needs to be updated!
 	grad_var_par[1] = slater->getdPdAoveA(r_old); //Change name to getdPdAoveP
 }/*//endvimfold*/
+
 bool walker::nodeCrossed()
-{
+{/*//startvimfold*/
 	if (wf_R<=0) // < ??
 		return true;
 	else
 		return false;
-}
+}/*//endvimfold*/
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold

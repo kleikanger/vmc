@@ -28,22 +28,22 @@ use_dmc_sampler 	= True
 #(for cgm and , min_alpha, min_beta is the starting point)
 omega 				= 1.0
 delta_t				= .01
-min_alpha 	 		= 0.93 #init value cgm-method and DMC
+min_alpha 	 		= 0.93 	#init value cgm-method and DMC
 max_alpha 		 	= 0.9
-alpha_variations 	= 1 #min 1
-min_beta 	 		= 0.56 #init value cgm-method and DMC
+alpha_variations 	= 1 	#min 1
+min_beta 	 		= 0.56 	#init value cgm-method and DMC
 max_beta 		 	= 0.9
-beta_variations 	= 1 #min 1
+beta_variations 	= 1 	#min 1
 number_of_particles = 6
-sampling_cycles 	= 6e2 #total number on all procs
+sampling_cycles 	= 6e2 	#total number on all procs
 
-thermal_cycles 		= 4e2 #also used in initialization of DMC 
+thermal_cycles 		= 4e2 	#also used in initialization of DMC 
 
 #dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56
-number_of_walkers 	= 1000 #total number on all procs
-num_cycles_main_loop= 100
-num_c_etria_upd_loop= 200 #O(100)-O(1000)
-num_c_equilibri_loop= 5000
+number_of_walkers 	= 2000 #total number on all procs
+num_cycles_main_loop= 500
+num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
+num_c_equilibri_loop= 2000
 initial_e_trial 	= 20.190004
 
 ####################
@@ -147,7 +147,7 @@ def all_param():
 		sample_on_grid,\
 		initial_e_trial,
 		num_cycles_main_loop,
-		num_c_etria_upd_loop,
+		num_c_ET_upd_loop,
 		num_c_equilibri_loop,
 		number_of_walkers,
 		use_dmc_sampler)

@@ -112,14 +112,15 @@ void dmcsampler::sampleDMC(
 	double* e_local_old = new double[initial_number_of_walkers*6];
 
 	if (myrank==0)
-	cout<<"\nDMC simulation - "
-		<<" alpha: "<<var_par[1]<<", beta: "<<var_par[0]<<"\n"
-		<<"initial trial energy: "<<e_trial<<"\n"
+	cout<<"\nDMC simulation - \n"
+		<<" alpha:                          "<<var_par[1]<<", beta: "<<var_par[0]<<"\n"
+		<<"initial trial energy:            "<<e_trial<<"\n"
 		<<"initial_number_of_walkers/procs: "<<initial_number_of_walkers<<"\n"
-		<<"equilibriation loops: "<<num_c_dmc_equilibriation_loop<<"\n"
-		<<"cycles main loop: "<<num_c_dmc_main_loop<<"\n"
-		<<"cycles inner loop: "<<num_c_dmc_inner_loop<<"\n"
-		<<"delta_t: "<<delta_t<<"\n";
+		<<"nprocs:                          "<<nprocs<<"\n"
+		<<"equilibriation loops:            "<<num_c_dmc_equilibriation_loop<<"\n"
+		<<"cycles main loop:                "<<num_c_dmc_main_loop<<"\n"
+		<<"cycles inner loop:               "<<num_c_dmc_inner_loop<<"\n"
+		<<"delta_t:                         "<<delta_t<<"\n";
 	
 	//WITH MPI: SPLIT INTO nprocs initialization precesses. 
 	//initializing walker objects
@@ -138,13 +139,13 @@ void dmcsampler::sampleDMC(
 		occupancy[i] = false;
 	
 	//TODO input variable corr_length
-	int loop_c=0, num_init=1, corr_length = 3000; //correlation_length
+	int loop_c=0, num_init=1, corr_length = 3000; //number of steps between init of particles
 
 	cout<<"RANK "<<myrank<<" process: starting initialization of walkers...\n";
 
 	//******** Initialize walkers ***********
 	/*//startvimfold*/
-	//cout starting initiation
+
 	//initializing quantum_dot[1] to quantum_dot[num_init-1]
 	while (num_init<initial_number_of_walkers)
 	{
@@ -191,16 +192,16 @@ void dmcsampler::sampleDMC(
 	int num_resurrected = 0;
 	double e_cumulative=0.0;
 	long int loop_c_cumulative;
-	long int total_loop_c_cumulative;
+	long int total_loop_c_cumulative=0;
 	double e_ref=e_trial;
 	int loop_main;
 
 	//************************** START equilibriation phase ******************
-#if 1
+
 	/*//startvimfold*/
 
 	//TODO while not equilibriated :: find some criteria
-	for (loop_main=0; loop_main<num_c_dmc_equilibriation_loop; loop_main++)//num_c_dmc_main_loop //XXX TODO While some convergence criteria || loop<max_iter
+	for (loop_main=0; loop_main<num_c_dmc_equilibriation_loop; loop_main++)
 	{
 		e_local=0.0;
 		num_resurrected=0;
@@ -214,38 +215,20 @@ void dmcsampler::sampleDMC(
 			{
 				//move all particles, one at a time
 				for (int active_part=0; active_part<num_part; active_part++)
-				{/*//startvimfold*/
+				{
 					//metropolis-hastings test
 					bool mh_test = (quantum_dot[loop_p]->tryRandomStep(active_part)); 
 					//reject walkers that has crossed node or that fails the mh_test
 					if (mh_test && !quantum_dot[loop_p]->nodeCrossed())
-					//if (quantum_dot[loop_p]->tryRandomStep(active_part))
-					{
-					/*
-				    //The other method: killing walkers that has crossed a node.	   
-					//kill walkers that has crossed node (error linear in delta_t)
-					if (quantum_dot[loop_p]->nodeCrossed())
-						{
-							occupancy[loop_p]=false;
-							killsd++;
-							break;
-							//not adding to loop_c. loop_c has value from previous loop
-							//which is correct since the last local_energy was collected then.
-						}*/	
-					quantum_dot[loop_p]->acceptStep(active_part);
-					//if (loop_c>thermalization) { accepted++; } 
-					}
+						quantum_dot[loop_p]->acceptStep(active_part);
 					else  
-					{
 						quantum_dot[loop_p]->rejectStep(active_part);
-					}/*//endvimfold*/
 				}//All particles moved
 
 				//find local energy
 				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy(var_par);
 				//calculate new branching factor
-				branching_factor = exp(-delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_ref)); //e_trial is the (vmc) calculated mean
-				
+				branching_factor = exp(-delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_ref));
 				//collect energy weighted by the branching factor
 				e_local+=branching_factor*e_local_temp;
 				//kill and resurrect walkers
@@ -254,10 +237,10 @@ void dmcsampler::sampleDMC(
 				{
 					occupancy[loop_p]=false;
 					killsd++;
-					loop_c++;//to accumulate the correct nr of cycles! not adding to loop_c if breaking
+					loop_c++;//to accumulate the correct nr of cycles!
 					break;
 				}
-				else if (num_new_walkers>=2)//only one test
+				else if (num_new_walkers>=2)
 				{
 					j=num_alive+num_resurrected;
 					while (num_new_walkers>1)
@@ -273,25 +256,10 @@ void dmcsampler::sampleDMC(
 				//update energy if the walker survived
 				e_local_old[loop_p] = e_local_temp;
 			}
-		//cout<<loop_c<<" ";
 		//keeping track of the total number of samples
 		loop_c_cumulative+=loop_c;
 		}
-			
-		
-		e_cumulative+=e_local/(double)loop_c_cumulative;	
-		e_trial = e_local/(double)loop_c_cumulative; //GIVING -nan first loop after all walkers dead
-		
-		//****collect and broadcast
-		MPI_Allreduce(MPI_IN_PLACE, &e_trial, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-		e_trial/=(double)nprocs;
-		
-		e_trial = e_local/(double)loop_c_cumulative; //GIVING -nan first loop after all walkers dead
-
-		//for (i=0;i<200;i++)
-		//	cout<<i<<" "<<occupancy[i]<<" \n";
-		//make more intellegent sorting algo
-	
+		//sorting walkers. alive first
 		int sorted=0; i=0; 
 		j=num_alive+num_resurrected-1;//starting on the last one
 		while (sorted<killsd)
@@ -305,7 +273,7 @@ void dmcsampler::sampleDMC(
 
 				//pointer swapping
 				swich=*(quantum_dot+i);
-				*(quantum_dot+i)=*(quantum_dot+j);; //num_alive+num_resurrected-sorted
+				*(quantum_dot+i)=*(quantum_dot+j);
 				*(quantum_dot+j)=swich;
 
 				occupancy[i]=true;
@@ -320,10 +288,21 @@ void dmcsampler::sampleDMC(
 		num_alive=num_alive-killsd+num_resurrected;
 		
 		//New reference energy
-		//0.1 test other values
-		//e_ref = 3.0004 - .01*log((double)num_alive/(double)initial_number_of_walkers)/delta_t; //TODO 20.19<-initial_e_trial
-		e_ref = e_cumulative/(double)(loop_main+1)-.01*log((double)num_alive/(double)initial_number_of_walkers)/delta_t; //TODO 20.19<-initial_e_trial
-
+		e_cumulative+=e_local;
+		total_loop_c_cumulative+=loop_c_cumulative;
+		//0.01 test other values
+		double e_c_temp; long int t_l_c_temp;
+		MPI_Allreduce(&e_cumulative, &e_c_temp, 1, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
+		MPI_Allreduce(&total_loop_c_cumulative, &t_l_c_temp, 1, MPI_LONG, MPI_SUM,  MPI_COMM_WORLD);
+		e_ref = e_c_temp/(double)t_l_c_temp-log((double)num_alive
+				/ (double)initial_number_of_walkers)/delta_t*0.01;
+		
+		//XXX 
+		//Not so many send and recieves (5000 here). Seems to work well.
+		//e_cumulative+=e_local/(double)loop_c_cumulative;	
+		//e_ref = e_cumulative/(double)(loop_main+1)-.01*log((double)num_alive
+		// 		/ (double)initial_number_of_walkers)/delta_t;
+		
 		//renormalize (kill some of the walkers if they get to many) TODO Test algo!
 		if (num_alive>initial_number_of_walkers*2)
 		{
@@ -360,7 +339,12 @@ void dmcsampler::sampleDMC(
 	}	
 	
 	MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-	e_cumulative/=(double)nprocs*loop_main;
+	MPI_Allreduce(MPI_IN_PLACE, &total_loop_c_cumulative, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
+	e_cumulative/=(double)total_loop_c_cumulative;
+
+	//using different routine for equilibriation with fewer MPI_Calls
+	//MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	//e_cumulative/=(double)nprocs*loop_main;
 	
 	cout<<"RANK "<<myrank<<" process: equilibriation of walkers successful.\n";
 	if (myrank==0)
@@ -369,15 +353,14 @@ void dmcsampler::sampleDMC(
 		cout<<"e_ref<"<<e_ref<<"\n";
 	}
 	/*//endvimfold*/
-#endif
+	
 	//************************** END OF equilibriation phase *****************
-	//testing
-	//e_trial=e_cumulative;
-	//e_trial=e_ref;
-	e_trial=e_cumulative;
 	//************************** START sampling phase ************************
 	
-	//reset e_cumulative
+	//reset variables/*//startvimfold*/
+	//e_trial = initial guess ?
+	e_trial=e_cumulative;
+	total_loop_c_cumulative=0;
 	e_cumulative=0.0;
 	for (loop_main=0; loop_main<num_c_dmc_main_loop; loop_main++) //XXX TODO While some convergence criteria || loop<max_iter
 	{
@@ -539,7 +522,7 @@ void dmcsampler::sampleDMC(
 		{
 			cout<<"cycles in main loop: "<<loop_main+1<<" of "
 				<<num_c_dmc_main_loop<<" e_trial<"<<e_trial<<"\n";
-		}
+		}/*//endvimfold*/
 
 	} //************************** END OF DMC sampling **************************
 
@@ -554,10 +537,6 @@ void dmcsampler::sampleDMC(
 		cout<<"\nFinal energy<"<<setprecision(16)<<e_cumulative<<"\n";
 	}
 
-
-
-
-
 //###################################################################################
 //         
 // 			NOTES:  total number of accumulated cycles should be accumulated
@@ -568,19 +547,11 @@ void dmcsampler::sampleDMC(
 // 					   : should also find a way to add particles to the system
 //
 // 					How do we know that the system is converged?? 
-// 					1: number of walkers stable.
+// 					1: the number of walkers stable.
+// 					2: the total energy changing slowly
+// 					3: chech statistical error with blocking
 // 					
-
-
-
-
-
-
-
-
-
-
-
+//###################################################################################
 
 	//variance = (e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
 #if WRITEOFB/*//startvimfold*/
