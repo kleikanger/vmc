@@ -120,7 +120,8 @@ void dmcsampler::sampleDMC(
 		<<"equilibriation loops:            "<<num_c_dmc_equilibriation_loop<<"\n"
 		<<"cycles main loop:                "<<num_c_dmc_main_loop<<"\n"
 		<<"cycles inner loop:               "<<num_c_dmc_inner_loop<<"\n"
-		<<"delta_t:                         "<<delta_t<<"\n";
+		<<"delta_t:                         "<<delta_t<<"\n"
+		<<"number of particles:             "<<num_part<<"\n";
 	
 	//WITH MPI: SPLIT INTO nprocs initialization precesses. 
 	//initializing walker objects
@@ -191,6 +192,7 @@ void dmcsampler::sampleDMC(
 	int num_new_walkers;
 	int num_resurrected = 0;
 	double e_cumulative=0.0;
+	double e2_cumulative=0.0;
 	long int loop_c_cumulative;
 	long int total_loop_c_cumulative=0;
 	double e_ref=e_trial;
@@ -409,7 +411,8 @@ void dmcsampler::sampleDMC(
 				branching_factor = exp(-delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_trial)); //e_trial is the (vmc) calculated mean
 				
 				//collect energy weighted by the branching factor
-				e_local+=branching_factor*e_local_temp;
+				e_local+=branching_factor*e_local_temp; //TODO use intermediate variable to calculate b_f*e_l_t
+				e2_cumulative+=pow(branching_factor*e_local_temp,2);
 				//kill and resurrect walkers
 				num_new_walkers=(int)(branching_factor+RAN_UNI());
 				if (num_new_walkers==0)
@@ -441,6 +444,7 @@ void dmcsampler::sampleDMC(
 			
 		//collecting energy
 		e_cumulative+=e_local;
+		//e2_cumulative+=e_local*e_local; //TODO MAYBE collect variance in e_trial
 		//total number of moves must be collected for final statistics
 		total_loop_c_cumulative+=loop_c_cumulative;
 		
@@ -528,13 +532,16 @@ void dmcsampler::sampleDMC(
 
 	//collecting results	
 	
-	MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 			1, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
-	MPI_Allreduce(MPI_IN_PLACE, &total_loop_c_cumulative, 	1, MPI_LONG, MPI_SUM,  MPI_COMM_WORLD);
+	MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
+	MPI_Allreduce(MPI_IN_PLACE, &e2_cumulative, 1, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
+	MPI_Allreduce(MPI_IN_PLACE, &total_loop_c_cumulative, 1, MPI_LONG, MPI_SUM,  MPI_COMM_WORLD);
 	e_cumulative/=(double)total_loop_c_cumulative;
+	e2_cumulative/=(double)total_loop_c_cumulative;
 
 	if (myrank==0)
 	{	
 		cout<<"\nFinal energy<"<<setprecision(16)<<e_cumulative<<"\n";
+		cout<<"variance"<<e2_cumulative-pow(e_cumulative,2);
 	}
 
 //###################################################################################
@@ -545,6 +552,8 @@ void dmcsampler::sampleDMC(
 // 			MEASURE: variance. Should be exactly 0
 // 			RENORMALIZE: more often, then the workload will be approx the same on the different procs
 // 					   : should also find a way to add particles to the system
+// 					   : some thermalization loops in main loop before starting to collect data
+// 					   : implement blocking (e,e2->disk)
 //
 // 					How do we know that the system is converged?? 
 // 					1: the number of walkers stable.

@@ -39,7 +39,7 @@ sampling_cycles 	= 6e2 	#total number on all procs
 
 thermal_cycles 		= 4e2 	#also used in initialization of DMC 
 
-#dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56
+#dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56|12:87,68,dt=0.005-0.001
 number_of_walkers 	= 2000 #total number on all procs
 num_cycles_main_loop= 500
 num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
