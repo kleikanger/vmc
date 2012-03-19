@@ -328,7 +328,7 @@ void dmcsampler::sampleDMC(
 				}
 			}
 		}
-		//RENORMALIZE IF TO FEW
+		//RENORMALIZE IF TO FEW ?
 		/*
 		if (myrank==0)
 		{
@@ -531,7 +531,8 @@ void dmcsampler::sampleDMC(
 	} //************************** END OF DMC sampling **************************
 
 	//collecting results	
-	
+
+	//USE MPI_Reduce(MPI_IN_PLACE,...)	
 	MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
 	MPI_Allreduce(MPI_IN_PLACE, &e2_cumulative, 1, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
 	MPI_Allreduce(MPI_IN_PLACE, &total_loop_c_cumulative, 1, MPI_LONG, MPI_SUM,  MPI_COMM_WORLD);
