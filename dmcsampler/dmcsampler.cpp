@@ -519,6 +519,8 @@ void dmcsampler::sampleDMC(
 	//		num_alive++;
 	//	}
 		
+//		fflush(stdout);
+		//cout<<"\r"<< ... ;
 		cout<<setprecision(10)<<"RANK "<<myrank<<" process: (alive,resur,killsd)=(<"
 			<<num_alive<<","<<num_resurrected<<","<<killsd<<")"
 			<<"current mean E"<<e_cumulative/(double)total_loop_c_cumulative<<"\n";

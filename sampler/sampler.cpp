@@ -165,10 +165,8 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	result[1] = (e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
 #if CONJGRAD
 	//for CGM minimization. see: sampler::getEnergyGrad()
-	energy_gradient[0] = 2*(e_grad_temp[1][0]-e_grad_temp[0][0]*result[0]
-			)/(double)num_cycles;
-	energy_gradient[1] = 2*(e_grad_temp[1][1]-e_grad_temp[0][1]*result[0]
-			)/(double)num_cycles;
+	energy_gradient[0] = 2*(e_grad_temp[1][0]-e_grad_temp[0][0]*result[0])/(double)num_cycles;
+	energy_gradient[1] = 2*(e_grad_temp[1][1]-e_grad_temp[0][1]*result[0])/(double)num_cycles;
 #endif
 #if WRITEOFB
 	ofstream blockofile;
