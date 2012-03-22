@@ -28,13 +28,13 @@ use_dmc_sampler 	= True
 #(for cgm and , min_alpha, min_beta is the starting point)
 omega 				= 1.0
 delta_t				= .005
-min_alpha 	 		= 0.98 	#init value cgm-method and DMC
+min_alpha 	 		= 0.93 # 0.98 	#init value cgm-method and DMC
 max_alpha 		 	= 0.9
 alpha_variations 	= 1 	#min 1
-min_beta 	 		= 0.4 	#init value cgm-method and DMC
+min_beta 	 		= 0.56 # 0.4 	#init value cgm-method and DMC
 max_beta 		 	= 0.9
 beta_variations 	= 1 	#min 1
-number_of_particles = 2
+number_of_particles = 6
 sampling_cycles 	= 1e6 	#total number on all procs
 
 thermal_cycles 		= 4e5 	#also used in initialization of DMC 
@@ -180,6 +180,10 @@ run()
 
 
 #CGM:
+#
+#
+# PLOT CURVES OF E FOR ALL VALUES
+#
 #
 #Test: Do a number of thermalization cycles with a high Delta t eg:0.01	
 #

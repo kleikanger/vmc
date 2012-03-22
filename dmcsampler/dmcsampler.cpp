@@ -142,7 +142,8 @@ void dmcsampler::sampleDMC(
 	//TODO input variable corr_length
 	int loop_c=0, num_init=1, corr_length = 3000; //number of steps between init of particles
 
-	cout<<"RANK "<<myrank<<" process: starting initialization of walkers...\n";
+	if (myrank==0)
+		cout<<"starting initialization of walkers...\n";
 
 	//******** Initialize walkers ***********
 	/*//startvimfold*/
@@ -167,8 +168,19 @@ void dmcsampler::sampleDMC(
 			e_local_old[num_init] = quantum_dot[0]->calcLocalEnergy(var_par);
 			num_init++;	
 			//obs walker 0 and num_init-1 in same position
+			if (myrank==0&&num_init%10==0)
+			{
+				fflush(stdout);
+				cout<<"\r"<<"             ";
+				cout<<"\r    "<<num_init/(double)initial_number_of_walkers*100<<"%";
+			}
 		}
 	}
+	//fflush(stdout);
+	
+	if (myrank==0)
+		cout<<"\n";
+	
 	//INITIALIZING quantum_dot[0]
 	for (loop_c=0;loop_c<corr_length;loop_c++)
 		for (int active_part=0; active_part<num_part; active_part++)
@@ -184,7 +196,8 @@ void dmcsampler::sampleDMC(
 	/*//endvimfold*/
 	//************************** END OF initialization phase *****************
 
-	cout<<"RANK "<<myrank<<" process: initialization of walkers successful. starting equilibriation of walkers...\n";
+	if (myrank==0)
+		cout<<"initialization of walkers successful. starting equilibriation of walkers...\n";
 
 	int killsd=0; //
 	int num_alive = initial_number_of_walkers;
@@ -193,7 +206,7 @@ void dmcsampler::sampleDMC(
 	int num_resurrected = 0;
 	double e_cumulative=0.0;
 	double e2_cumulative=0.0;
-	long int loop_c_cumulative;
+	int loop_c_cumulative;
 	long int total_loop_c_cumulative=0;
 	double e_ref=e_trial;
 	int loop_main;
@@ -205,6 +218,12 @@ void dmcsampler::sampleDMC(
 	//TODO while not equilibriated :: find some criteria
 	for (loop_main=0; loop_main<num_c_dmc_equilibriation_loop; loop_main++)
 	{
+		if (myrank==0&&loop_main%((int)num_c_dmc_equilibriation_loop/200)==0)
+		{
+			fflush(stdout);
+			cout<<"\r"<<"             ";
+			cout<<"\r     "<<loop_main/(double)(num_c_dmc_equilibriation_loop-1)*100<<"%";
+		}
 		e_local=0.0;
 		num_resurrected=0;
 		killsd=0;
@@ -348,9 +367,9 @@ void dmcsampler::sampleDMC(
 	//MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	//e_cumulative/=(double)nprocs*loop_main;
 	
-	cout<<"RANK "<<myrank<<" process: equilibriation of walkers successful.\n";
 	if (myrank==0)
 	{
+		cout<<"\nequilibriation of walkers successful.\n";
 		cout<<"current mean E<"<<setprecision(16)<<e_cumulative<<"\n";
 		cout<<"e_ref<"<<e_ref<<"\n";
 	}
@@ -358,7 +377,8 @@ void dmcsampler::sampleDMC(
 	
 	//************************** END OF equilibriation phase *****************
 	//************************** START sampling phase ************************
-	
+
+
 	//reset variables/*//startvimfold*/
 	//e_trial = initial guess ?
 	e_trial=e_cumulative;
@@ -435,6 +455,7 @@ void dmcsampler::sampleDMC(
 						num_new_walkers--;	//LIMIT NUMBER OF NEW PARTICLES TO AVOID NUMERICAL INSTABILITIES. EG: MAX 2 NEW PARTICLES ?	
 					}
 				}
+				
 				//update energy if the walker survived
 				e_local_old[loop_p] = e_local_temp;
 			}
@@ -454,6 +475,10 @@ void dmcsampler::sampleDMC(
 		//e_trial/=(double)nprocs;
 		
 		//****collect and broadcast Find new e_trial
+
+		//XXX XXX XXX XXX TESTING
+		//
+
 		MPI_Allreduce(MPI_IN_PLACE, &e_local, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(MPI_IN_PLACE, &loop_c_cumulative, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
 		e_trial=e_local/(double)loop_c_cumulative;
@@ -461,6 +486,8 @@ void dmcsampler::sampleDMC(
 		//for (i=0;i<200;i++)
 		//	cout<<i<<" "<<occupancy[i]<<" \n";
 		//make more intellegent sorting algo
+		
+		
 		int sorted=0; i=0; 
 		j=num_alive+num_resurrected-1;//starting on the last one
 		while (sorted<killsd)
@@ -474,7 +501,7 @@ void dmcsampler::sampleDMC(
 
 				//pointer swapping
 				swich=*(quantum_dot+i);
-				*(quantum_dot+i)=*(quantum_dot+j);; //num_alive+num_resurrected-sorted
+				*(quantum_dot+i)=*(quantum_dot+j); //num_alive+num_resurrected-sorted
 				*(quantum_dot+j)=swich;
 
 				occupancy[i]=true;
@@ -488,19 +515,22 @@ void dmcsampler::sampleDMC(
 		}
 		num_alive=num_alive-killsd+num_resurrected;
 
+		/*
 		//renormalize (kill some of the walkers if they get to many) TODO Test algo!
-		if (num_alive>initial_number_of_walkers*2)
+		if (num_alive>initial_number_of_walkers+norm_threshh)
 		{
 			int number_to_remove = num_alive-initial_number_of_walkers;
+			norm_weight*=num_alive/(double)initial_number_of_walkers;
+
 			for (int k=0;k<number_to_remove;k++, --num_alive)
 			{
-				i=(int)(RAN_UNI()*num_alive+1); //obs ran_uni in (0,1) i in [0,num_alive-1] XXX XXX
+				i=(int)(RAN_UNI()*(num_alive+1)); //obs ran_uni in (0,1) i in [0,num_alive-1] XXX XXX
 				if (i!=(num_alive))
 				{
 					//removing particle i, and moving the last particle to its position.
 					walker* swich;
 					swich=*(quantum_dot+i);
-					*(quantum_dot+i)=*(quantum_dot+j); //num_alive+num_resurrected-sorted
+					*(quantum_dot+i)=*(quantum_dot+num_alive); //num_alive+num_resurrected-sorted
 					*(quantum_dot+num_alive)=swich;
 					e_local_old[i]=e_local_old[num_alive];
 					occupancy[num_alive]=false;
@@ -511,16 +541,28 @@ void dmcsampler::sampleDMC(
 				}
 			}
 		}
-	//	if (num_alive<initial_number_of_walkers/2.) //randomly duplicate walkers??
-	//	{
-	//		//randomly create walkers
-	//		j = num_alive-1;
-	//		quantum_dot[j]->initialize;
-	//		num_alive++;
-	//	}
-		
+		*/
+		/*
+		//renormalize (resurrect some of the walkers if they get to few) TODO Test algo!
+		if (num_alive<initial_number_of_walkers-norm_threshh)
+		{
+			norm_weight*=num_alive/(double)initial_number_of_walkers;
+			int number_to_add = initial_number_of_walkers-num_alive;
+			for (int k=0;k<number_to_add;k++, num_alive++)
+			{
+				//Clone random walker
+				i=(int)(RAN_UNI()*(num_alive+1)); //obs ran_uni in (0,1) i in [0,num_alive-1] XXX XXX
+				{
+					//cloning particle i to position num_alive.
+					popCtr->cloneWalker(quantum_dot[i],quantum_dot[num_alive]);
+					e_local_old[num_alive]=e_local_old[i];
+					occupancy[num_alive]=true;
+				}
+			}
+		}
+		*/
 //		fflush(stdout);
-		//cout<<"\r"<< ... ;
+		//cout<<"\r"<< ... <<;
 		cout<<setprecision(10)<<"RANK "<<myrank<<" process: (alive,resur,killsd)=(<"
 			<<num_alive<<","<<num_resurrected<<","<<killsd<<")"
 			<<"current mean E"<<e_cumulative/(double)total_loop_c_cumulative<<"\n";

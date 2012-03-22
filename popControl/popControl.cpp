@@ -10,6 +10,9 @@ popControl::popControl(int num_part_ARG, int spin_up_cutoff_ARG, int dimension_A
 popControl::~popControl(){}
 void popControl::cloneWalker(walker *parent, walker *child)
 {
+
+	//NB: Only send spin down if spin_up_cutoff<num_part
+
 	int i,j;
 	//copy ipdist matrix from parent to child
 	for (i=0; i<n_min_one; i++)
@@ -80,6 +83,8 @@ void popControl::cloneWalker(walker *parent, walker *child)
 	//copy orbitals from parent to child would be necc for open shell model
 	//copy alpha, beta from parent to child would be necc for open shell model
 }
+//void popControl::transmitWalker(walker *parent, int parent_rank, walker *child, child_rank)
+//MPI_Send and MPI_Recv all parameters. 
 
 //Testing
 void popControl::print(walker* quantum_dot)
