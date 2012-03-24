@@ -5,6 +5,8 @@
 #ifndef DMCSAMPLER_H
 #define DMCSAMPLER_H
 
+#include "mpi.h"
+
 class dmcsampler {
 
 	private:
@@ -16,11 +18,12 @@ class dmcsampler {
 	int nprocs;
 	walker** quantum_dot;
 	popControl* popCtr;
+	MPI_Status status;
 
 	double *energy_gradient;
 	
 	public:	
-	dmcsampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank, int nprocs);
+	dmcsampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank, int nprocs, MPI_Status status);
 	~dmcsampler();
 	/*
 	   main sampling loop. 

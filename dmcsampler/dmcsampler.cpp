@@ -3,7 +3,6 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
-#include <mpi.h>
 #include <fstream>
 #include <sstream>
 #include "dmcsampler.h"
@@ -50,7 +49,7 @@ using std::ostringstream;
 //#endif
 //#define CONJGRAD true
 
-dmcsampler::dmcsampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank, int nprocs)
+dmcsampler::dmcsampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank, int nprocs, MPI_Status status)
 {/*//startvimfold*/
 	this->myrank=myrank;
 	this->nprocs=nprocs;
@@ -58,8 +57,9 @@ dmcsampler::dmcsampler(int num_part, int spin_up_cutoff, int dimension, int num_
 	this->spin_up_cutoff=spin_up_cutoff;
 	this->dimension=dimension;
 	this->num_of_var_par=num_of_var_par;
+	this->status=status;
 	//factory class for manipulating walkers
-	popCtr = new popControl(num_part, spin_up_cutoff, dimension);
+	popCtr = new popControl(num_part, spin_up_cutoff, dimension, status);
 }/*//endvimfold*/
 
 dmcsampler::~dmcsampler()
@@ -113,15 +113,22 @@ void dmcsampler::sampleDMC(
 
 	if (myrank==0)
 	cout<<"\nDMC simulation - \n"
-		<<" alpha:                          "<<var_par[1]<<", beta: "<<var_par[0]<<"\n"
+		<<"alpha:                           "<<var_par[1]<<"\n"
+		<<"beta:                            "<<var_par[0]<<"\n"
 		<<"initial trial energy:            "<<e_trial<<"\n"
 		<<"initial_number_of_walkers/procs: "<<initial_number_of_walkers<<"\n"
 		<<"nprocs:                          "<<nprocs<<"\n"
 		<<"equilibriation loops:            "<<num_c_dmc_equilibriation_loop<<"\n"
 		<<"cycles main loop:                "<<num_c_dmc_main_loop<<"\n"
 		<<"cycles inner loop:               "<<num_c_dmc_inner_loop<<"\n"
+		<<"thermalization cycles:           "<<thermalization<<"\n"
 		<<"delta_t:                         "<<delta_t<<"\n"
-		<<"number of particles:             "<<num_part<<"\n";
+		<<"number of particles:             "<<num_part<<"\n\n";
+	if (myrank==0)
+		{
+			cout<<"\rStarting initialization of walkers... ";
+			fflush(stdout);
+		}
 	
 	//WITH MPI: SPLIT INTO nprocs initialization precesses. 
 	//initializing walker objects
@@ -142,8 +149,6 @@ void dmcsampler::sampleDMC(
 	//TODO input variable corr_length
 	int loop_c=0, num_init=1, corr_length = 3000; //number of steps between init of particles
 
-	if (myrank==0)
-		cout<<"starting initialization of walkers...\n";
 
 	//******** Initialize walkers ***********
 	/*//startvimfold*/
@@ -168,15 +173,14 @@ void dmcsampler::sampleDMC(
 			e_local_old[num_init] = quantum_dot[0]->calcLocalEnergy(var_par);
 			num_init++;	
 			//obs walker 0 and num_init-1 in same position
-			if (myrank==0&&num_init%10==0)
+			if (myrank==0&&num_init%((initial_number_of_walkers)/200)==0)
 			{
+				cout<<"\r"<<"                                            ";
+				cout<<"\rinitializing walkers: "<<setprecision(3)<<(num_init)/(double)initial_number_of_walkers*100<<"%";
 				fflush(stdout);
-				cout<<"\r"<<"             ";
-				cout<<"\r    "<<num_init/(double)initial_number_of_walkers*100<<"%";
 			}
 		}
 	}
-	//fflush(stdout);
 	
 	if (myrank==0)
 		cout<<"\n";
@@ -195,9 +199,6 @@ void dmcsampler::sampleDMC(
 	
 	/*//endvimfold*/
 	//************************** END OF initialization phase *****************
-
-	if (myrank==0)
-		cout<<"initialization of walkers successful. starting equilibriation of walkers...\n";
 
 	int killsd=0; //
 	int num_alive = initial_number_of_walkers;
@@ -218,11 +219,11 @@ void dmcsampler::sampleDMC(
 	//TODO while not equilibriated :: find some criteria
 	for (loop_main=0; loop_main<num_c_dmc_equilibriation_loop; loop_main++)
 	{
-		if (myrank==0&&loop_main%((int)num_c_dmc_equilibriation_loop/200)==0)
+		if (myrank==0&&loop_main%(((int)num_c_dmc_equilibriation_loop-1)/200)==0)
 		{
+			cout<<"\r"<<"                                    ";
+			cout<<"\requilibriating walkers: "<<setprecision(3)<<(loop_main+1)/(double)(num_c_dmc_equilibriation_loop)*100<<"%";
 			fflush(stdout);
-			cout<<"\r"<<"             ";
-			cout<<"\r     "<<loop_main/(double)(num_c_dmc_equilibriation_loop-1)*100<<"%";
 		}
 		e_local=0.0;
 		num_resurrected=0;
@@ -347,16 +348,6 @@ void dmcsampler::sampleDMC(
 				}
 			}
 		}
-		//RENORMALIZE IF TO FEW ?
-		/*
-		if (myrank==0)
-		{
-			cout<<"\nRANK 0: \nalive/resurrected/killsd<"<<num_alive<<"/"<<num_resurrected<<"/"<<killsd<<"\n";
-			cout<<"accumulated energy/number of loops<"
-				<<setprecision(16)<<e_cumulative/(double)(loop_main+1)<<"\n";
-			cout<<"cycles in main loop: "<<loop_main+1<<" of "<<num_c_dmc_main_loop<<"\n";
-			cout<<"\n e_ref<"<<e_ref<<"\n";
-		}*/
 	}	
 	
 	MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -369,9 +360,8 @@ void dmcsampler::sampleDMC(
 	
 	if (myrank==0)
 	{
-		cout<<"\nequilibriation of walkers successful.\n";
-		cout<<"current mean E<"<<setprecision(16)<<e_cumulative<<"\n";
-		cout<<"e_ref<"<<e_ref<<"\n";
+		cout<<"\nequilibriation energy: "
+		    <<setprecision(16)<<e_cumulative<<"\n\n";
 	}
 	/*//endvimfold*/
 	
@@ -486,8 +476,7 @@ void dmcsampler::sampleDMC(
 		//for (i=0;i<200;i++)
 		//	cout<<i<<" "<<occupancy[i]<<" \n";
 		//make more intellegent sorting algo
-		
-		
+				
 		int sorted=0; i=0; 
 		j=num_alive+num_resurrected-1;//starting on the last one
 		while (sorted<killsd)
@@ -514,6 +503,126 @@ void dmcsampler::sampleDMC(
 			if (i>=j) break;
 		}
 		num_alive=num_alive-killsd+num_resurrected;
+
+		//*******************************************************************
+		//redistribute using mpi
+		//*******************************************************************
+		MPI_Barrier(MPI_COMM_WORLD);//XXX necc? (feels safe)
+/*//startvimfold*/
+		//if (abs(num_alive-mean)<threshh)
+		//run redistr algo and update mean & threshh
+
+		double redist_threshh = 0.05;
+		//input: redist threshh,num_alive,myrank, walker *quantum_dot, popControl *popCtr
+		//int i, j, 
+		int threshh, nalive_temp, lefto, mean=0, ntransfer;
+		int rank[nprocs];
+		int nalive[nprocs];
+		
+		for (i=0;i<nprocs;i++)
+			rank[i]=i;
+		nalive[myrank]=num_alive;
+
+		for (i=0;i<nprocs;i++)
+			MPI_Bcast(&nalive[i], 1, MPI_INT, i, MPI_COMM_WORLD);
+		MPI_Barrier(MPI_COMM_WORLD);//XXX necc? (feels safe)
+
+		//mean of num_alive and the modulus lefto
+		for (i=0;i<nprocs;i++)
+			mean+=nalive[i];
+		lefto=mean%nprocs;
+		mean/=nprocs;
+		threshh=redist_threshh*mean;
+
+		//XXX XXX XXX XXX
+		threshh=1;
+
+		//evt check if max element is larger than abs(mean-max_elem)>thresh+lefto before sorting
+
+		//The philosophy behind this algo is that no walker should be transfered twice.
+		//if we transfer fron node 0 to node 1, there should never be any transfers from node 1.
+		//Transfering data is time consuming!
+		//All nodes runs to this algo simultaniously to keep communication on a minimum level.
+		//Only the data transfer is private to the nodes.
+		//communication between the different nodes will happen simultaniously.
+		bool cont_iter=true;
+		while (cont_iter)
+		{
+			//continiue iterating while
+			cont_iter=false;
+
+			int rank_temp;
+			//picksort:Num.Rec. inspired algo.
+			//Sorting nalive and rank, Smallest nalive and corresponding rank first
+			for (i=nprocs-2;i>=0;i--)
+			{
+				rank_temp=rank[i];
+				nalive_temp=nalive[i];
+				//rank_temp=i;//rank[i];
+				for (j=i;j<=nprocs-2;j++)
+				{
+					nalive[j]=nalive[j+1];
+					rank[j]=rank[j+1];	
+					if (nalive[j+1]>=nalive_temp) break;
+				}
+				nalive[j]=nalive_temp;
+				rank[j]=rank_temp;
+			}
+			//Transfering between nodes	
+			for (i=0;i<nprocs/2;i++) //obs: note integer division
+			{
+				//simultaneously transfering betw all procs
+				//if all ifs fail, coun_iter remains 'false' and the algo is finished
+				if  ( (abs(nalive[i]-mean)>threshh+lefto) || 
+						(abs(nalive[nprocs-i-1]-mean)>threshh+lefto) )
+				{  
+					//if both nodes has a higher/lower number of particles 
+					//than the mean, dont transfer, wait till next loop when sorted	
+					if ( (nalive[i]<mean) != (nalive[nprocs-i-1]<mean) )	
+					{
+						//transfer walkers till one of the nodes has a number eq to the mean
+						//if one is eq to mean: ntransfer=0, resorting and new proposal
+						ntransfer = ( (mean-nalive[i]) >= (nalive[nprocs-i-1]-mean)) ? 
+							nalive[nprocs-i-1]-mean : mean-nalive[i];
+						if  ((myrank==rank[i]) || (myrank==rank[nprocs-i-1]))
+						{
+							//redistribute send ntransfer particles from nprocs-i-1->i
+							//usinc popControl method	
+						
+							//transmit the walkers	
+							for (j=0;j<ntransfer;j++)
+							{
+							 	if (myrank==rank[nprocs-i-1])
+							 	{
+							 		num_alive--;
+							 		popCtr->transmitWalker(quantum_dot[num_alive-1], myrank, rank[i], myrank);
+									occupancy[num_alive]=false;
+									MPI_Send(&e_local_old[num_alive], 1, MPI_DOUBLE, rank[i], 499, MPI_COMM_WORLD);	
+							 	}
+							 	if (myrank==rank[i])
+							 	{
+							 		popCtr->transmitWalker(quantum_dot[num_alive], rank[nprocs-i-1], myrank, myrank);
+									occupancy[num_alive]=true;
+									MPI_Recv(&e_local_old[num_alive], 1, MPI_DOUBLE, rank[nprocs-i-1], 499, MPI_COMM_WORLD, &status);	
+							 		num_alive++;
+							 	}
+							}
+							
+							//XXX TESTING XXX
+							if (myrank==rank[i])
+								cout<<rank[nprocs-i-1]<<"to"<<rank[i]<<" number  "<<ntransfer<<"\n"; 
+						}
+						nalive[i]+=ntransfer;
+						nalive[nprocs-i-1]-=ntransfer;
+					
+						//last run if all 
+						if (abs(nalive[nprocs-i-1]-mean)>=lefto) cont_iter=true;
+						if (abs(nalive[i]-mean)>=lefto) cont_iter=true;
+					}
+				}
+			}/*//endvimfold*/
+		}
+
 
 		/*
 		//renormalize (kill some of the walkers if they get to many) TODO Test algo!
@@ -586,7 +695,7 @@ void dmcsampler::sampleDMC(
 	if (myrank==0)
 	{	
 		cout<<"\nFinal energy<"<<setprecision(16)<<e_cumulative<<"\n";
-		cout<<"variance"<<e2_cumulative-pow(e_cumulative,2);
+		cout<<"variance"<<e2_cumulative-pow(e_cumulative,2)<<"\n";
 	}
 
 //###################################################################################

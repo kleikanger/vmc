@@ -26,32 +26,32 @@ use_dmc_sampler 	= True
 
 #vmc variables
 #(for cgm and , min_alpha, min_beta is the starting point)
-omega 				= 1.0
-delta_t				= .005
-min_alpha 	 		= 0.93 # 0.98 	#init value cgm-method and DMC
+omega 				= .5
+delta_t				= .001
+min_alpha 	 		= 0.98 # 0.93 # 0.98 	#init value cgm-method and DMC
 max_alpha 		 	= 0.9
 alpha_variations 	= 1 	#min 1
-min_beta 	 		= 0.56 # 0.4 	#init value cgm-method and DMC
+min_beta 	 		= 0.31 #0.56 # 0.4 	#init value cgm-method and DMC
 max_beta 		 	= 0.9
 beta_variations 	= 1 	#min 1
-number_of_particles = 6
+number_of_particles = 2
 sampling_cycles 	= 1e6 	#total number on all procs
 
 thermal_cycles 		= 4e5 	#also used in initialization of DMC 
 
 #dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56|12:87,68,dt=0.005-0.001 (0.001 converging to slowly?)
-number_of_walkers 	= 4000 #total number on all procs
-num_cycles_main_loop= 100
-num_c_ET_upd_loop 	= 400 #O(100)-O(1000)
+number_of_walkers 	= 5100 #total number on all procs
+num_cycles_main_loop= 250
+num_c_ET_upd_loop 	= 800 #O(100)-O(1000)
 num_c_equilibri_loop= 2000
-initial_e_trial 	= 3.190004
+initial_e_trial 	= 2.0004
 
 ####################
 #running parameters#
 ####################
 
 #mpirun flags
-number_of_processors= 2
+number_of_processors= 4
 #write running parameters to log (then all data will be traceable)
 log_run				= False 
 #running mode #NOT ACTIVE, find out how to change CC in Makefile
