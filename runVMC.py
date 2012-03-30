@@ -16,9 +16,9 @@ import time
 #####################
 
 #choose only one should be true for a fast code
-conjugate_gradient 	= False 
+conjugate_gradient 	= True
 sample_on_grid 		= False
-use_dmc_sampler 	= True
+use_dmc_sampler 	= False
 
 ###########
 #variables#
@@ -26,32 +26,32 @@ use_dmc_sampler 	= True
 
 #vmc variables
 #(for cgm and , min_alpha, min_beta is the starting point)
-omega 				= .5
-delta_t				= .001
-min_alpha 	 		= 0.98 # 0.93 # 0.98 	#init value cgm-method and DMC
-max_alpha 		 	= 0.9
+omega 				= 1
+delta_t				= .05
+min_alpha 	 		= .9#8718 # 0.93 # 0.98 #init value cgm-method and DMC
+max_alpha 		 	= 0.5
 alpha_variations 	= 1 	#min 1
-min_beta 	 		= 0.31 #0.56 # 0.4 	#init value cgm-method and DMC
+min_beta 	 		= .42#.6677 #0.56 # 0.4 	#init value cgm-method and DMC
 max_beta 		 	= 0.9
 beta_variations 	= 1 	#min 1
-number_of_particles = 2
-sampling_cycles 	= 1e6 	#total number on all procs
+number_of_particles = 6
+sampling_cycles 	= 1e7 	#total number on all procs
 
-thermal_cycles 		= 4e5 	#also used in initialization of DMC 
+thermal_cycles 		= 5e5 	#also used in initialization of DMC 
 
-#dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56|12:87,68,dt=0.005-0.001 (0.001 converging to slowly?)
-number_of_walkers 	= 5100 #total number on all procs
-num_cycles_main_loop= 250
-num_c_ET_upd_loop 	= 800 #O(100)-O(1000)
-num_c_equilibri_loop= 2000
-initial_e_trial 	= 2.0004
+#dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56|12:87,68,dt=0.005-0.001 (0.001 converging to slowly?) |omg 1,2pt,a95-96,b.32 E1.66978 
+number_of_walkers 	= 2000 #total number on all procs
+num_cycles_main_loop= 200
+num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
+num_c_equilibri_loop= 3000
+initial_e_trial 	= 3.0004
 
 ####################
 #running parameters#
 ####################
 
 #mpirun flags
-number_of_processors= 4
+number_of_processors= 2
 #write running parameters to log (then all data will be traceable)
 log_run				= False 
 #running mode #NOT ACTIVE, find out how to change CC in Makefile
@@ -114,16 +114,11 @@ def gen_vmcmain_h():
 ###############
 #preparing run#
 ###############
-
-cyc = sampling_cycles / number_of_processors
-a_inc=abs(max_alpha-min_alpha)/alpha_variations 
-a_ini=min_alpha-a_inc
-b_inc=abs(max_beta-min_beta)/beta_variations 
-b_ini=min_beta-b_inc
-conjugate_gradient 	= int(conjugate_gradient) 
-sample_on_grid 		= int(sample_on_grid)
-use_dmc_sampler 	= int(use_dmc_sampler)
-number_of_walkers/=number_of_processors;
+#cyc = sampling_cycles / number_of_processors
+#a_inc=abs(max_alpha-min_alpha)/alpha_variations 
+#a_ini=min_alpha-a_inc
+#b_inc=abs(max_beta-min_beta)/beta_variations 
+#b_ini=min_beta-b_inc
 
 def write_to_log():
 	os.system(("echo\
@@ -139,18 +134,22 @@ def write_to_log():
 
 def all_param():
 	return (omega,delta_t,\
-		a_ini,a_inc,alpha_variations,\
-		b_ini,b_inc,beta_variations,\
+		min_alpha-abs(max_alpha-min_alpha)/alpha_variations,#a_ini
+		abs(max_alpha-min_alpha)/alpha_variations,alpha_variations,#a_inc
+		min_beta-abs(max_beta-min_beta)/beta_variations,#b_ini
+		abs(max_beta-min_beta)/beta_variations,#b_inc
+		beta_variations,\
 		number_of_particles,\
-		cyc,thermal_cycles,\
-		conjugate_gradient,\
-		sample_on_grid,\
+		sampling_cycles / number_of_processors,#cyc
+		thermal_cycles,\
+		int(conjugate_gradient),\
+		int(sample_on_grid),\
 		initial_e_trial,
 		num_cycles_main_loop,
 		num_c_ET_upd_loop,
 		num_c_equilibri_loop,
-		number_of_walkers,
-		use_dmc_sampler)
+		number_of_walkers/number_of_processors,
+		int(use_dmc_sampler))
 
 #rewrite h-files, recompile and run with current parameters
 def run():
@@ -203,3 +202,20 @@ run()
 #Compare results obtained by using the mixed estimator and the generational generator
 #
 #
+
+omega               = .28
+delta_t             = .05
+conjugate_gradient  = False
+sample_on_grid      = True
+number_of_particles = 6
+sampling_cycles = 1e8
+min_alpha = 0.8726926 
+min_beta  = 0.32654864 #my minima 1e7 CGM - samples, gtol 1e-8
+run()
+min_alpha = 0.88 #LE's minima
+min_beta  = 0.33
+run()
+
+
+
+

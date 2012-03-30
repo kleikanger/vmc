@@ -282,6 +282,7 @@ double walker::calcLocalEnergy(double* var_par) const
 	e_kinetic-=ipd->jasLapl(r_old);
 	for (i=0;i<num_part;i++)
 	{
+		//part of the exp for the jastrow laplacian
 		e_kinetic-=cblas_ddot(dimension,jas_grad[i],1,jas_grad[i],1);
 	}
 	//cross term of the total laplacian

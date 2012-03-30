@@ -19,24 +19,8 @@ using std::setw;
 using std::ios;
 using std::ostringstream;
 
+//include definitions
 #include "../definitions/sampler_Def.h"
-//using namespace std;
-//name and path of ofile
-//blocking data
-//#ifndef WRITEOFB
-//#define WRITEOFB true
-//#endif
-//single particle density
-//#ifndef WRITEOFC
-//#define WRITEOFC false
-//#endif
-//#ifndef OFPATHB
-//#define OFPATHB "/home/karleik/masterProgging/vmc/blocking/E_"//.dat
-//#endif
-//#ifndef OFPATHC
-//#define OFPATHC "/home/karleik/masterProgging/vmc/datafiles/xXXspd_2partdt05eopt.dat"
-//#endif
-//#define CONJGRAD true
 
 sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank)
 {/*//startvimfold*/
@@ -87,9 +71,10 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 #endif
 #if CONJGRAD
 	//dim: num of varpar-1, 2
-	double **e_grad_temp = (double**)matrix(2,2,sizeof(double));
-	e_grad_temp[0][0] 	= e_grad_temp[1][0] = e_grad_temp[0][1]
-						= e_grad_temp[1][1] = 0.0; //[num_var_par-1][2]
+	double e_grad_temp[2];
+	double **e_grad_cum = (double**)matrix(2,2,sizeof(double));
+	e_grad_cum[0][0] 	= e_grad_cum[1][0] = e_grad_cum[0][1]
+						= e_grad_cum[1][1] = 0.0; //[num_var_par-1][2]
 #endif/*//endvimfold*/
 	double e_local=0.0;
 	double e_local_squared=0.0;
@@ -107,7 +92,6 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		//move all particles, one at a time
 		for (int active_part=0; active_part<num_part; active_part++)
 		{
-			//NB:possible to move two part at a time, one in each sd?
 			//metropolis-hastings test
 			if ( quantum_dot->tryRandomStep(active_part) ) 
 			{
@@ -126,12 +110,11 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		e_local_squared += e_local_temp*e_local_temp;	
 
 #if CONJGRAD
-		double delete_this_var[2];
-		quantum_dot->getVarParGrad(delete_this_var); //TODO NEW NAME
-		e_grad_temp[0][0]+=delete_this_var[0];
-		e_grad_temp[0][1]+=delete_this_var[1];
-		e_grad_temp[1][0]+=delete_this_var[0]*e_local_temp;
-		e_grad_temp[1][1]+=delete_this_var[1]*e_local_temp;
+		quantum_dot->getVarParGrad(e_grad_temp); //TODO NEW NAME
+		e_grad_cum[0][0]+=e_grad_temp[0];
+		e_grad_cum[0][1]+=e_grad_temp[1];
+		e_grad_cum[1][0]+=e_grad_temp[0]*e_local_temp;
+		e_grad_cum[1][1]+=e_grad_temp[1]*e_local_temp;
 #endif
 #if WRITEOFB //write to file blocking data
 		all_energies[loop_c-thermalization]=e_local_temp;
@@ -165,8 +148,8 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	result[1] = (e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
 #if CONJGRAD
 	//for CGM minimization. see: sampler::getEnergyGrad()
-	energy_gradient[0] = 2*(e_grad_temp[1][0]-e_grad_temp[0][0]*result[0])/(double)num_cycles;
-	energy_gradient[1] = 2*(e_grad_temp[1][1]-e_grad_temp[0][1]*result[0])/(double)num_cycles;
+	energy_gradient[0] = 2*(e_grad_cum[1][0]-e_grad_cum[0][0]*result[0])/(double)num_cycles;
+	energy_gradient[1] = 2*(e_grad_cum[1][1]-e_grad_cum[0][1]*result[0])/(double)num_cycles;
 #endif
 #if WRITEOFB
 	ofstream blockofile;

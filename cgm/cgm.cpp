@@ -55,7 +55,7 @@ void cgm::optimizeVarPar(double* initial_var_par)
 
 	int n=2; //TODO num_of_var_par-1
 	Vector g(n), p(n);
-   	gtol = 1.0e-5; //TODO Should be imput variable
+   	gtol = 1.0e-8; //TODO Should be imput variable
 
 	//now call dfmin and compute the minimum
     p(0) = initial_var_par[0];

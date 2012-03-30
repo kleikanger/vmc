@@ -55,7 +55,7 @@ void mcongrid::runMCongrid(
 	if (myrank==0)
 	{
 		//output to screen
-		cout<<"\n\n";
+		cout<<"\n";
 		cout<<"------------------------------------------------------\n";
 		cout<<"\n";
 		cout<<"num_cycles:     \t\t"<<num_cycles*nprocs<<"\n";

@@ -101,6 +101,7 @@ void orbital::setOmgAlp(double alphaARG, double omegaARG)
 	alpha = alphaARG; 
 	omega = omegaARG; 
 	updOmgAlp(alphaARG,omegaARG);//calling inline func
+	sqrt_omg_ove_alp=sqrt(omega/alpha);
 }/*//endvimfold*/
 double orbital::valueWF(double* dR) const {
 //startvimfold
@@ -250,6 +251,9 @@ double orbital::D2(double* dR) const
 //endvimfold
 double orbital::valuedPdA(double* dR) 
 {
+#if 0
+	//Not working, change getdPdAoveA in slatermatrix 
+
 	double f_min, f_plus;
 	//resetting sqrt(alpha*omega) and alpha*omega since only these
 	//functions are used in the valueWF, D1 and D2.
@@ -261,6 +265,38 @@ double orbital::valuedPdA(double* dR)
 	//OBS Not resetting alpha and omega
 	updOmgAlp(alpha,omega);
 	return (f_plus-f_min)*ONE_OVER_H*0.5;
+#else
+
+	//returning (d/da (psi))/Psi, multiplied by stored psi in slater class.
+	double r_sqrd=cblas_ddot(dim,dR,1,dR,1);
+	switch (energy_level) 
+	{
+		case 1: return -0.5*omega*r_sqrd*valueWF(dR);
+		case 2:	//n_x=1 n_y=0
+				return 
+				( dR[0]*sqrt_omg_ove_alp/h1(dR[0],sq_omg_alp)-0.5*omega*r_sqrd )*valueWF(dR); //-?(value wf stored in slatermatrix)
+		case 3: //n_x=0 n_y=1
+				return
+				( dR[1]*sqrt_omg_ove_alp/h1(dR[1],sq_omg_alp)-0.5*omega*r_sqrd )*valueWF(dR); //-?
+		case 4: //x0 y2
+				return 
+				2.*dR[1]*sqrt_omg_ove_alp*h1(dR[1],sq_omg_alp)/h2(dR[1],omg_alp)//-?
+				-0.5*omega*r_sqrd;
+		case 5: //x1 y1
+				return 
+				( dR[1]*sqrt_omg_ove_alp/h1(dR[0],sq_omg_alp)//-?
+				 + dR[0]*sqrt_omg_ove_alp/h1(dR[1],sq_omg_alp)//-?
+				  -0.5*omega*r_sqrd );
+		case 6: //x2 y0
+				return
+				2.*dR[0]*sqrt_omg_ove_alp*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)//-?
+				-0.5*omega*r_sqrd;
+		default: 
+				cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
+					<<", energy_level= " <<energy_level<<"\n";
+				exit(1);
+	}
+#endif	
 }
 int orbital::angularMomentum() const {
 //startvimfold

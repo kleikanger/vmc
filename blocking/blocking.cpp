@@ -90,7 +90,9 @@ int main (int argc, char *argv[])
 	{
 		size_bs = min_bs+i*int_bs;
 		blocking(indata, num_c * n_proc, size_bs, res);
-		cout<<"processing block "<<i+1<<" of "<<num_bs<<"\n";
+		fflush(stdout);
+		cout<<"\r"<<"                                        ";
+		cout<<"\rprocessing block "<<i+1<<" of "<<num_bs;
 		mean = res[0];
 		sigma = res[1];
 //MPI SAVE TO
