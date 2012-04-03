@@ -53,7 +53,7 @@ initial_e_trial 	= 3.0004
 #mpirun flags
 number_of_processors= 2
 #write running parameters to log (then all data will be traceable)
-log_run				= False 
+log_run				= True
 #running mode #NOT ACTIVE, find out how to change CC in Makefile
 debug 				= False
 profile 			= False
@@ -63,7 +63,7 @@ profile 			= False
 #############
 
 #write blockingdata to file blocking/E_<running parameters>.dat
-write_blocking_data = 'false'
+write_blocking_data = 'true'
 filepath_blck 		= 'blocking/blc_'
 #write variational data to file
 write_var_result 	= 'false'
@@ -171,7 +171,7 @@ def run():
 
 #do simulations : change values between runs
 #delta_t = 0.01
-run()
+#run()
 #delta_t = 0.025
 #run()
 #delta_t = 0.05
@@ -203,19 +203,175 @@ run()
 #
 #
 
-omega               = .28
+
+#
+# MINIMIZATION RUNS OBTAINING THE ENERGY MINIMA USED IN PROJECT 1
+#
+
 delta_t             = .05
+conjugate_gradient  = True
+sample_on_grid      = False
+number_of_particles = 2
+sampling_cycles = 1e7
+min_alpha = 0.97
+min_beta  = 0.25 
+omega=.28
+#run()
+min_alpha = 0.989
+min_beta  = 0.30 
+omega=.5
+#run()
+min_alpha = 0.99
+min_beta  = 0.40 
+omega=1
+#run()
+
+delta_t             = .05
+conjugate_gradient  = True
+sample_on_grid      = False
+number_of_particles = 6
+sampling_cycles = 1e7
+min_alpha = 0.88 
+min_beta  = 0.33
+omega=.28
+#run()
+min_alpha = 0.90 
+min_beta  = 0.42
+omega=.5
+#run()
+min_alpha = 0.87 
+min_beta  = 0.68
+omega=1
+#run()
+
+delta_t             = .05
+conjugate_gradient  = True
+sample_on_grid      = False
+number_of_particles = 12
+sampling_cycles = 1e7
+min_alpha = 0.81 
+min_beta  = 0.38 
+omega=.28
+#run()
+min_alpha = 0.90 
+min_beta  = 0.42
+omega=.5
+#run()
+min_alpha = 0.88 
+min_beta  = 0.66
+omega=1
+#run()
+
+###
+#
+# Production runs. 
+#
+###
+### Two particles, (write blocking data to file)
+conjugate_gradient  = False
+sample_on_grid      = True
+number_of_particles = 2
+sampling_cycles = 1e8
+###
+omega               = .28
+min_alpha = 0.971
+min_beta  = 0.252 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+#run()
+delta_t             = .025
+#run()
+delta_t             = .05
+#run()
+###
+omega               = .5
+min_alpha = 0.981
+min_beta  = 0.309 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+#run()
+delta_t             = .025
+#run()
+delta_t             = .05
+#run()
+###
+omega               = 1.
+min_alpha = 0.988
+min_beta  = 0.399 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+run()
+delta_t             = .025
+run()
+delta_t             = .05
+#run()
+###
+### Six particles. (write blocking data to file)
 conjugate_gradient  = False
 sample_on_grid      = True
 number_of_particles = 6
 sampling_cycles = 1e8
-min_alpha = 0.8726926 
-min_beta  = 0.32654864 #my minima 1e7 CGM - samples, gtol 1e-8
-run()
-min_alpha = 0.88 #LE's minima
-min_beta  = 0.33
-run()
-
-
-
+##
+omega               = .28
+min_alpha = 0.873 
+min_beta  = 0.326 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+#run()
+delta_t             = .025
+#run()
+delta_t             = .05
+#run()
+###
+omega               = .5
+min_alpha = 0.900
+min_beta  = 0.413 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+#run()
+delta_t             = .025
+#run()
+delta_t             = .05
+#run()
+###
+omega               = 1.
+min_alpha = 0.924
+min_beta  = 0.557 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+#run()
+delta_t             = .025
+#run()
+delta_t             = .05
+#run()
+###
+### Twelve particles. (write blocking data to file)
+conjugate_gradient  = False
+sample_on_grid      = True
+number_of_particles = 12
+sampling_cycles = 1e8
+##
+omega               = .28
+min_alpha = 0.809 
+min_beta  = 0.378 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+#run()
+delta_t             = .025
+#run()
+delta_t             = .05
+#run()
+###
+omega               = .5
+min_alpha = 0.845
+min_beta  = 0.482 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+#run()
+delta_t             = .025
+#run()
+delta_t             = .05
+#run()
+###
+omega               = 1.
+min_alpha = 0.877
+min_beta  = 0.658 #my minima 1e7 CGM - samples, gtol 1e-8
+delta_t             = .01
+#run()
+delta_t             = .025
+#run()
+delta_t             = .05
+#run()
 

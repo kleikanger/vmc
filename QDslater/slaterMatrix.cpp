@@ -411,13 +411,13 @@ double slaterMatrix::getdPdAoveA(double** dR) const
 
 	for (i_upd=0;i_upd<iCutoff;i_upd++) for (i=0;i<iCutoff;i++)
 	{
-		sum+=orbital_[i].valuedPdA(dR[i_upd])*inv_up_matr[i_upd][i];//*spin_up_matr[i_upd][i];
+		sum+=orbital_[i].valuedPdA(dR[i_upd])*inv_up_matr[i_upd][i]*spin_up_matr[i_upd][i];
 	}
 	for (i_upd=iCutoff;i_upd<iNumPart;i_upd++) for (i=iCutoff;i<iNumPart;i++)
 	{
 		//TODO FIX INDEX'es 
 		sum+=orbital_[i].valuedPdA(dR[i_upd])*inv_down_matr[i_upd-iCutoff][i-iCutoff];
-			//*spin_down_matr[i_upd-iCutoff][i-iCutoff];
+			spin_down_matr[i_upd-iCutoff][i-iCutoff];
 	}
 	return sum;
 } //endvimfold

@@ -58,7 +58,6 @@ Our system of choice
 
 %}}}1
 
-
 \section{The Monte Carlo method}%{{{1
 
 \subsection{Introduction}%{{{2
@@ -344,30 +343,77 @@ to the ground state energy, the trial function with the lowest variance migt be 
 
 \subsection{The trial wave functions}%{{{2
 
-Our system is a closed shell model with a hamiltonian 
+Our system is a closed shell model with the hamiltonian 
 \begin{align} 
-	\hat H = -\frac{\nabla ^2}2 + \omega |\vec R|^2 - \sum_{i<j}\frac1{r_{ij}} 
+	\hat H = -\frac{\nabla ^2}2 + \omega |\ts R|^2 - \sum_{i<j}\frac1{r_{ij}}.\label{hamiltonian}
 \end{align}
+Here $\ts R=(\ts r_1,\ts r_2, \ts r_2, \dots, \ts r_N)$ is a vector containing the position of all electrons in the system.
+, and $r_{ij}=|\ts r_i-\ts r_j|$ is the distance between electron $i$ and electron $j$.
+The equations
+\begin{align}
+	\phi_{n_xn_y}^\alpha(\ts r_i) = H_{n_y}(\sqrt{\omega\alpha}y)H_{n_x}(\sqrt{\omega\alpha}x)\notag\\
+	\times \exp(-\frac12\omega\alpha|\ts r_i|^2) \label{1pts}
+\end{align}
+are the eigenstates for the hamiltonian eq. (\ref{hamiltonian}) when $\alpha=1$. $H_n(x)$ is the hermitepolynomials and $\alpha$ is a variational 
+parameter $\alpha\in[0,1)$ which represents the ''shielding'' effect that occurs when more than one electron is present in the system. Since the 
+electrons carry a negative charge, the efficient external potential seen by the individual particles will be lower than the actual external potential.
+%The energy level $n=n_x+n_y$ will be $n+1$ times degenerated. ...
 
 Our trial wave function can be written on the form
 \begin{align}
-	\Psi_T(\vec r) = \Psi_\downarrow^{\alpha}(\vec r) \Psi_\uparrow^\alpha(\vec r) \mathcal J^\beta(\vec r) 
+	\Psi(\ts R) = \mathcal D_\downarrow^{\alpha}(\ts R) \mathcal D_\uparrow^\alpha(\ts R) \mathcal J^\beta(\ts R) 
 \end{align}
-Here $\Psi_\uparrow(\vec r)$is a slater determinant consisting of the one particle soultions of the stationary schrödinger equation
+Here $\mathcal D_\uparrow(\ts R)$is a slater determinant consisting of the one particle solutions eq. (\ref{1pts}).
+The slater determinant automatically fulfills the Pauli principle stating that any wave function consisting of identical fermions must be 
+antisymmetric w.r.t. the exchange of two particles.
+$\mathcal D_\downarrow^\alpha(\ts R)$ is the corresponding determinant for the spin down states. Note that in the case of a spin dependent hamiltonian,
+$\mathcal D^\alpha_\downarrow \mathcal D^\alpha_\uparrow$ would have to be written as one single slater determinant to preserve the antisymmetry of the wavefunction.
+$\mathcal J^\beta(\ts R)$ is the Jastrow factor which removes the singularities in $\hat H \Psi(\ts R)$ at $\ts r_i = \ts r_j$ (ref).
+We use a Jastrow factor with one variational parameter $\beta$,
 \begin{align}
-	\phi_{n_xn_y}^\alpha(\vec r_i) = H_{n_y}(\sqrt{\omega\alpha}y)H_{n_x}(\sqrt{\omega\alpha}x)\notag\\
-	\times \exp(-\frac12\omega\alpha|\vec r_i|^2) 
+	&\mathcal J^\beta(\ts R) = \prod_{i<j} \mathcal J_{ij}\notag\\
+	&\mathcal J_{ij} = \exp\left( \frac {a_{ij}r_{ij}}{1+\beta r_{ij}} \right)
 \end{align}
-and $\vec r = (\vec r_0, \vec r_1,\dots,\vec r_n)$ is a vector containing the position of all electrons in the system.
-The energy level $n=n_x+n_y$ will be $n+1$ times degenerated. ...
+$a_{ij}=1$ if the spins of particle $i$ and $j$ are parallel and $a_{ij}=\frac13$ if the spins are perpendicular.
+See ref. (LE) for a detailed derivation of the Jastrow factor.
+
+The wave functions $\psi^\alpha{n_x,n_y}(\ts R)$ is $n+1$ times degenerated in the $n$'th energy level (starting at $0$). 
+In the $s$'th full shell we then have $2\sum_{a=1}^s a$ particles. The basis states used in the different energy levels are listed in table (\ref{tab0}).
+
+According to an article written by Tauts (ref tauts), the energy of the $2$ particle $\omega=1$ quantum dot should be exactly $3$ Hartrees.
+The kinetic energy ($\hat H\to -\nabla^2/2$) of the slater matrices can be shown to be (ref,appendix): $2\omega$ Hartrees fo two particles, $10\omega$ 
+Hartrees for 6 particles, $28\omega$ Hartrees for 12 particles and $60$ Hartrees for 20 particles. (formula)?. We have used this values to verify parts of the code. 
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Shell& Electrons & One particle orbitals \\
+\hline
+1&2& $\psi_{00}$ \\
+%\hline
+2&6& $\psi_{10},\,\psi_{01}$\\
+%\hline
+3&12& $\psi_{20},\,\psi_{11},\,\psi_{02}$\\
+%\hline
+4&20& $\psi_{30},\,\psi_{21},\,\psi_{12},\,\psi_{03}$\\
+%\hline
+5&30& $\psi_{40},\,\psi_{31},\,\psi_{22},\,\psi_{13},\,\psi_{04}$\\
+6&42& $\psi_{50},\,\psi_{41},\,\psi_{32},\,\psi_{23},\,\psi_{14},\,\psi_{05}$\\
+\hline
+\end{tabular}
+\caption{\it 
+	This table shows the one particle orbitals that is part of the slater determinants. Only the first orbital state $\psi_{00}$ 
+	is needed to fill the first shell. This corresponds to a two electron quantum dot, one spin up and one spin down electron. The
+	three first orbitals (six electrons) $\psi_{20},\,\psi_{11},\,\psi_{02}$ are needed to fill the second shell. Six orbitals (twelwe electrons) are needed to fill the third shell and so on.
+	%For a quantum dot in the first shell, only $\psi_{00}$ is used, while in the $6$'th shell, all of the orbitals listed above are part of the slater determinants.
+}
+\label{tab0}
+\end{center}
+\end{table}
 
 
-$\Psi_\downarrow^\beta(\vec r)$ is the corresponding determinant for the spin down states.
-The jastrov factor $\mathcal J^\beta$
-	
-We will choose trial functions $\Psi_T$
-For the 
-Show/argue that the variance is exactly 0 for the correct wf.
+
 %}}}2
 
 \subsection{Brute force sampling}%{{{2
@@ -383,8 +429,292 @@ The quantum force
 
 \section{Implementation}%{{{1
 
+\subsection{Optimalization of $\mathcal J^\beta(\ts R)$}
+\subsection{Optimalization of $\mathcal D^\alpha(\ts R)$}
+
+\subsection{Minimization of the wave functions, optimalization of $(\partial_\alpha,\partial_\beta)\expec{E_L}$}
+The minimization algorithm we use is the Broyden-Fletcher-Goldfarb-Shannon (BFGS) method. The algorithm itself is copied from (ref numerical recipes), and is a 
+so called Quasi-Newton method which iteratively updates the inverse hessian matric $A^{-1}$, which has the property.
+\begin{align}
+	(\alpha_{min},\beta_{min})= A^{-1}\cdot \nabla \Psi(\ts R,\alpha,\beta)\big|_{(\alpha_{0},\beta_{0})}
+\end{align}
+The function recieves a pointer to a sampling method which returns the energy and the gradient of the wavefunction in the point $(\alpha,\beta)$, and updates the
+inverse hessian every time new values are returned. The function also recieves a variable \verb gtol  which sets the limit of convergence for the algorithm. If \verb gtol  $=0$ 
+the function will continiue iterating till it has localized the point where the gradient is zero.
+
+%starting vals alpha,beta .5,.5
+%
+The algorithm performs badly if {\verb gtol } is to high or if the number of cycles used to find the energy is to low. On the other hand, minimizing the function
+with a high accuracy can be very time consuming. I found that a good strategy is to use %a large {\verb gtol } in the range $\mathcal O(10^{-4})-\mathcal O(10^{-5})$ with
+a lesser number of sampling cycles $\mathcal O (10^4)-\mathcal O(10^5)$ to get an estimate to the optimal values for $\alpha,\,\beta$. Then I use a %small {\verb gtol }
+%$\mathcal O(10^{-8})$ and a 
+larger number of sampling cycles $\mathcal O (10^6)-\mathcal O (10^7)$ to find a better approximation. 
+To avoid (unphysical) negative values for $\alpha$ and $\beta$, 
+the sampling function are set to return high values for the energy %and a negative gradient 
+if the variational parameters gets negative.
+
+The gradient are calculated using analytical expressions for the energy. 
+In the cases where comparisons where performed, the analytical expressions gave better results then the numerical derivatives.
+
+COMPARISONS:
+Example: %(d/da = (f(a+h)-f(a+h))/2h),h=0.001. For example, for $\omega = 0.28,\, \Delta t=0.05$ with $6$ electrons, I got the results $\alpha=0.87269,\beta=0.32655$ giving an
+%energy $E=7.6214(1)$ and a variance ... . $(?).6218(1)$ .
+
+To find the gradients I used the expression
+
+!!! the gradient !!!
+
+\begin{align}
+	\Big(\left({\partial_\alpha},{\partial_\beta}\right) &\Psi(\ts R,\alpha,\beta)\Big) \Big\slash \Psi(\ts R,\alpha,\beta)\notag\\
+	&= 	\frac{\partial_\alpha \mathcal D(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}
+	+ 	\frac{{\partial_\beta} \mathcal J(\ts R,\beta)}{\mathcal J(\ts R,\beta)}
+\end{align}
+From the definition of the Jastrow eq. (..) we can derive
+\begin{align}
+	\frac{\partial_\beta \mathcal J(\ts R,\beta)}{\partial_\beta \mathcal J}=\sum_{k<l}-a
+\left( 
+	\frac {r_{kl}} {1+\beta r_{kl}}.
+\right)^2
+\end{align}
+The expression is calculated as a sum over the relevant distances $r_{kl}=|\ts r_k-\ts t_l|$ which is already stored as a class variable in the class \verb ipdist  .
+The gradient of alpha is calculated using the expression:
+\begin{align}
+	&\frac{\partial_\alpha \mathcal D(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}=\sum_i\sum_j(\partial_\alpha \psi_i(\ts r_j,\alpha)) \mathcal D^{-1}_{ji} %INDEXES OK??
+\end{align}
+\begin{align}
+	&\partial_\alpha \psi_i(\ts r_j,\alpha)=\notag\\
+	&\psi_{n_{xi},n_{yi}}((x_j,y_j),\alpha)
+	\bigg(
+	 	n_{xi} \sqrt{\frac\omega\alpha} \frac{H_{n_{xi}-1}(\sqrt{\omega\alpha}x_j)}{H_{n_{xi}}(\sqrt{\omega\alpha}x_j)}\notag\\
+	 	&+n_{yi} \sqrt{\frac\omega\alpha} \frac{H_{n_{yi}-1}(\sqrt{\omega\alpha}y_j)}{H_{n_{yi}}(\sqrt{\omega\alpha}y_j)}
+		-\frac{\omega}2(x_j^2+y_j^2)
+	\bigg)
+\end{align}
+Here $r_j\to(x_j,y_j)$ and $i\to n_{xi},n_{yi}$.  
+The values 	$\partial_\alpha \psi_i(\ts r_j,\alpha)$ are already stored in the determinant, and does not have to be calculated. 
+All of the analytical expressions above is derivated in appendix A.
+%}}}1
+
+\section{Results}
+
+The results are summarized in tables \ref{tab1} and \ref{tab2}. I have used the values $\omega=0.28,0.5,1.0$ and $\Delta t = 0.01,0.25,0.05$ to be able to compare my 
+results with ref(...). I have also calculated the values using the same number of cycles. The results are well consistent with the results of (refLE), 
+but the minima obtained seems to give lower energies in most cases cases. 
+This can probably be explained by the fact that I have used a analytical expression to calculate $(\partial_\alpha,\partial_\beta) \expec{E_L}$ while
+() has evaluated the gradient numerically. (List his results in table...)   
+
+The timestep error: We have calculated all energy with three different values for $\Delta t$. 
+The timestep error seems to be of the same order as the statistical error for our values of $\Delta t$. 
+There is also a general trend in the variance and the statistical error as a function of $\Delta t$. The variance and the statistical error increases as $\Delta t$ gets smaller.
+The correlation length are generally increasing when $\Delta t$ gets smaller, probably explaining the increase in the variance and statistical error since the density will use a longer
+time to equilibriate after random fluctiations away from equilibrium (eg. if a sequence of mc-steps with a very low metropolis probability are accepted).
+%
+%The variance is systematically larger for low values of omega. This might indicate that our trial function is further away from the 'true' groundstate solution of the hamiltonian.
+%For low $\omega$, the 
+
+
+
+
+
+ can see that the timestep error   a 
+
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+$N_{p}$ & $\omega$ & $N_{s}$ & $\alpha_{min}$ & $\beta_{min}$ \\ 
+\hline
+\hline
+ $2$  & $0.28$ & $10^7$ & $0.971$ & $0.252$ \\ 
+ $2$  & $0.5$  & $10^7$ & $0.981$ & $0.309$ \\ 
+ $2$  & $1$    & $10^7$ & $0.988$ & $0.399$ \\ 	 
+\hline
+ $6$  & $0.28$ & $10^7$ & $0.873$ & $0.326$ \\ 
+ $6$  & $0.5$  & $10^7$ & $0.900$ & $0.413$ \\ 
+ $6$  & $1.0$  & $10^7$ & $0.924$ & $0.557$ \\ 
+\hline
+ $12$ & $0.28$ & $10^7$ & $0.809$ & $0.378$ \\ 
+ $12$ & $0.5$  & $10^7$ & $0.845$ & $0.482$ \\ 
+ $12$ & $1.0$  & $10^7$ & $0.877$ & $0.658$ \\ 
+\hline
+\end{tabular}
+\end{center}
+\caption{{\it 
+	Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization.
+	$\alpha_{min}$ and $\beta_{min}$ is the values of the variational parameters in the minima. 
+	%The variable \verb gtol  which sets the convergence criteria
+	We have used a $\Delta t=0.05$ during the minimization. 
+}}
+\label{tab1}
+%\hspace{50mm}
+\end{table}
+
+\begin{table}%[h!]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+$N_{p}$ & $\omega$ & $\Delta t$ & $N_{s}$ & $\expec{E_L}$ & $\sigma^2$ \\ 
+\hline
+\hline
+ $2$ & $0.28$ & $0.01$  & $10^8$ & $1.02213()$ & $0.00076627$ \\ 
+ $2$ & $0.28$ & $0.025$ & $10^8$ & $1.02219()$ & $0.00075989$ \\ 
+ $2$ & $0.28$ & $0.05$  & $10^8$ & $1.02218()$ & $0.00076032$ \\ 
+\hline
+ $2$ & $0.5$ & $0.01$  & $10^8$ & $1.66022()$ & $0.00116982$ \\ 
+ $2$ & $0.5$ & $0.025$ & $10^8$ & $1.66024()$ & $0.00116586$ \\ 
+ $2$ & $0.5$ & $0.05$  & $10^8$ & $1.66025()$ & $0.00116698$ \\ 
+\hline
+ $2$ & $1.0$ & $0.01$  & $10^8$ & $3.00030()$ & $0.00183428$ \\ 
+ $2$ & $1.0$ & $0.025$ & $10^8$ & $3.00036()$ & $0.00182671$ \\ 
+ $2$ & $1.0$ & $0.05$  & $10^8$ & $3.00038()$ & $0.00182404$ \\ 
+\hline
+\hline
+ $6$ & $0.28$ & $0.01$  & $10^8$ & $7.6213(1)$ & $0.017831$ \\ 
+ $6$ & $0.28$ & $0.025$ & $10^8$ & $7.6214(1)$ & $0.017634$ \\ 
+ $6$ & $0.28$ & $0.05$  & $10^8$ & $7.6214(1)$ & $0.017383$ \\ 
+\hline
+ $6$ & $0.5$ & $0.01$   & $10^8$ & $11.8100(2.4)$ & $0.043103$ \\ 
+ $6$ & $0.5$ & $0.025$  & $10^8$ & $11.8108(1.45)$ & $0.042331$ \\ 
+ $6$ & $0.5$ & $0.05$   & $10^8$ & $11.8101(1)$ & $0.041268$ \\ 
+\hline
+ $6$ & $1.0$ & $0.01$  & $10^8$ & $20.1898()$ & $0.123116$ \\ 
+ $6$ & $1.0$ & $0.025$ & $10^8$ & $20.1904()$ & $0.119393..$ \\ 
+ $6$ & $1.0$ & $0.05$  & $10^8$ & $20.1905()$ & $0.115563$ \\ 
+\hline
+\hline
+ $12$ & $0.28$ & $0.01$  & $10^8$ & $25.6994()$ & $0.0621312$ \\ 
+ $12$ & $0.28$ & $0.025$ & $10^8$ & $25.6993()$ & $0.0611159$ \\ 
+ $12$ & $0.28$ & $0.05$  & $10^8$ & $25.6993()$ & $0.0599358$ \\ 
+\hline
+ $12$ & $0.5$ & $0.01$  & $10^8$ & $39.2356()$ & $0.153526$ \\ 
+ $12$ & $0.5$ & $0.025$ & $10^8$ & $39.2345()$ & $0.149480$ \\ 
+ $12$ & $0.5$ & $0.05$  & $10^8$ & $39.2344()$ & $0.145622$ \\ 
+\hline
+ $12$ & $1.0$ & $0.01$  & $10^8$ & $65.7908()$ & $0.441007$ \\ 
+ $12$ & $1.0$ & $0.025$ & $10^8$ & $65.7904()$ & $0.424902$ \\ 
+ $12$ & $1.0$ & $0.05$  & $10^8$ & $65.7903()$ & $0.409616$ \\ 
+\hline
+\end{tabular}
+\end{center}
+\caption{{\it 
+	Monte carlo results using the variational parameters in table (\ref{tab1}).
+	Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization.
+	The thermalization is set to $5\times 10^5$. The error is estimated using blocking analysis of the data. 
+%The variable \verb gtol  which sets the convergence criteria
+}}
+\label{tab2}
+%\hspace{50mm}
+\end{table}
+
+\begin{appendix}
+\section{Derivation of the analytical expressions for $(\partial_\alpha,\partial_\beta)\expec{\hat H}$}%{{{1
+
+The derivative of the jastrow factor can be written
+\begin{align}
+	&\partial_\beta \mathcal J(\ts R,\beta) =\partial_\beta \prod_{i<j} \mathcal J_{ij}(\ts R,\beta)\notag\\ 
+	&= \sum_{k<l}\left(\partial_\beta \mathcal J_{kl}(\ts R,\beta) \right)
+		\prod_{
+		%\begin{matrix}
+			i<j,
+			(i,j)\neq(k,l) 
+		%\end{matrix}
+		}
+	\mathcal J_{ij}(\ts R,\beta).
+\end{align}
+We are interested in the ratio
+\begin{align}
+	\frac{\partial_\beta\mathcal J(\ts R,\beta)}{\mathcal J(\ts R,\beta)}
+	=\frac{\partial_\beta \prod_{i<j} \mathcal J_{ij}(\ts R,\beta) }
+	{\prod_{i<j} \mathcal J_{ij}(\ts R,\beta)}
+	= \sum_{k<l}\partial_\beta \mathcal J_{kl}(\ts R,\beta).
+\end{align}
+Evaluation of the terms $\delta_\beta \mathcal J_{kl}(\ts R,\beta)$ is straight forvard, and the full expressions becomes
+\begin{align}
+	\frac{\partial_\beta\mathcal J(\ts R,\beta)}{\mathcal J(\ts R,\beta)}
+	=	
+	\frac{\partial_\beta \mathcal J(\ts R,\beta)}{\partial_\beta \mathcal J}=\sum_{k<l}-a
+	\left( 
+		\frac {r_{kl}} {1+\beta r_{kl}}
+	\right)^2.
+\end{align}
+
+The differention $\partial_\alpha \mathcal D(\ts R,\alpha)$ can be written on the following form: (using partial derivation(???))
+\begin{align}
+	&\partial_\alpha\mathcal D(\ts R,\alpha)  \notag\\
+=&\left|
+\begin{matrix}
+	& \partial_\alpha\psi_1(\ts r_1,\alpha) & \partial_\alpha\psi_1(\ts r_2,\alpha) & \partial_\alpha\psi_1(\ts r_3,\alpha) &\dots & \\
+	& \psi_2(\ts r_1,\alpha) & \psi_2(\ts r_2,\alpha) & \psi_2(\ts r_3,\alpha) & & \\
+	& \psi_3(\ts r_1,\alpha) & \psi_3(\ts r_2,\alpha) & \psi_3(\ts r_3,\alpha) & & \\
+	& \vdots & & & & % \vdots & \vdots & \vdots & 
+\end{matrix}\right|\notag\\
++&\left|
+\begin{matrix}
+	& \psi_1(\ts r_1,\alpha) & \psi_1(\ts r_2,\alpha) & \psi_1(\ts r_3,\alpha) &\dots & \\
+	& \partial_\alpha\psi_2(\ts r_1,\alpha) & \partial_\alpha\psi_2(\ts r_2,\alpha) & \partial_\alpha\psi_2(\ts r_3,\alpha) & & \\
+	& \psi_3(\ts r_1,\alpha) & \psi_3(\ts r_2,\alpha) & \psi_3(\ts r_3,\alpha) & & \\
+	& \vdots & & & & % \vdots & \vdots & \vdots & 
+\end{matrix}
+\right|\notag\\
+&+\dots \\
+&=\mathcal D^{(1)}(\ts r,\alpha)+\mathcal D^{(2)}(\ts r,\alpha)+\dots
+\end{align}
+Since only one row in the determinant $\mathcal D^{(i)}(\ts R,\alpha)$ is changed, following the same reasoning as in section ?.?, we can write
+\begin{align}
+&\frac{\mathcal D^{(i)}(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}=\sum_j(\partial_\alpha \psi_i(\ts r_j,\alpha)) \mathcal D^{-1}_{ji}
+\end{align}
+giving the expression
+\begin{align} 
+&\frac{\partial_\alpha \mathcal D(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}=\sum_i\sum_j(\partial_\alpha \psi_i(\ts r_j,\alpha)) \mathcal D^{-1}_{ji}.
+\end{align}
+The terms $\partial_\alpha \psi_i(\ts r_j,\alpha)$ are derived below. 
+We write $\psi_i(\ts r_j,\alpha)\to\psi_{n_{xi},n_{yi}}(\ts r_j,\alpha)$. where $n_{xi}$ and $n_{yi}$ is quantum numbers equal or larger than one. 
+%$n_{xi}+n_{yi}\le n_{xj}+n_{yj}$ when $i<j$. 
+\begin{align}
+	&\psi_{n_{xi},n_{yi}}((x_i,y_i),\alpha)\notag\\
+	&=H_{n_{xi}}(\sqrt{\omega\alpha}x_j)H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\psi_{00}((x_i,y_i),\alpha)
+\end{align}
+$H_n(x)$ is the hermite polynomials.
+Differentiation gives
+\begin{align}
+	&\partial_\alpha\psi_{n_{xi},n_{yi}}((x_i,y_i),\alpha)=\notag\\
+	&\bigg(\partial_\alpha H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg)H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\psi_{00}((x_i,y_i),\alpha)\notag\\
+	&H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg(\partial_\alpha H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg)\psi_{00}((x_i,y_i),\alpha)\notag\\
+	&H_{n_{xi}}(\sqrt{\omega\alpha}x_j)H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg(\partial_\alpha \psi_{00}((x_i,y_i),\alpha)\bigg)
+	\label{A1}
+\end{align}
+We make use of the identity $\delta_x H_n(x)=2nH_{n-1}(x)$,
+\begin{align}
+	\partial_\alpha H_n(\sqrt{\alpha\omega}x)
+	&=\frac{\partial H_n(\sqrt{\alpha\omega}x)}{\partial (\sqrt{\alpha\omega}x)} \frac{\partial (\sqrt{\alpha\omega}x)}{\partial\alpha} \notag\\
+	&=nx\sqrt{\frac{\omega}{\alpha}} H_{n-1}(\sqrt{\omega\alpha}x)
+	\label{A2}
+\end{align}
+Derivation of $\psi_{00}((x,y),\alpha)$ yields
+\begin{align}
+	\partial_\alpha \psi_{00}((x,y),\alpha)=
+	-\frac\omega2 (x^2+y^2)	
+	\psi_{00}((x,y),\alpha).
+	\label{A3}
+\end{align}
+We combine eq. (\ref{A1}), eq. (\ref{A2}) and eq. (\ref{A3})
+\begin{align}
+	&\partial_\alpha \psi_i(\ts r_j,\alpha)=\notag\\
+	&\psi_{n_{xi},n_{yi}}((x_j,y_j),\alpha)
+	\bigg(
+	 	n_{xi} \sqrt{\frac\omega\alpha} \frac{H_{n_{xi}-1}(\sqrt{\omega\alpha}x_j)}{H_{n_{xi}}(\sqrt{\omega\alpha}x_j)}\notag\\
+	 	&+n_{yi} \sqrt{\frac\omega\alpha} \frac{H_{n_{yi}-1}(\sqrt{\omega\alpha}y_j)}{H_{n_{yi}}(\sqrt{\omega\alpha}y_j)}
+		-\frac{\omega}2(x_j^2+y_j^2)
+	\bigg)
+\end{align}
 
 %}}}1
+
+\section{Pseudocode:}%{{{1
+%}}}1
+\end{appendix}
+
 
 
 %\begin{figure}[h]

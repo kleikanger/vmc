@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  10 MAR 2012 15:56
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  3 APR 2012 15:42
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -395,52 +395,79 @@ File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 \tf@toc=\write3
 \openout3 = `proj1.toc'.
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 104.
+ [1
+
+
+]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 103.
 
 
 (/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 104.
- [1
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 103.
 
-
-]
-Underfull \hbox (badness 1668) in paragraph at lines 178--189
+Underfull \hbox (badness 1668) in paragraph at lines 177--188
 \OT1/cmr/m/n/10 These equa-tions are im-ple-mented in the well
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 178--189
+Underfull \hbox (badness 10000) in paragraph at lines 177--188
 
  []
 
 [2]
 
 Package amsmath Warning: Cannot use `split' here;
-(amsmath)                trying to recover with `aligned' on input line 244.
+(amsmath)                trying to recover with `aligned' on input line 243.
 
 
-Underfull \hbox (badness 1275) in paragraph at lines 265--265
+Underfull \hbox (badness 1275) in paragraph at lines 264--264
 []\OT1/cmr/bx/n/14.4 Statistical anal-y-sis of the
  []
 
 [3]
-Underfull \hbox (badness 1552) in paragraph at lines 362--366
-[]\OT1/cmr/m/n/10 We will choose trial func-tions $	[]$ For the
+Underfull \hbox (badness 10000) in paragraph at lines 435--435
+[]\OT1/cmr/bx/n/12 Minimization of the wave
  []
 
-[4
 
-] (./proj1.aux) ) 
+Underfull \hbox (badness 10000) in paragraph at lines 435--435
+\OT1/cmr/bx/n/12 func-tions, op-ti-mal-iza-tion of
+ []
+
+
+Underfull \hbox (badness 1603) in paragraph at lines 436--438
+\OT1/cmr/m/n/10 al-go-rithm it-self is copied from (ref nu-mer-i-cal
+ []
+
+[4] [5]
+Overfull \hbox (24.81033pt too wide) in paragraph at lines 555--599
+ [] 
+ []
+
+
+Underfull \vbox (badness 5592) has occurred while \output is active []
+
+ [6]
+Overfull \hbox (5.34206pt too wide) in paragraph at lines 631--631
+[] 
+ []
+
+
+Overfull \hbox (8.10329pt too wide) in paragraph at lines 662--662
+[] 
+ []
+
+[7] (./proj1.aux) ) 
 Here is how much of TeX's memory you used:
- 2010 strings out of 495062
- 22422 string characters out of 1182644
- 86660 words of memory out of 3000000
- 5166 multiletter control sequences out of 15000+50000
- 12122 words of font info for 47 fonts, out of 3000000 for 9000
+ 2033 strings out of 495062
+ 22653 string characters out of 1182644
+ 92660 words of memory out of 3000000
+ 5185 multiletter control sequences out of 15000+50000
+ 14504 words of font info for 56 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 32i,11n,22p,222b,371s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,16n,23p,618b,371s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (4 pages, 21732 bytes).
+Output written on proj1.dvi (7 pages, 53340 bytes).

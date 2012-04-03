@@ -55,12 +55,11 @@ void cgm::optimizeVarPar(double* initial_var_par)
 
 	int n=2; //TODO num_of_var_par-1
 	Vector g(n), p(n);
-   	gtol = 1.0e-8; //TODO Should be imput variable
+   	gtol = 1.0e-7; //TODO Should be imput variable
 
 	//now call dfmin and compute the minimum
     p(0) = initial_var_par[0];
 	p(1) = initial_var_par[1];
-
     dfpmin(p, n, gtol, &iter, &fret, this);
 
 	if (myrank==0)
@@ -87,6 +86,7 @@ double cgm::E_function(Vector &variational_parameters)
 	// Maybe return some negative (+sign) gradient or 0? if variational_parameters()<0 
 	//
 	//start sampling in all processes
+
 	var_par[0]=fabs(variational_parameters(0));
 	var_par[1]=fabs(variational_parameters(1));
 	var_par[2]=omega;
@@ -107,6 +107,9 @@ double cgm::E_function(Vector &variational_parameters)
 		MPI_Bcast (&dE_array[i], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	}
 	
+	if (variational_parameters(0)<0||variational_parameters(1)<0)
+		return 1e7;
+
 	delete [] var_par;
 	delete [] var_res_temp;
 	

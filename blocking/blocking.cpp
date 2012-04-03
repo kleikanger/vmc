@@ -1,14 +1,16 @@
 /*
 
    Blocking analysis of vmc data.
-   ./<blockingAnalysis>.out min_bs num_bs int_bs n_proc infilename outfilename
+   ./<blockingAnalysis>.out min_bs num_bs int_bs n_proc infilename 
    
 	min_bs 		- Blocksize of smallest block 	
 	num_bs 		- Number of blocks
 	int_bs 		- Increment in blocksize for each block
 	n_proc 		- Number of infiles
 	ifilename 	- infilename : ex: for blocking_<i>.dat write blocking 
-	ofilename 	- outfilename : ex: for results.txt write results
+	
+	Writes to outfile with the name
+	ofilename = <infilename>.txt
 
    */
 
@@ -37,7 +39,7 @@ double mean(double* res,int size_bs);
 
 int main (int argc, char *argv[])
 {
-	if (argc != 7)
+	if (argc != 6)
 	{
 		cout << "Bad Usage: " << argv[0] << " " << endl;
 	}
@@ -57,7 +59,7 @@ int main (int argc, char *argv[])
 	int_bs = atoi(argv[3]);
 	n_proc = atoi(argv[4]);
 	ifilename = argv[5];
-	ofilename = argv[6];
+	ofilename = ifilename;//argv[6];
 
 	//assuming that the infiles have the same size
 	ost_t << ifilename << "0.dat" ;

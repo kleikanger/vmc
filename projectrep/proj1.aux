@@ -9,14 +9,31 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Metropolis-Hasting algorithm}{2}}
 \newlabel{gamma}{{9}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Choice of transition kernel}{2}}
-\newlabel{gamma_bruteforce}{{11}{2}}
+\newlabel{gamma_bruteforce}{{11}{3}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Statistical analysis of the data}{3}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Quantum monte Carlo}{3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Introduction}{3}}
 \newlabel{exv}{{14}{3}}
 \newlabel{RFQMC1}{{16}{3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Variational Monte Carlo}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Variational Monte Carlo}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}The trial wave functions}{4}}
+\newlabel{hamiltonian}{{19}{4}}
+\newlabel{1pts}{{20}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Brute force sampling}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Sampling based on Langevin dynamics}{4}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Implementation}{4}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \it  This table shows the one particle orbitals that is part of the slater determinants. Only the first orbital state $\psi _{00}$ is needed to fill the first shell. This corresponds to a two electron quantum dot, one spin up and one spin down electron. The three first orbitals (six electrons) $\psi _{20},\tmspace  +\thinmuskip {.1667em}\psi _{11},\tmspace  +\thinmuskip {.1667em}\psi _{02}$ are needed to fill the second shell. Six orbitals (twelwe electrons) are needed to fill the third shell and so on. }}{5}}
+\newlabel{tab0}{{1}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Implementation}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Optimalization of $\mathcal  J^\beta (\textbf  {R})$}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Optimalization of $\mathcal  D^\alpha (\textbf  {R})$}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Minimization of the wave functions, optimalization of $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{E_L}\delimiter "526930B {}$}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Results}{6}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces {\it  Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization. $\alpha _{min}$ and $\beta _{min}$ is the values of the variational parameters in the minima. We have used a $\Delta t=0.05$ during the minimization. }}}{6}}
+\newlabel{tab1}{{2}{6}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces {\it  Monte carlo results using the variational parameters in table (2\hbox {}). Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization. The thermalization is set to $5\times 10^5$. The error is estimated using blocking analysis of the data. }}}{6}}
+\newlabel{tab2}{{3}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{7}}
+\newlabel{A1}{{36}{7}}
+\newlabel{A2}{{37}{7}}
+\newlabel{A3}{{38}{7}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Pseudocode:}{7}}
