@@ -16,9 +16,9 @@ import time
 #####################
 
 #choose only one should be true for a fast code
-conjugate_gradient 	= True
+conjugate_gradient 	= False
 sample_on_grid 		= False
-use_dmc_sampler 	= False
+use_dmc_sampler 	= True
 
 ###########
 #variables#
@@ -27,20 +27,20 @@ use_dmc_sampler 	= False
 #vmc variables
 #(for cgm and , min_alpha, min_beta is the starting point)
 omega 				= 1
-delta_t				= .05
+delta_t				= .005
 min_alpha 	 		= .9#8718 # 0.93 # 0.98 #init value cgm-method and DMC
 max_alpha 		 	= 0.5
 alpha_variations 	= 1 	#min 1
 min_beta 	 		= .42#.6677 #0.56 # 0.4 	#init value cgm-method and DMC
 max_beta 		 	= 0.9
 beta_variations 	= 1 	#min 1
-number_of_particles = 6
+number_of_particles = 2
 sampling_cycles 	= 1e7 	#total number on all procs
 
 thermal_cycles 		= 5e5 	#also used in initialization of DMC 
 
-#dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56|12:87,68,dt=0.005-0.001 (0.001 converging to slowly?) |omg 1,2pt,a95-96,b.32 E1.66978 
-number_of_walkers 	= 2000 #total number on all procs
+#dmc variables : note : delta_t:.01 |2:.98,.4,3.0004|6:.93,.56|12:87,68,dt=0.005-0.001 (0.001 converging to slowly?) |omg .5,2pt,a95-96,b.32 E1.66978 
+number_of_walkers 	= 1000 #total number on all procs
 num_cycles_main_loop= 200
 num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
 num_c_equilibri_loop= 3000
@@ -51,9 +51,9 @@ initial_e_trial 	= 3.0004
 ####################
 
 #mpirun flags
-number_of_processors= 2
+number_of_processors= 1
 #write running parameters to log (then all data will be traceable)
-log_run				= True
+log_run				= False
 #running mode #NOT ACTIVE, find out how to change CC in Makefile
 debug 				= False
 profile 			= False
@@ -63,7 +63,7 @@ profile 			= False
 #############
 
 #write blockingdata to file blocking/E_<running parameters>.dat
-write_blocking_data = 'true'
+write_blocking_data = 'false'
 filepath_blck 		= 'blocking/blc_'
 #write variational data to file
 write_var_result 	= 'false'
@@ -71,12 +71,6 @@ filepath_var 		= 'datafilesVAR/var_'
 #write one particle density to file 
 write_opd 			= 'false'
 filepath_opd 		= 'datafilesSPD/spd_'
-#use conjugate gradient method minimization
-use_cgm_minimization = ''
-if conjugate_gradient:
-	use_cgm_minimization = 'true'
-else: 
-	use_cgm_minimization = 'false'
 
 #set random number generator
 RAN_NORM 			= 'DRanNormalZig32'
@@ -97,7 +91,14 @@ os.system("echo '#define RAN_NORM_SET %s' >> definitions/randomNumberGenerators.
 os.system("echo '#define RAN_UNI %s' >> definitions/randomNumberGenerators.h"%RAN_UNI)
 os.system("echo '#define RAN_UNI_SET %s' >> definitions/randomNumberGenerators.h"%RAN_UNI_SET)
 #write blocking data and oneparticle density (include in sampler.cpp)
+use_cgm_minimization = ''
 def gen_sampl_h():
+	#use conjugate gradient method minimization
+	if conjugate_gradient:
+		use_cgm_minimization = 'true'
+	else: 
+		use_cgm_minimization = 'false'
+	
 	f_name_B='"%s%s"'%(filepath_blck,time_now())
 	f_name_C='"%s%s.dat"'%(filepath_opd,time_now())
 	os.system("echo '#define WRITEOFB %s'  > definitions/sampler_Def.h"%write_blocking_data)
@@ -169,6 +170,29 @@ def run():
 #run program#
 #############
 
+number_of_processors= 1
+
+omega 				= .5
+delta_t 			= .05
+number_of_particles = 12
+thermal_cycles 	 	= 4e5
+
+conjugate_gradient 	= True
+sample_on_grid 		= False
+use_dmc_sampler 	= False
+number_of_walkers 	= 5000 #total number on all procs
+num_cycles_main_loop= 4000
+num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
+num_c_equilibri_loop= 3000
+
+sampling_cycles 	= 4e7
+min_alpha 		 	= .9796
+min_beta 	 		= .420
+run()
+min_alpha 		 	= .9804
+min_beta 	 		= .4178
+run()
+
 #do simulations : change values between runs
 #delta_t = 0.01
 #run()
@@ -176,7 +200,6 @@ def run():
 #run()
 #delta_t = 0.05
 #run()
-
 
 #CGM:
 #
@@ -297,9 +320,9 @@ omega               = 1.
 min_alpha = 0.988
 min_beta  = 0.399 #my minima 1e7 CGM - samples, gtol 1e-8
 delta_t             = .01
-run()
+#run()
 delta_t             = .025
-run()
+#run()
 delta_t             = .05
 #run()
 ###

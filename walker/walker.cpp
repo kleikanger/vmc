@@ -285,8 +285,8 @@ double walker::calcLocalEnergy(double* var_par) const
 		//part of the exp for the jastrow laplacian
 		e_kinetic-=cblas_ddot(dimension,jas_grad[i],1,jas_grad[i],1);
 	}
-	//cross term of the total laplacian
 	e_kinetic *= 0.5;	
+	//cross term of the total laplacian
 	for (i=0;i<num_part;i++)
 	{
 		e_kinetic-=cblas_ddot(dimension,jas_grad[i],1,sla_grad[i],1);
@@ -348,14 +348,6 @@ void walker::getRi(int i_w, double* x)
 	}
 }/*//endvimfold*/
 
-void walker::getVarParGrad(double* grad_var_par) const
-{/*//startvimfold*/
-	grad_var_par[0] = ipd->getdPdA(); //TODO Change name to getdPdNoveP
-	// TODO	grad_var_par[0] = ipd->getdPdBoveB();//maybe not oveB ?? jastrow already calculated in sampling loop.
-	//opdim: only for one slatermatrix the gradient needs to be updated!
-	grad_var_par[1] = slater->getdPdAoveA(r_old); //Change name to getdPdAoveP
-}/*//endvimfold*/
-
 bool walker::nodeCrossed()
 {/*//startvimfold*/
 	if (wf_R<=0) // < ??
@@ -363,5 +355,164 @@ bool walker::nodeCrossed()
 	else
 		return false;
 }/*//endvimfold*/
+
+void walker::getVarParGrad(double* grad_var_par) const
+{/*//startvimfold*/
+	grad_var_par[0] = ipd->getdPdA(); //TODO Change name to getdPdBoveP
+	//opdim: only for one slatermatrix the gradient needs to be updated!
+	grad_var_par[1] = slater->getdPdAoveP(r_old); //Change name to getdPdAoveP
+}/*//endvimfold*/
+
+//EXPERIMENTAL
+#if 1
+void walker::getdELdvElem(double &de_l_db, double &de_l_da, double &dbJ_ove_J, double &daD_ove_D)
+{
+
+	double da_lapl_D_ove_D=0; 
+	double db_lapl_J_ove_J=0;
+	double jas_lapl;
+	int i,j,k,l;
+	double wf_R;
+	
+	double** da_grad_D_ove_D=(double**)matrix(num_part,dimension,sizeof(double));
+	double** db_grad_J_ove_J=(double**)matrix(num_part,dimension,sizeof(double));
+	//double** da_grad_D_temp = (double**)matrix(num_part,dimension,sizeof(double));
+
+	//JASTROW PART
+	dbJ_ove_J = ipd->getdPdA();
+	//Jas lapl (already calculated when calculating local energy)
+	jas_lapl=-ipd->jasLapl(r_old);
+	for (i=0;i<num_part;i++)
+	{
+		jas_lapl=cblas_ddot(dimension,jas_grad[i],1,jas_grad[i],1);
+	}
+	//jas_lapl*=-.5;
+	//***
+	//get derivative w.r.t. beta
+	//sum derivative
+
+	db_lapl_J_ove_J=ipd->getdbJasLapl(r_old);
+	//db_lapl_J_ove_J+=dbJ_ove_J*jas_lapl;
+	for (int i=0; i<num_part; i++) for(int j=0; j<dimension; j++)
+		db_grad_J_ove_J[i][j] = 0.0;	
+	ipd->getdbJasGrad(db_grad_J_ove_J,r_old); 
+
+	//for (int i=0; i<num_part; i++) for(int j=0; j<dimension; j++)
+	//	 db_grad_J_ove_J+= dbJ_ove_J*jas_grad[i][j];
+	de_l_db = db_lapl_J_ove_J; //XXX check exp. in ipdist XXX *-2??
+	for (i=0;i<num_part;i++)   //XXX check exp. in ipdist
+		{
+			de_l_db +=  2.*cblas_ddot(dimension, db_grad_J_ove_J[i], 1, sla_grad[i], 1);
+		}
+	//de_l_db += dbJ_ove_J*jas_lapl;
+	de_l_db += dbJ_ove_J*slater->lapl(r_old);
+	de_l_db *= -.5;
+
+	//SLATER PART
+	daD_ove_D = slater->getdPdAoveP(r_old);
+
+	da_lapl_D_ove_D=0.;
+	for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
+		da_grad_D_ove_D[i][j]=0.0;
+	for (i=0; i<num_part; i++)
+	{
+		//change the i'th row of the slatermatrix to dpsi/da
+		//update inverse
+		slater->updateInvA(r_old[i],i);
+		//calculate gradients and laplacian..
+		wf_R=slater->waveFunction(i);
+		//wf_R_inv=1./wf_R_inv;
+		da_lapl_D_ove_D+=slater->lapl(r_old)*wf_R; //*-.5?
+		//ok?
+		
+		//slater->grad(da_grad_D_temp,r_old,0); //use normal grads?
+		//slater->grad(da_grad_D_temp,r_old,spin_up_cutoff);
+		slater->grad(sla_grad,r_old,i);
+		
+		//multiply all new elements by wf_R_inv
+		for (j=0; j<num_part; j++) for (k=0; k<dimension; k++)
+			da_grad_D_ove_D[j][k]+=sla_grad[j][k]*wf_R;
+
+		//reset determinant, inverse and gradient
+		slater->reject(i);
+		//reset slater gradient only if active_part is the last particle
+		//in the determinant (spin_up or spin_down)
+		if ( !((i+1)%spin_up_cutoff ))	
+		{
+			if (i<spin_up_cutoff)
+			{
+				for (k=0;k<spin_up_cutoff;k++) for (l=0;l<dimension;l++)
+				{ 
+					sla_grad[k][l] = sla_grad_bu[k][l]; 
+				}
+			}
+			else
+			{
+				for (k=spin_up_cutoff;k<num_part;k++) for (l=0;l<dimension;l++)
+				{ 
+					sla_grad[k][l] = sla_grad_bu[k][l]; 
+				}
+			}
+		}
+	}
+	//calculate the derivative of the local energy
+	de_l_da = da_lapl_D_ove_D; 
+	for (i=0;i<num_part;i++)
+		{
+			de_l_da += 2. * cblas_ddot(dimension, da_grad_D_ove_D[i], 1, jas_grad[i], 1);
+		}
+	//de_l_da += daD_ove_D*slater->lapl(r_old);
+	de_l_da += daD_ove_D*jas_lapl;
+	de_l_da *= -0.5; 
+
+	//free_matrix((void **) da_grad_D_temp);
+	free_matrix((void **) da_grad_D_ove_D);
+	free_matrix((void **) db_grad_J_ove_J);
+
+}/*//endvimfold*/
+#endif
+
+void walker::wSetVarPar(double* var_par)
+{
+	int i,j;
+	
+	//update alpha in orbitals & jastrow
+	slater->setVarPar(var_par[1],var_par[2]);
+	ipd->setBeta(var_par[0]);
+	
+	
+	//Update all matrices vith new variational parameters
+	//upd gradient of jastrow (could be done by one single loop)
+	for (i=0;i<num_part;i++)
+		ipd->jasGrad(jas_grad,r_new,r_new, i);
+	//update inverse determinant and determinant
+	for (i=0;i<num_part;i++)
+		slater->update(r_old[i],i);
+	slater->accept(0);
+	slater->accept(spin_up_cutoff);
+	//update gradient of slatermatrix
+	slater->grad(sla_grad,r_new,0);
+	slater->grad(sla_grad,r_new,spin_up_cutoff);
+	//calculate old/new??? qforce
+	for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
+	{
+		q_force_old[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
+	}
+	//necc??
+//	for (i=0; i<num_part; i++) for (j=0; j<dimension; j++)
+//	{
+//		q_force_new[i][j] = q_force_old[i][j];
+//	}
+	for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)
+	{ 
+		jas_grad_bu[i][j] = jas_grad[i][j]; 
+	}
+	for (i=0;i<num_part;i++) for (j=0;j<dimension;j++)
+	//only active matr necc to update
+	{
+		sla_grad_bu[i][j] = sla_grad[i][j]; 
+	}
+}
+
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold

@@ -81,7 +81,6 @@ int main (int argc, char *argv[])
 		ost.clear(); ost.str("");
 	}
 	
-	
 	//calculate and store results (in outfile)
 	res = new double[2];
 	ost << ofilename  << ".txt";
@@ -103,6 +102,7 @@ int main (int argc, char *argv[])
 			<< sqrt(sigma / ((num_c*n_proc) / ((double)size_bs)-1.0))
 			<< endl;
 	}
+	cout<<"\n";
 	outfile.close();
 }	
 //	MPI_Reduce(&in, &out,

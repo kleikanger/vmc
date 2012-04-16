@@ -55,7 +55,7 @@ void cgm::optimizeVarPar(double* initial_var_par)
 
 	int n=2; //TODO num_of_var_par-1
 	Vector g(n), p(n);
-   	gtol = 1.0e-7; //TODO Should be imput variable
+   	gtol = 1.0e-8; //TODO Should be imput variable
 
 	//now call dfmin and compute the minimum
     p(0) = initial_var_par[0];
@@ -81,19 +81,13 @@ double cgm::E_function(Vector &variational_parameters)
 	//should be class variable
 	sampler sampler_(num_part, spin_up_cutoff, dimension, num_of_var_par, myrank);
 	
-	//TESTING (abs) must find smarter method here TODO TODO TODO TODO
-	//
-	// Maybe return some negative (+sign) gradient or 0? if variational_parameters()<0 
-	//
-	//start sampling in all processes
-
 	var_par[0]=fabs(variational_parameters(0));
 	var_par[1]=fabs(variational_parameters(1));
 	var_par[2]=omega;
 	sampler_.sample(num_cycles,thermalization,var_par,delta_t,var_res_temp);
 
 	//collecting energy from all processes, broadcasting mean 
-	MPI_Reduce( &var_res_temp[0], &energy, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	MPI_Reduce( &var_res_temp[1], &energy, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	energy /= (double)nprocs;
 	MPI_Bcast (&energy, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
@@ -107,8 +101,12 @@ double cgm::E_function(Vector &variational_parameters)
 		MPI_Bcast (&dE_array[i], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	}
 	
-	if (variational_parameters(0)<0||variational_parameters(1)<0)
-		return 1e7;
+	//testing different objective functions
+	//energy = dE_array[0]*dE_array[0] + dE_array[1]*dE_array[1];
+	//energy = fabs(dE_array[0]) + fabs(dE_array[1]);
+	
+	//if (variational_parameters(0)<0||variational_parameters(1)<0)
+	//	return 1e7;
 
 	delete [] var_par;
 	delete [] var_res_temp;

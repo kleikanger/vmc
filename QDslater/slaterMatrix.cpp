@@ -404,23 +404,82 @@ double slaterMatrix::lapl(double** dR) const{
 	return temp;
 }//End function 
 //endvimfold
-double slaterMatrix::getdPdAoveA(double** dR) const
+double slaterMatrix::getdPdAoveP(double** dR) const
 {	//startvimfold
 	int i, i_upd;
 	double sum=0;
 
 	for (i_upd=0;i_upd<iCutoff;i_upd++) for (i=0;i<iCutoff;i++)
 	{
-		sum+=orbital_[i].valuedPdA(dR[i_upd])*inv_up_matr[i_upd][i]*spin_up_matr[i_upd][i];
+		sum+=orbital_[i].valuedPdA(dR[i_upd])*inv_up_matr[i_upd][i];//*spin_up_matr[i_upd][i];
 	}
 	for (i_upd=iCutoff;i_upd<iNumPart;i_upd++) for (i=iCutoff;i<iNumPart;i++)
 	{
 		//TODO FIX INDEX'es 
 		sum+=orbital_[i].valuedPdA(dR[i_upd])*inv_down_matr[i_upd-iCutoff][i-iCutoff];
-			spin_down_matr[i_upd-iCutoff][i-iCutoff];
+			//*spin_down_matr[i_upd-iCutoff][i-iCutoff];
 	}
 	return sum;
 } //endvimfold
+
+//
+// Experimental. Changing i'th row of determinant to the derived w.r.t. alpha .
+// Updates the inverse. Remember to reset (reject) all the matrixes after use!
+// Same routine as update exept that d_upd is a vector of alpha derivatives.
+//
+void slaterMatrix::updateInvA(double* d_R, const int &i_upd){
+//startvimfold	
+	int k,j;
+	double d_upd[iCutoff];
+	double R, temp;
+    
+	if (i_upd<iCutoff)
+	{
+	//SPINUP 
+		//find D^alpha/D^old
+		for (k=0;k<iCutoff;k++)
+		{
+				d_upd[k]=orbital_[k].valuedPdA(d_R);
+		}
+		//Updating ingerse Blas routine : d_up*inv_up_matr[j][:], 
+		//remember inverse M are transposed
+		R = cblas_ddot(iCutoff,d_upd,1,inv_up_matr[i_upd],1);
+
+		for (j=0;j<iCutoff;j++)
+		{
+			if (i_upd!=j)
+			{
+				temp = cblas_ddot(iCutoff,d_upd,1,inv_up_matr[j],1);
+				cblas_daxpy( iCutoff,-temp/R,inv_up_matr[i_upd],1,inv_up_matr[j], 1);
+			}
+		}
+		//inv_up_matr[i_upd][:]<-inv_up_matr[i_upd][:]/R
+		cblas_dscal(iCutoff,1/R,inv_up_matr[i_upd],1);
+		//Copy d_upd to spin_down_matr, updating spin_up_matr.
+		cblas_dcopy(iCutoff, d_upd, 1, spin_up_matr[i_upd], 1);
+	} 
+	else 
+	{
+	//repeat all for SPINDOWN if i_upd>iCutoff.
+		for (k=0;k<iCutoff;k++)
+		{
+				d_upd[k]=orbital_[k+iCutoff].valuedPdA(d_R);
+		}
+		R = cblas_ddot(iCutoff,d_upd,1,inv_down_matr[i_upd-iCutoff],1);
+
+		for (j=0;j<iCutoff;j++)
+		{
+			if ((i_upd-iCutoff)!=j)
+			{
+				temp = cblas_ddot(iCutoff,d_upd,1,inv_down_matr[j],1);
+				cblas_daxpy(iCutoff,-temp/R,inv_down_matr[i_upd-iCutoff],1,inv_down_matr[j],1);
+			}
+		}
+		cblas_dscal(iCutoff,1/R,inv_down_matr[i_upd-iCutoff],1);
+		cblas_dcopy(iCutoff, d_upd, 1, spin_down_matr[i_upd-iCutoff], 1);
+	}	
+}
+//endvimfold
 void slaterMatrix::print(){
 //startvimfold	
 	cout<<"\ninvUp\n";

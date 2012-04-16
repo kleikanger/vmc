@@ -429,16 +429,86 @@ The quantum force
 
 \section{Implementation}%{{{1
 
-\subsection{Optimalization of $\mathcal J^\beta(\ts R)$}
+The simulator can be efficiently optimized by implementing some mathematical shortcuts. The optimalizations can only be done if we only change the position of one electron at the time.
+The metropolis-hastings test is performed each cycle, while the energy and other observables are updated when we have cycled through all electrons. It would also be possible to
+evaluate the energy every time a electron has been moved, but this would not be favorable for a system with many electrons since the correlation between the samples would be very high, 
+and the evaluation of the energy consumes too many flops. 
+
 \subsection{Optimalization of $\mathcal D^\alpha(\ts R)$}
 
+The inverse $D^{-1}$ of a matric $D$ can be written as the cofactor matrix $C/|D|$. $C$ has the elements $C_{ij}=|S_{ij}|$ where $S_{ij}$ is a sub matrix of $D$ with the $i$'th row and the 
+$j$'th coloumn removed. The determinant $|D|$ can be expressed as 
+\begin{align}
+	&1=\sum_j D_{ij}D^{-1}_{ji}=\sum_jD_{ij}\frac{C_{ji}}{|D|}\notag\\
+	&\Rightarrow \sum_jD_{ij}C_{ji}=|D|
+\end{align}
+From the definition of $C_{ij}$, we see that the $i$'th coloumn of $D^{-1}=C/|D|$ is unchanged if we change the $i$'th row of $D$.
+Therefore,
+\begin{align}
+	&\text{if } D'_{ij}=D_{ij} \forall i\neq k\notag\\
+	&\sum_k D'_{kj} D'^{-1}_{jk} = \sum_k D'_{kj} D^{-1}_{jk} = \sum_k D'_{kj} \frac{C^{-1}_{jk}}{|D|}\notag\\ 
+	&\Rightarrow \sum_k D'_{kj} D'^{-1}_{jk} = \frac{|D'|}{|D|}\label{eqDet}
+\end{align}
+This operation scales much better than alternative ways of evaluation the determinant. For example ... 
+The problem is that we need to obtain an expression for the inverse matrix $D^{-1}$. By using ... (ref) formula for updating the inverse
+matrix, we only need to evaluate the inverse matrix once. Updating the matrix scales as ...
+
+Eq. (\ref{eqDet}) can be used to calculate the ratios
+\begin{align}
+	&\frac{\mathcal D^\alpha(\ts R')}{D^\alpha(\ts R)}=\sum_{ij} (\mathcal D_{ij})\mathcal D^{-1}_{ji}\\
+	&\frac{\nabla^2\mathcal D^\alpha(\ts R)}{D^\alpha(\ts R)}=\sum_{ij} (\partial^2_{r_i}\mathcal D_{ij})\mathcal D^{-1}_{ji}\\
+	&\frac{\nabla_i\mathcal D^\alpha(\ts R)}{D^\alpha(\ts R)}=\sum_{j} (\partial_{r_i}\mathcal D_{ij})\mathcal D^{-1}_{ji}
+\end{align}
+since all expressions can be written as a sum of slater determinants where only one row is changed. 
+$\ts R'$ is equal to $\ts R$ except for the coordinates of one electron.
+The expressions for $\partial_{r_i}\mathcal D_{ij}$ and
+$\partial^2_{r_i}\mathcal D_{ij}$ is calculated by evaluating the analytical expressions 
+\begin{align}
+	\partial^2_{r_i}\mathcal D_{ij} = \partial^2_{r_i}\psi_i(\ts r_j)=\notag\\
+ 	\partial_{r_i}\mathcal D_{ij} = \partial_{r_i}\psi_i(\ts r_j)=\notag\\
+\end{align}
+The expressions is derived using the same strategy as we have used when $(\partial_\alpha)\psi_i(\ts r_j)$ is derived in appendix A.
+
+When only one particle is updated, only one of the determinants $\mathcal D_\downarrow$, $\mathcal D_\uparrow$ needs to be evaluated since ...
+
+
+\subsection{Optimalization of $\mathcal J^\beta(\ts R)$ and $r_{ij}$}
+There are only $n(n-1)/2$ distinct values of $r_{ij}$. Therefore, all values can be stored in a lower tridiaginal matric with zeros on the diagonal.
+\begin{align}
+	P = 
+\left(
+\begin{matrix}
+	0 		& 0	 	&0 		&\dots	&\\
+	r_{21}  & 0 	&0 		& &\\
+	r_{31} 	& r_{32}&0 		& &\\
+	r_{41} 	& r_{42}&r_{43} & &\\
+	\vdots 	& 		& 		& &\\
+\end{matrix}
+\right)
+\end{align}
+If we move one electron, only $(n-1)$ elements has to be updated. 
+
+The electron-electron potential can be directly calculated by summing the $(n-1)$ inverse elements of $P$. The Jastrow ratio can be calculated
+\begin{align}
+	\frac{\mathcal J^\beta(\ts R')}{\mathcal J^\beta(\ts R)}
+	= \prod_{i=k\text{ or }j=k} \frac{ \mathcal J_{ij}^\beta(\ts R') }{ \mathcal J_{ij}^\beta(\ts R)}
+\end{align} 
+when only the electron with coordinates $\ts r_k$ has been moved. This expression can be efficiently evaluated as the exponential of the sum of $2(n-1)$ elements
+\begin{align}
+	&\frac{\mathcal J^\beta(\ts R')}{\mathcal J^\beta(\ts R)}=
+	\exp\left(\sum_{i=k\text{ or }j=k}  j(r_{ij})  - j(r'_{ij}) \right)\notag\\
+	&j(r_{ij})=\frac {a_{ij}r_{ij}}{1+\beta r_{ij}}.
+\end{align}
+The laplacian and the gradient $..$ can be evaluated ...
+the gradient: subltract old value, add new.
+ 
 \subsection{Minimization of the wave functions, optimalization of $(\partial_\alpha,\partial_\beta)\expec{E_L}$}
 The minimization algorithm we use is the Broyden-Fletcher-Goldfarb-Shannon (BFGS) method. The algorithm itself is copied from (ref numerical recipes), and is a 
 so called Quasi-Newton method which iteratively updates the inverse hessian matric $A^{-1}$, which has the property.
 \begin{align}
-	(\alpha_{min},\beta_{min})= A^{-1}\cdot \nabla \Psi(\ts R,\alpha,\beta)\big|_{(\alpha_{0},\beta_{0})}
+	(\alpha_{min},\beta_{min})= (\alpha_{0},\beta_{0}) - A^{-1}\cdot \nabla \Psi(\ts R,\alpha,\beta)\big|_{(\alpha_{0},\beta_{0})}
 \end{align}
-The function recieves a pointer to a sampling method which returns the energy and the gradient of the wavefunction in the point $(\alpha,\beta)$, and updates the
+The function recieves pointers to a sampling method which returns the energy $\expec {\hat E_L}$ and the gradient of the energy in the point $(\alpha,\beta)$, and updates the
 inverse hessian every time new values are returned. The function also recieves a variable \verb gtol  which sets the limit of convergence for the algorithm. If \verb gtol  $=0$ 
 the function will continiue iterating till it has localized the point where the gradient is zero.
 
@@ -460,18 +530,21 @@ COMPARISONS:
 Example: %(d/da = (f(a+h)-f(a+h))/2h),h=0.001. For example, for $\omega = 0.28,\, \Delta t=0.05$ with $6$ electrons, I got the results $\alpha=0.87269,\beta=0.32655$ giving an
 %energy $E=7.6214(1)$ and a variance ... . $(?).6218(1)$ .
 
-To find the gradients I used the expression
-
-!!! the gradient !!!
-
+The gradient of the expectationvalue of the energy can be written
 \begin{align}
-	\Big(\left({\partial_\alpha},{\partial_\beta}\right) &\Psi(\ts R,\alpha,\beta)\Big) \Big\slash \Psi(\ts R,\alpha,\beta)\notag\\
-	&= 	\frac{\partial_\alpha \mathcal D(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}
-	+ 	\frac{{\partial_\beta} \mathcal J(\ts R,\beta)}{\mathcal J(\ts R,\beta)}
+	&\left({\partial_\alpha},{\partial_\beta}\right) \expec{E_L} = \notag\\
+		&2\Big\langle\frac{\left({\partial_\alpha},{\partial_\beta}\right)\Psi}{\Psi} E_L\Big\rangle
+		-2\Big\langle\frac{\left({\partial_\alpha},{\partial_\beta}\right)\Psi}{\Psi}\Big\rangle\expec{E_L}  
+\end{align}
+To find the gradients I used the expression
+\begin{align}
+	&\frac{\left({\partial_\alpha},{\partial_\beta}\right) \Psi(\ts R,\alpha,\beta)}{\Psi(\ts R,\alpha,\beta)}\notag\\
+	&= 	\left(\frac{\partial_\alpha \mathcal D(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}
+	, 	\frac{{\partial_\beta} \mathcal J(\ts R,\beta)}{\mathcal J(\ts R,\beta)}\right)
 \end{align}
 From the definition of the Jastrow eq. (..) we can derive
 \begin{align}
-	\frac{\partial_\beta \mathcal J(\ts R,\beta)}{\partial_\beta \mathcal J}=\sum_{k<l}-a
+	\frac{\partial_\beta \mathcal J(\ts R,\beta)}{ \mathcal J(\ts R,\beta)}=\sum_{k<l}-a
 \left( 
 	\frac {r_{kl}} {1+\beta r_{kl}}.
 \right)^2
@@ -491,22 +564,23 @@ The gradient of alpha is calculated using the expression:
 	\bigg)
 \end{align}
 Here $r_j\to(x_j,y_j)$ and $i\to n_{xi},n_{yi}$.  
-The values 	$\partial_\alpha \psi_i(\ts r_j,\alpha)$ are already stored in the determinant, and does not have to be calculated. 
+The values 	$\partial_\alpha \psi_i(\ts r_j,\alpha)$ are already stored in the matrix $\mathcal D$, and does not have to be calculated. 
 All of the analytical expressions above is derivated in appendix A.
 %}}}1
 
 \section{Results}
 
 The results are summarized in tables \ref{tab1} and \ref{tab2}. I have used the values $\omega=0.28,0.5,1.0$ and $\Delta t = 0.01,0.25,0.05$ to be able to compare my 
-results with ref(...). I have also calculated the values using the same number of cycles. The results are well consistent with the results of (refLE), 
-but the minima obtained seems to give lower energies in most cases cases. 
-This can probably be explained by the fact that I have used a analytical expression to calculate $(\partial_\alpha,\partial_\beta) \expec{E_L}$ while
-() has evaluated the gradient numerically. (List his results in table...)   
+results with ref(...). I have also calculated the values using the same number of cycles. The results are well consistent with the results of (refLE),..
+
+%but the minima obtained seems to give lower energies in most cases cases. 
+%This can probably be explained by the fact that I have used a analytical expression to calculate $(\partial_\alpha,\partial_\beta) \expec{E_L}$ while
+%() has evaluated the gradient numerically. (List his results in table...)   
 
 The timestep error: We have calculated all energy with three different values for $\Delta t$. 
 The timestep error seems to be of the same order as the statistical error for our values of $\Delta t$. 
 There is also a general trend in the variance and the statistical error as a function of $\Delta t$. The variance and the statistical error increases as $\Delta t$ gets smaller.
-The correlation length are generally increasing when $\Delta t$ gets smaller, probably explaining the increase in the variance and statistical error since the density will use a longer
+The correlation length((plots?)) are generally increasing when $\Delta t$ gets smaller, probably explaining the increase in the variance and statistical error since the system will use a longer
 time to equilibriate after random fluctiations away from equilibrium (eg. if a sequence of mc-steps with a very low metropolis probability are accepted).
 %
 %The variance is systematically larger for low values of omega. This might indicate that our trial function is further away from the 'true' groundstate solution of the hamiltonian.
@@ -542,7 +616,7 @@ $N_{p}$ & $\omega$ & $N_{s}$ & $\alpha_{min}$ & $\beta_{min}$ \\
 \end{center}
 \caption{{\it 
 	Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization.
-	$\alpha_{min}$ and $\beta_{min}$ is the values of the variational parameters in the minima. 
+	$\alpha_{min}$ and $\beta_{min}$ is the values of the variational parameters at the minima. 
 	%The variable \verb gtol  which sets the convergence criteria
 	We have used a $\Delta t=0.05$ during the minimization. 
 }}
@@ -557,43 +631,43 @@ $N_{p}$ & $\omega$ & $N_{s}$ & $\alpha_{min}$ & $\beta_{min}$ \\
 $N_{p}$ & $\omega$ & $\Delta t$ & $N_{s}$ & $\expec{E_L}$ & $\sigma^2$ \\ 
 \hline
 \hline
- $2$ & $0.28$ & $0.01$  & $10^8$ & $1.02213()$ & $0.00076627$ \\ 
- $2$ & $0.28$ & $0.025$ & $10^8$ & $1.02219()$ & $0.00075989$ \\ 
- $2$ & $0.28$ & $0.05$  & $10^8$ & $1.02218()$ & $0.00076032$ \\ 
+ $2$ & $0.28$ & $0.01$  & $10^8$ & $1.02213(3)$ & $0.00076627$ \\ 
+ $2$ & $0.28$ & $0.025$ & $10^8$ & $1.02219(2)$ & $0.00075989$ \\ 
+ $2$ & $0.28$ & $0.05$  & $10^8$ & $1.02218(1)$ & $0.00076032$ \\ 
 \hline
- $2$ & $0.5$ & $0.01$  & $10^8$ & $1.66022()$ & $0.00116982$ \\ 
- $2$ & $0.5$ & $0.025$ & $10^8$ & $1.66024()$ & $0.00116586$ \\ 
- $2$ & $0.5$ & $0.05$  & $10^8$ & $1.66025()$ & $0.00116698$ \\ 
+ $2$ & $0.5$ & $0.01$  & $10^8$ & $1.66022(3)$ & $0.00116982$ \\ 
+ $2$ & $0.5$ & $0.025$ & $10^8$ & $1.66024(2)$ & $0.00116586$ \\ 
+ $2$ & $0.5$ & $0.05$  & $10^8$ & $1.66025(1)$ & $0.00116698$ \\ 
 \hline
- $2$ & $1.0$ & $0.01$  & $10^8$ & $3.00030()$ & $0.00183428$ \\ 
- $2$ & $1.0$ & $0.025$ & $10^8$ & $3.00036()$ & $0.00182671$ \\ 
- $2$ & $1.0$ & $0.05$  & $10^8$ & $3.00038()$ & $0.00182404$ \\ 
+ $2$ & $1.0$ & $0.01$  & $10^8$ & $3.00030(3)$ & $0.00183428$ \\ 
+ $2$ & $1.0$ & $0.025$ & $10^8$ & $3.00036(2)$ & $0.00182671$ \\ 
+ $2$ & $1.0$ & $0.05$  & $10^8$ & $3.00038(1)$ & $0.00182404$ \\ 
 \hline
 \hline
  $6$ & $0.28$ & $0.01$  & $10^8$ & $7.6213(1)$ & $0.017831$ \\ 
  $6$ & $0.28$ & $0.025$ & $10^8$ & $7.6214(1)$ & $0.017634$ \\ 
  $6$ & $0.28$ & $0.05$  & $10^8$ & $7.6214(1)$ & $0.017383$ \\ 
 \hline
- $6$ & $0.5$ & $0.01$   & $10^8$ & $11.8100(2.4)$ & $0.043103$ \\ 
- $6$ & $0.5$ & $0.025$  & $10^8$ & $11.8108(1.45)$ & $0.042331$ \\ 
+ $6$ & $0.5$ & $0.01$   & $10^8$ & $11.8100(2)$ & $0.043103$ \\ 
+ $6$ & $0.5$ & $0.025$  & $10^8$ & $11.8108(1)$ & $0.042331$ \\ 
  $6$ & $0.5$ & $0.05$   & $10^8$ & $11.8101(1)$ & $0.041268$ \\ 
 \hline
- $6$ & $1.0$ & $0.01$  & $10^8$ & $20.1898()$ & $0.123116$ \\ 
- $6$ & $1.0$ & $0.025$ & $10^8$ & $20.1904()$ & $0.119393..$ \\ 
- $6$ & $1.0$ & $0.05$  & $10^8$ & $20.1905()$ & $0.115563$ \\ 
+ $6$ & $1.0$ & $0.01$  & $10^8$ & $20.1898(3)$ & $0.123116$ \\ 
+ $6$ & $1.0$ & $0.025$ & $10^8$ & $20.1904(2)$ & $0.119393..$ \\ 
+ $6$ & $1.0$ & $0.05$  & $10^8$ & $20.1905(1)$ & $0.115563$ \\ 
 \hline
 \hline
- $12$ & $0.28$ & $0.01$  & $10^8$ & $25.6994()$ & $0.0621312$ \\ 
- $12$ & $0.28$ & $0.025$ & $10^8$ & $25.6993()$ & $0.0611159$ \\ 
- $12$ & $0.28$ & $0.05$  & $10^8$ & $25.6993()$ & $0.0599358$ \\ 
+ $12$ & $0.28$ & $0.01$  & $10^8$ & $25.6994(4)$ & $0.0621312$ \\ 
+ $12$ & $0.28$ & $0.025$ & $10^8$ & $25.6993(3)$ & $0.0611159$ \\ 
+ $12$ & $0.28$ & $0.05$  & $10^8$ & $25.6993(2)$ & $0.0599358$ \\ 
 \hline
- $12$ & $0.5$ & $0.01$  & $10^8$ & $39.2356()$ & $0.153526$ \\ 
- $12$ & $0.5$ & $0.025$ & $10^8$ & $39.2345()$ & $0.149480$ \\ 
- $12$ & $0.5$ & $0.05$  & $10^8$ & $39.2344()$ & $0.145622$ \\ 
+ $12$ & $0.5$ & $0.01$  & $10^8$ & $39.2356(4)$ & $0.153526$ \\ 
+ $12$ & $0.5$ & $0.025$ & $10^8$ & $39.2345(3)$ & $0.149480$ \\ 
+ $12$ & $0.5$ & $0.05$  & $10^8$ & $39.2344(2)$ & $0.145622$ \\ 
 \hline
- $12$ & $1.0$ & $0.01$  & $10^8$ & $65.7908()$ & $0.441007$ \\ 
- $12$ & $1.0$ & $0.025$ & $10^8$ & $65.7904()$ & $0.424902$ \\ 
- $12$ & $1.0$ & $0.05$  & $10^8$ & $65.7903()$ & $0.409616$ \\ 
+ $12$ & $1.0$ & $0.01$  & $10^8$ & $65.7908(5)$ & $0.441007$ \\ 
+ $12$ & $1.0$ & $0.025$ & $10^8$ & $65.7904(3)$ & $0.424902$ \\ 
+ $12$ & $1.0$ & $0.05$  & $10^8$ & $65.7903(2)$ & $0.409616$ \\ 
 \hline
 \end{tabular}
 \end{center}
@@ -613,7 +687,7 @@ $N_{p}$ & $\omega$ & $\Delta t$ & $N_{s}$ & $\expec{E_L}$ & $\sigma^2$ \\
 The derivative of the jastrow factor can be written
 \begin{align}
 	&\partial_\beta \mathcal J(\ts R,\beta) =\partial_\beta \prod_{i<j} \mathcal J_{ij}(\ts R,\beta)\notag\\ 
-	&= \sum_{k<l}\left(\partial_\beta \mathcal J_{kl}(\ts R,\beta) \right)
+	&= \sum_{k<l}\partial_\beta \mathcal J_{kl}(\ts R,\beta) 
 		\prod_{
 		%\begin{matrix}
 			i<j,
@@ -627,13 +701,13 @@ We are interested in the ratio
 	\frac{\partial_\beta\mathcal J(\ts R,\beta)}{\mathcal J(\ts R,\beta)}
 	=\frac{\partial_\beta \prod_{i<j} \mathcal J_{ij}(\ts R,\beta) }
 	{\prod_{i<j} \mathcal J_{ij}(\ts R,\beta)}
-	= \sum_{k<l}\partial_\beta \mathcal J_{kl}(\ts R,\beta).
+	= \sum_{k<l}\frac{\partial_\beta \mathcal J_{kl}(\ts R,\beta)}{\mathcal J_{kl}(\ts R,\beta)}.
 \end{align}
 Evaluation of the terms $\delta_\beta \mathcal J_{kl}(\ts R,\beta)$ is straight forvard, and the full expressions becomes
 \begin{align}
 	\frac{\partial_\beta\mathcal J(\ts R,\beta)}{\mathcal J(\ts R,\beta)}
 	=	
-	\frac{\partial_\beta \mathcal J(\ts R,\beta)}{\partial_\beta \mathcal J}=\sum_{k<l}-a
+	\sum_{k<l}-a_{kl}
 	\left( 
 		\frac {r_{kl}} {1+\beta r_{kl}}
 	\right)^2.
@@ -669,7 +743,7 @@ giving the expression
 &\frac{\partial_\alpha \mathcal D(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}=\sum_i\sum_j(\partial_\alpha \psi_i(\ts r_j,\alpha)) \mathcal D^{-1}_{ji}.
 \end{align}
 The terms $\partial_\alpha \psi_i(\ts r_j,\alpha)$ are derived below. 
-We write $\psi_i(\ts r_j,\alpha)\to\psi_{n_{xi},n_{yi}}(\ts r_j,\alpha)$. where $n_{xi}$ and $n_{yi}$ is quantum numbers equal or larger than one. 
+We write $\psi_i(\ts r_j,\alpha)\to\psi_{n_{xi},n_{yi}}(\ts r_j,\alpha)$. where $n_{xi}$ and $n_{yi}$ is quantum numbers equal to or larger than zero. 
 %$n_{xi}+n_{yi}\le n_{xj}+n_{yj}$ when $i<j$. 
 \begin{align}
 	&\psi_{n_{xi},n_{yi}}((x_i,y_i),\alpha)\notag\\
@@ -680,8 +754,8 @@ Differentiation gives
 \begin{align}
 	&\partial_\alpha\psi_{n_{xi},n_{yi}}((x_i,y_i),\alpha)=\notag\\
 	&\bigg(\partial_\alpha H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg)H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\psi_{00}((x_i,y_i),\alpha)\notag\\
-	&H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg(\partial_\alpha H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg)\psi_{00}((x_i,y_i),\alpha)\notag\\
-	&H_{n_{xi}}(\sqrt{\omega\alpha}x_j)H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg(\partial_\alpha \psi_{00}((x_i,y_i),\alpha)\bigg)
+	&+H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg(\partial_\alpha H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg)\psi_{00}((x_i,y_i),\alpha)\notag\\
+	&+H_{n_{xi}}(\sqrt{\omega\alpha}x_j)H_{n_{xi}}(\sqrt{\omega\alpha}x_j)\bigg(\partial_\alpha \psi_{00}((x_i,y_i),\alpha)\bigg)
 	\label{A1}
 \end{align}
 We make use of the identity $\delta_x H_n(x)=2nH_{n-1}(x)$,

@@ -271,26 +271,26 @@ double orbital::valuedPdA(double* dR)
 	double r_sqrd=cblas_ddot(dim,dR,1,dR,1);
 	switch (energy_level) 
 	{
-		case 1: return -0.5*omega*r_sqrd;//*valueWF(dR);
+		case 1: return -0.5*omega*r_sqrd*valueWF(dR);
 		case 2:	//n_x=1 n_y=0
 				return 
-				( dR[0]*sqrt_omg_ove_alp/h1(dR[0],sq_omg_alp)-0.5*omega*r_sqrd );//*valueWF(dR);
+				( dR[0]*sqrt_omg_ove_alp/h1(dR[0],sq_omg_alp)-0.5*omega*r_sqrd )*valueWF(dR);
 		case 3: //n_x=0 n_y=1
 				return
-				( dR[1]*sqrt_omg_ove_alp/h1(dR[1],sq_omg_alp)-0.5*omega*r_sqrd );//*valueWF(dR);
+				( dR[1]*sqrt_omg_ove_alp/h1(dR[1],sq_omg_alp)-0.5*omega*r_sqrd )*valueWF(dR);
 		case 4: //x0 y2
 				return 
 				(2.*dR[1]*sqrt_omg_ove_alp*h1(dR[1],sq_omg_alp)/h2(dR[1],omg_alp)
-				-0.5*omega*r_sqrd);//*valueWF(dR);
+				-0.5*omega*r_sqrd)*valueWF(dR);
 		case 5: //x1 y1
 				return 
 				( dR[0]*sqrt_omg_ove_alp/h1(dR[0],sq_omg_alp)
 				 + dR[1]*sqrt_omg_ove_alp/h1(dR[1],sq_omg_alp)
-				  -0.5*omega*r_sqrd );//*valueWF(dR);
+				  -0.5*omega*r_sqrd )*valueWF(dR);
 		case 6: //x2 y0
 				return
 				(2.*dR[0]*sqrt_omg_ove_alp*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)
-				-0.5*omega*r_sqrd);//*valueWF(dR);
+				-0.5*omega*r_sqrd)*valueWF(dR);
 		default: 
 				cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
 					<<", energy_level= " <<energy_level<<"\n";

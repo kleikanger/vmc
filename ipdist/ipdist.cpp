@@ -165,6 +165,8 @@ void ipdist::jasGrad(double** ret_vec, double** r, double** r_old, const int & i
 */
 		for (j=0;j<dim;j++)
 		{
+			//NB: instead of recalculating all vals, we subtract the 
+			//old value and add the corresponding new value. MUCH faster!
 			ret_vec[i][j]-=temp_old*(r_old[i][j]-r_old[i_upd][j]);
 			ret_vec[i][j]+=temp*(r[i][j]-r[i_upd][j]);
 		}
@@ -302,7 +304,7 @@ double ipdist::logJasR(const int &i_upd) const
 	return sum;
 }/*//endvimfold*/
 #define A 0.3333333333333333
-double ipdist::getdPdA() 
+double ipdist::getdPdA() const
 {/*//startvimfold*/
 	int i,j,l;
 	double sum=0.0, fac;
@@ -329,6 +331,139 @@ double ipdist::getdPdA()
 	}
 	return sum; //2xsum?
 }/*//endvimfold*/
+#undef A
+//Experimental
+#define A .3333333333333333
+void ipdist::getdbJasGrad(double **ret_vec, double **r) const 
+{//startvimfold
+	int j,i;
+	//temporary variable
+	double r_kj=0;
+	double temp;
+	int i_upd_mo, i_upd;
+	double r_kj_old, temp_old;
+	
+	//set all elements to 0 in ret vec
+	for (i_upd=0; i_upd<=n_min_one; i_upd++) for (j=0;j<dim;j++)
+	{
+		ret_vec[i_upd][j]=0.0;
+	}
+
+	for (i_upd = 0; i_upd<=n_min_one; i_upd++)
+	{
+		//i_upd minus one
+		i_upd_mo=i_upd-1;
+		bool spin_up_particle = (i_upd<iCutoff);
+
+		for (i=0;i<i_upd;i++)
+		{
+			r_kj=ip_len[i_upd_mo][i];
+			//particles with parallel spins
+			if ((i<iCutoff)==(spin_up_particle)) 
+			{
+				temp = - A*r_kj*( A+2.* (1.+beta*r_kj) ) / pow(1.+beta*r_kj,4);
+			}
+			//particles with antiparallel spins
+			else	
+			{
+				//A=1.0
+				temp = - r_kj*( 1.+2.* (1.+beta*r_kj) ) / pow(1.+beta*r_kj,4);
+			}
+
+			for (j=0;j<dim;j++)
+				ret_vec[i_upd][j]+=temp*(r[i_upd][j]-r[i][j]);
+			
+		}
+		for (i=i_upd;i<n_min_one;i++)
+		{
+			r_kj=ip_len[i][i_upd];
+			//particles with parallel spins
+			if (((i+1)<iCutoff)==(spin_up_particle)) 
+			{
+				temp = - A*r_kj *( A+2.* (1.+beta*r_kj) ) / pow(1.+beta*r_kj,4);
+			}
+			//particles with antiparallel spins
+			else	
+			{
+				//A=1.0
+				temp = -  r_kj*( 1.+2.* (1.+beta*r_kj) ) / pow(1.+beta*r_kj,4);
+			}
+			for (j=0;j<dim;j++)
+				ret_vec[i_upd][j]+=temp*(r[i_upd][j]-r[i+1][j]);
+		}
+	}
+	//EVT set up temp matrix and use level 3 blas func.
+}//endvimfold
+#undef A
+#define A .3333333333333333
+double ipdist::getdbJasLapl(double** r) const 
+{//startvimfold
+	//summation indexes
+	int j,k;
+	//temporary variable
+	double r_kj,b_kj_inv;
+   	//summation variable
+	double sum = 0.0;
+	//jastrow parameter
+
+	for (k=0;k<=n_min_one;k++)
+	{
+		for (j=0;j<k;j++)
+		{   
+			//pick the correct matrix element	
+			r_kj=ip_len[k-1][j];
+			b_kj_inv=1./(1.+beta*r_kj);
+			//Particles with parallel spins:
+			if ((k<iCutoff)==(j<iCutoff)) 
+			{
+				//sum += 6.0* A * ( beta*r_kj ) / ( pow((1.0+r_kj*beta),4) );
+				sum+=//-4.*A*r_kj*r_kj*pow(b_kj_inv,3)
+					+8.*A*A*r_kj*r_kj*r_kj*pow(b_kj_inv,5)
+					-6.*A*(1.+r_kj*(3*beta-1.)-r_kj*r_kj*beta)*pow(b_kj_inv,4)
+					+A*A*r_kj*r_kj*(1.+3*beta*r_kj)*pow(b_kj_inv,5)
+					+A*A*A*r_kj*r_kj*pow(b_kj_inv,6)
+					;
+			}
+			//particles with antiparallel spins
+			else	
+			{
+				//a=1.0
+				//sum += 6.0 * ( beta*r_kj ) / ( pow((1.0+r_kj*beta),4) );//XXX XXX 12 !!!
+				sum+=//-4.*r_kj*r_kj*pow(b_kj_inv,3)
+					+8.*r_kj*r_kj*r_kj*pow(b_kj_inv,5)
+					-6.*(1.+r_kj*(3*beta-1.)-r_kj*r_kj*beta)*pow(b_kj_inv,4)
+					+r_kj*r_kj*(1.+3*beta*r_kj)*pow(b_kj_inv,5)
+					+r_kj*r_kj*pow(b_kj_inv,6)
+					;
+			}
+		}
+#if 0
+		for (j=k+1;j<=n_min_one;j++)
+		{
+			//pick the correct element from the ip_len matrix
+			r_kj=ip_len[j-1][k];
+			//Particles with parallel spins:
+			if ((k<iCutoff)==(j<iCutoff)) 
+			{
+				sum +=  a*( 1.0-beta*r_kj ) / ( r_kj * pow((1.0+r_kj*beta),3) );
+			}
+			//particles with antiparallel spins
+			else	
+			{
+				//a=1.0
+				sum +=  ( 1.0-beta*r_kj ) / ( r_kj * pow((1.0+r_kj*beta),3) );
+			}
+		}
+#endif
+	}
+  //	return sum;
+#if 1
+	//will give same results if we do not sum the particle twice
+	return 2.*sum;
+#endif
+	
+}//End function slaterMatrix::jastrow()
+//endvimfold
 #undef A
 
 void ipdist::print()

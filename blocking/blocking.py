@@ -18,16 +18,11 @@ from pylab import *
 plot_res=False
 
 def blca(datafile,numprocs): 
-	os.system("g++ -O3 blocking.cpp -o blocking.out")
-	print('%s%s'%(numprocs,datafile))
+	#run c++ blocking routine, saves txt data file with blocking data
+	os.system("make --silent")
 	os.system("./blocking.out 100 3000 2 %i %s"%(numprocs,datafile))
-
-	#datafile=datafile[0:len(datafile)-4]
-	print('')
-	print("writing to datafile %s"%datafile+'.txt')
-
+	#read txt file and save plot
 	data = np.genfromtxt(fname=datafile+'.txt')
-
 	fig=plt.figure()
 	plt.plot(data[:,0],data[:,2],'k+')
 	plt.xlabel(r'$\tau_{trial}$', size=20)
@@ -35,15 +30,16 @@ def blca(datafile,numprocs):
 	plt.xlim(np.min(data[:,0]),np.max(data[:,0]))
 	plt.ylim(np.min(data[:,2]),np.max(data[:,2]))
 	fig.savefig(datafile+'.eps',format='eps')
+	#open plot if -p in argv
 	if plot_res:
 		os.system('evince %s%s '%(datafile+'.eps','&'))
 	print("plot saved : %s"%(datafile+'.eps'))
 
-#if sys.argv[1][-1]=='+':
+#process all files starting with the imput string
 def blc_plus(ifname):
 	print('processing all datafiles %s*'%ifname[1][:-1])
 	s=os.listdir('.')
-	#find names starting with <sys.argv[1][:-1]>
+	#find names starting with imp[:-1]>
 	for nam in s:
 		if (len(nam)>len(ifname)+3):
 			if (nam[:len(ifname)-1]==ifname[:-1]) & (nam[-5]=='0') & (nam[-4:]=='.dat'):
@@ -53,7 +49,7 @@ def blc_plus(ifname):
 					if ((nam[:-5]+nam[-4:])==(nal[:-5]+nal[-4:])):
 						if (int(nal[-5])>nprc):
 							nprc=int(nal[-5])
-				#run
+				#run blocking and save plot
 				blca(nam[:-5],nprc+1)
 
 #loop through all imput arguments
@@ -62,7 +58,6 @@ for imp in sys.argv[1::]:
 		plot_res=True
 for imp in sys.argv[1::]:
 	if imp[-1]=='+':
-		print(imp)
 		blc_plus(imp)
 
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  3 APR 2012 15:42
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  6 APR 2012 21:29
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -427,47 +427,58 @@ Underfull \hbox (badness 1275) in paragraph at lines 264--264
 []\OT1/cmr/bx/n/14.4 Statistical anal-y-sis of the
  []
 
-[3]
-Underfull \hbox (badness 10000) in paragraph at lines 435--435
+[3] [4] [5]
+Underfull \hbox (badness 10000) in paragraph at lines 505--505
 []\OT1/cmr/bx/n/12 Minimization of the wave
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 435--435
+Underfull \hbox (badness 10000) in paragraph at lines 505--505
 \OT1/cmr/bx/n/12 func-tions, op-ti-mal-iza-tion of
  []
 
 
-Underfull \hbox (badness 1603) in paragraph at lines 436--438
+Underfull \hbox (badness 1603) in paragraph at lines 506--508
 \OT1/cmr/m/n/10 al-go-rithm it-self is copied from (ref nu-mer-i-cal
  []
 
-[4] [5]
-Overfull \hbox (24.81033pt too wide) in paragraph at lines 555--599
+
+Overfull \hbox (2.29231pt too wide) in paragraph at lines 510--510
+[] 
+ []
+
+
+Underfull \hbox (badness 1881) in paragraph at lines 510--514
+\OT1/cmr/m/n/10 The func-tion re-cieves point-ers to a sam-pling
+ []
+
+[6]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Overfull \hbox (12.03252pt too wide) in paragraph at lines 629--673
  [] 
  []
 
 
-Underfull \vbox (badness 5592) has occurred while \output is active []
-
- [6]
-Overfull \hbox (5.34206pt too wide) in paragraph at lines 631--631
+Overfull \hbox (7.74205pt too wide) in paragraph at lines 705--705
 [] 
  []
 
 
-Overfull \hbox (8.10329pt too wide) in paragraph at lines 662--662
+Overfull \hbox (8.10329pt too wide) in paragraph at lines 736--736
 [] 
  []
 
-[7] (./proj1.aux) ) 
+[7] [8] (./proj1.aux) ) 
 Here is how much of TeX's memory you used:
- 2033 strings out of 495062
- 22653 string characters out of 1182644
- 92660 words of memory out of 3000000
- 5185 multiletter control sequences out of 15000+50000
+ 2034 strings out of 495062
+ 22660 string characters out of 1182644
+ 104660 words of memory out of 3000000
+ 5186 multiletter control sequences out of 15000+50000
  14504 words of font info for 56 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  32i,16n,23p,618b,371s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (7 pages, 53340 bytes).
+Output written on proj1.dvi (8 pages, 60780 bytes).

@@ -121,14 +121,14 @@ class ipdist{
 			Analytical expression:
 			\sum_{i<j} \frac{ a r_{12}^2 }{ ( 1 + \beta r_{ij} )^2 }
 		   */
-		double getdPdA();
+		double getdPdA() const;
 		//Testing
 		void print();
 		
-		//const double* iLen(int i_upd);
-		//const double** allLen();
-		//const double* iInvlen(int i_upd);
-		//friend: jast?
+		//experimental		
+		void getdbJasGrad(double **ret_vec, double **r) const;
+		double getdbJasLapl(double** r) const;
+	
 
 		friend class popControl;
 };

@@ -129,7 +129,7 @@ class slaterMatrix {
 		/*
 		   Return the value of the derived of the wavefunction w.r.t. alpha.
 		   */
-		double getdPdAoveA(double** dR) const;
+		double getdPdAoveP(double** dR) const;
 		/*
 		   Print slatermatrices and the inverse.
 		   */
@@ -147,6 +147,10 @@ class slaterMatrix {
 		   Updating slater matrix when particle i_upd are moved to coord r_new.  
 			*/
 		void updateSlaterMatrix(double* r_new, int i_upd);
+		/*
+			Experimental- To find the minima in the variance.
+		   */
+		void updateInvA(double* d_R, const int &i_upd);
 
 		friend class popControl;
 };
