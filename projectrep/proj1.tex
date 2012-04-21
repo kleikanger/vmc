@@ -503,25 +503,115 @@ The laplacian and the gradient $..$ can be evaluated ...
 the gradient: subltract old value, add new.
  
 \subsection{Minimization of the wave functions, optimalization of $(\partial_\alpha,\partial_\beta)\expec{E_L}$}
-The minimization algorithm we use is the Broyden-Fletcher-Goldfarb-Shannon (BFGS) method. The algorithm itself is copied from (ref numerical recipes), and is a 
-so called Quasi-Newton method which iteratively updates the inverse hessian matric $A^{-1}$, which has the property.
-\begin{align}
-	(\alpha_{min},\beta_{min})= (\alpha_{0},\beta_{0}) - A^{-1}\cdot \nabla \Psi(\ts R,\alpha,\beta)\big|_{(\alpha_{0},\beta_{0})}
-\end{align}
-The function recieves pointers to a sampling method which returns the energy $\expec {\hat E_L}$ and the gradient of the energy in the point $(\alpha,\beta)$, and updates the
-inverse hessian every time new values are returned. The function also recieves a variable \verb gtol  which sets the limit of convergence for the algorithm. If \verb gtol  $=0$ 
-the function will continiue iterating till it has localized the point where the gradient is zero.
+%We first tried to use the minimization algorithm we use is the Broyden-Fletcher-Goldfarb-Shannon (BFGS) method. The algorithm itself is copied from (ref numerical recipes), and is a 
+%so called Quasi-Newton method which iteratively updates the inverse hessian matric $A^{-1}$, which has the property.
+%\begin{align}
+%	(\alpha_{min},\beta_{min})= (\alpha_{0},\beta_{0}) - A^{-1}\cdot \nabla \Psi(\ts R,\alpha,\beta)\big|_{(\alpha_{0},\beta_{0})}
+%\end{align}
+%The function recieves pointers to a sampling method which returns the energy $\expec {\hat E_L}$ and the gradient of the energy in the point $(\alpha,\beta)$, and updates the
+%inverse hessian every time new values are returned. The function also recieves a variable \verb gtol  which sets the limit of convergence for the algorithm. If \verb gtol  $=0$ 
+%the function will continue iterating till it has localized the point where the gradient is zero. 
 
+%The algorithm performs badly if {\verb gtol } is to high or if the number of cycles used to find the energy is to low. On the other hand, minimizing the function
+%with a high accuracy can be very time consuming. I found that a good strategy is to use %a large {\verb gtol } in the range $\mathcal O(10^{-4})-\mathcal O(10^{-5})$ with
+%a lesser number of sampling cycles $\mathcal O (10^4)-\mathcal O(10^5)$ to get an estimate to the optimal values for $\alpha,\,\beta$. Then I use a %small {\verb gtol }
+%%$\mathcal O(10^{-8})$ and a 
+%larger number of sampling cycles $\mathcal O (10^6)-\mathcal O (10^7)$ to find a better approximation. 
+%
+%The BFGS algorithm is a deterministic approach designed to work well when applied on a deterministic system. For a stocastic system like ours, the algorithm was very inefficient.
+%To obtain the minima in $(\alpha,\beta)$ with 3 significant digits, I used $10^7$ sampling cycles to sample each point $(\alpha_i,\beta_i)$. Even with a good starting point, the total number of
+%samples needed to find a minima exceeded $10^8$, often giving bad results because of false minima induced by statistical fluctuations. 
+%
 %starting vals alpha,beta .5,.5
 %
-The algorithm performs badly if {\verb gtol } is to high or if the number of cycles used to find the energy is to low. On the other hand, minimizing the function
-with a high accuracy can be very time consuming. I found that a good strategy is to use %a large {\verb gtol } in the range $\mathcal O(10^{-4})-\mathcal O(10^{-5})$ with
-a lesser number of sampling cycles $\mathcal O (10^4)-\mathcal O(10^5)$ to get an estimate to the optimal values for $\alpha,\,\beta$. Then I use a %small {\verb gtol }
-%$\mathcal O(10^{-8})$ and a 
-larger number of sampling cycles $\mathcal O (10^6)-\mathcal O (10^7)$ to find a better approximation. 
-To avoid (unphysical) negative values for $\alpha$ and $\beta$, 
-the sampling function are set to return high values for the energy %and a negative gradient 
-if the variational parameters gets negative.
+
+The minimization was performed using the stocastic gradient approach (SGA) \cite{harju_1997,harju_2005,nissenbaum_2008}. 
+The variational parameters are updated iteratively
+\begin{align}
+	(\alpha_{n+1},\beta_{n+1})=	(\alpha_{n},\beta_{n}) -
+	&\gamma_n\left({\partial_\alpha},{\partial_\beta}\right) \expec{E_L}\label{eq:sga1}
+\end{align}
+The variable steplength $\gamma_n$ is a system dependent parameter that must fulfill
+\begin{align}
+&	\sum_{n=0}^\infty \gamma_n^2 <
+	\sum_{n=0}^\infty \gamma_n = \infty,\notag\\
+    &\gamma_n>0,\quad
+	lim_{n\to\infty}\gamma_n\to0.\label{eq:sga2}
+\end{align}
+When $\gamma_n$ gets smaller the parameters $(\alpha_n,\beta_n)$ will oscillate around the minima with a decreasing amplitude. 
+
+The SGA is based on the Robbins-Monroe theorem which states that under certain mathematical conditions the series (\ref{eq:sga1})
+are guaranteed to converge towards the minima $(\alpha_{min},\beta_{min})$. The mathematical conditions include (\ref{eq:sga2}) and some constraints on the
+objective function which is typically met by QMC wavefunctions.
+The basis for the theory is discussed in \cite{nissenbaum_2008} with references to the original articles. 
+
+Choosing the right $\gamma_n$ is vital for the rate of convergence of the algorithm.
+$\gamma_n$ is system dependent, so one should devise an algorithm that automatically finds a good value for $\gamma_n$.
+%With a $\gamma_n$ that decreases slowly, the fluctuations around the minima will be large, and the convergence might be very slow. 
+%With a too large $\gamma_n$ the simulations might spend a long time to reach the minima. 
+%The problem is that each physical system has an different optimal value for $\gamma_n$.
+%Several approaches hes been used to deal with this problem in the literature.
+I have used a simple algorithm with a $\gamma_n$ on the form
+\begin{align}
+	\gamma_n=(n_0 + k_n * n)^{-0.8},
+\end{align}
+where $k_n$ and $n_0$ are parameters that is calculated as a function of the average length of the gradient during an initial thermalization phase.
+There is one counter $n$ for each of the parameters $\alpha,\beta$ which is updated every time the gradient changes its sign. The reason for this is that it 
+is assumed that whenever the gradient changes its sign, the system is close to it's minima. After the thermalization phase, each of the counters are set to $0$
+
+I have found that the following procedure works well:
+\begin{itemize}
+\item The maximum step length is set to $0.01$. This stabilizes the simulation during the initial phase when $\gamma_n$ is small and the step length might be large.
+	After the thermalization phase the average step length becomes much smaller than $0.01$.
+\item $n_0$ is initially chosen to be $0$, and $k_n$ to be $1$.
+\item $n$ is updated every time the gradient changes its sign.
+\item The $30$ first cycles is thermalization cycles. During the next $40$ cycles the average of the absolute value of the gradient is collected. 
+After the $70$ first iterations, $n_0$ is chosen so that the average step length multiplied by $n_0$ is equal to $1/400$. $k_n$ is chosen to be $1/40$ of $n_0$. 
+$n$ is reset to $0$.
+\item Averages are collected after the system is thermalized and $n_0$ and $k_n$ is calculated.
+\end{itemize}
+The approximate value of the gradient $\left({\partial_\alpha},{\partial_\beta}\right)\expec{E_L}$ is obtained during a short MC run, with $m=\mathcal O (1000)$.
+(This is close to correlation length found during the blocking analysis). I get bad results if $m$ is chosen to be smaller than this. 
+
+The algorithm proved efficient when applied on the full shell quantum dots, generally converging to results with an error close to $(10^{-3})$ in less than $10^6$
+total MC cycles. The minimas are very good. To distinguish the energy between minimas that is as close as $10^{-3}$ in $(\alpha,\beta)$, more than $\mathcal O 10^8$ 
+cycles are needed. ...
+
+   To obtain   energies was calculated using $\mathcal O 10^8$ cycles  b0.399/0.401, a0.988/99, E3.00038/3.00040, error $\sim 10^{-5}$
+
+
+Comparisons with the literature:
+Harju et. al. has implemented an SGA algorithm in \cite{harju_2005}. Here the number of cycles $m$ is set to $\mathcal O(10^1)-\mathcal O(10^2)$. My algorithm gives bad results for 
+$m$ that is smaller than $\mathcal O(10^3)$. On main difference between his implementation and mine is that he uses 10 (?) uncorrelated walkers or more, while I use only one. 
+The high correlation between the samples will lead to bad results if the number of samples is much smaller than the correlation length. Therefore I think that it would be better to 
+use a larger number of walkers.
+
+Nissenbaum has implemented a different SGA algirithm in \cite{nissenbaum_2008}. Here a line search is performed each step. This means that it is unneccesary to tune $\gamma_n$
+for each new system. An other advantage is that the algorithm is much more efficient for asymmetric objective functions ... 
+One way of performing the line search would be to calculate the hessian matrix and
+For example, in \cite{nissenbaum_2008} a line search is performed along the direction of the gradient to find the minima during each iteration. 
+One possibility is to calculate the hessian matrix and to use the Newton method. 
+It is reported that this approach speeds up the convergence considerably. 
+%Mainly for unsymmetrical minima, because of the difference in the magnitude of the
+%gradient in the neighbourhood of the minima. steep side: shoots out to flat side, long way back..
+%
+\begin{figure}[h]
+\begin{center}
+%	\includegraphics[width=7.8cm]{../plots/minimization_2pt_omg1.eps}
+%\end{center}
+%\vspace{-.8cm}
+%\end{figure}
+%\begin{figure}[h]
+%\begin{center}
+	\includegraphics[width=7.8cm]{../plots/minimization_12pt_omg1.eps}
+\end{center}
+\vspace{-.8cm}
+\caption{{\it\small 
+	Minimization of a $12$ particle quantum dot. $N_C$ is the total number of MC-samples. 
+	The red line shows the $\alpha$ and $\beta$ values at $N_C$, while the black line shows the accumulated mean.
+	The mean are quickly converging to the optimal results  $\beta=0.877$ and $\alpha=0.657$, only using a total of total of $6\times10^5$ samples. }}
+\end{figure}
+
 
 The gradient are calculated using analytical expressions for the energy. 
 In the cases where comparisons where performed, the analytical expressions gave better results then the numerical derivatives.
@@ -530,7 +620,7 @@ COMPARISONS:
 Example: %(d/da = (f(a+h)-f(a+h))/2h),h=0.001. For example, for $\omega = 0.28,\, \Delta t=0.05$ with $6$ electrons, I got the results $\alpha=0.87269,\beta=0.32655$ giving an
 %energy $E=7.6214(1)$ and a variance ... . $(?).6218(1)$ .
 
-The gradient of the expectationvalue of the energy can be written
+The gradient of the expectationvalue of the energy can be written \cite{lin_2000}
 \begin{align}
 	&\left({\partial_\alpha},{\partial_\beta}\right) \expec{E_L} = \notag\\
 		&2\Big\langle\frac{\left({\partial_\alpha},{\partial_\beta}\right)\Psi}{\Psi} E_L\Big\rangle
@@ -820,6 +910,8 @@ We combine eq. (\ref{A1}), eq. (\ref{A2}) and eq. (\ref{A3})
 %\caption{{\it\small Normalized density plot for 12 pt. $\alpha=0.87$, $\omega=0.68$, $\delta t=0.05$. $10^6$ cycles. }}
 %\end{figure}
 
+\bibliographystyle{plain}	% (uses file "plain.bst")
+\bibliography{proj1}		% expects file "proj1.bib"
 \end{document}
 
 % vim:foldmethod=marker

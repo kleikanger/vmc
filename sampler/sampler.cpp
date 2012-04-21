@@ -84,24 +84,34 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	int accepted=0;
 //sga test
 #if 1
+	
+	ofstream ofilecga;
+	ofilecga.open("cgadata/test.txt");
+	
 	int n_sga=1, m_sga=1;
+	double len_energy_gradient_cum=0;
 	double f_sga, e_local_sga=0;
 	double var_par_cum[2];//num_of_var_par
 	double var_par_cum2[2];//num_of_var_par
 	
+	double var_par_cum_t[2];//num_of_var_par
+	double var_par_cum2_t[2];//num_of_var_par
+
+	double sga_alph_c=0, sga_beta_c=0;
+	double sga_alph_c_old=0, sga_beta_c_old=0;
+	double sga_alph_c_oold=0, sga_beta_c_oold=0;
+
 	double energy_gradient_old[2];
 	energy_gradient_old[0]=energy_gradient_old[1]=1.;
 
-	int m_v_sga[2];//num_of_var_par
+	double m_v_sga[2];//num_of_var_par
 	m_v_sga[0]=m_v_sga[1]=1;
-
-	int n_sag=400;
-	double v_sag[2][n_sag];//num_of_var_par
-	for (i=0;i<n_sag;i++)
-		v_sag[0][i]=v_sag[1][i]=0;
+	double m_sga_inc=1;
 
 	var_par_cum[0]=var_par_cum[1]=0.0;
 	var_par_cum2[0]=var_par_cum2[1]=0.0;
+	var_par_cum_t[0]=var_par_cum[1]=0.0;
+	var_par_cum2_t[0]=var_par_cum2[1]=0.0;
 #endif
 
 	//init walker object
@@ -177,10 +187,11 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		}
 #endif
 //SGA/*//startvimfold*/
-#if 1 
-		int sga_upd=1500;
-		int sga_therm=20;
-		if ((loop_c%(sga_upd+sga_therm)>sga_therm)||(loop_c%(sga_upd+sga_therm)==0))
+#if 0 
+		int sga_upd= 3000;//1500?
+		int sga_therm=0;
+		if (loop_c%100==0)
+		//if ((loop_c%(sga_upd+sga_therm)>sga_therm)||(loop_c%(sga_upd+sga_therm)==0))
 		{
 			quantum_dot->getVarParGrad(e_grad_temp); //TODO NEW NAME
 			e_grad_cum[0][0]+=e_grad_temp[0];
@@ -188,79 +199,103 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 			e_grad_cum[1][0]+=e_grad_temp[0]*e_local_temp;
 			e_grad_cum[1][1]+=e_grad_temp[1]*e_local_temp;
 			e_local_sga+=e_local_temp;
+
 		} 
 		if (loop_c%(sga_upd+sga_therm)==0)
 		{
+			sga_upd=30;
+
 			//energy minimization
 			result[0] = (e_local_sga/(double)sga_upd);
-	//		result[1] = (e_local_squared-e_local*e_local/(double)sga_upd)/(double)sga_upd;
 
 			energy_gradient[0] = 2*(e_grad_cum[1][0]-e_grad_cum[0][0]*result[0])/(double)sga_upd;//!!
 			energy_gradient[1] = 2*(e_grad_cum[1][1]-e_grad_cum[0][1]*result[0])/(double)sga_upd;//!!;
-			
 #if 1
-			//if (n_sga%500==0) //make better test. eg convergence test
-			//	m_sga++;
-			
-			if (energy_gradient[0]/energy_gradient_old[0]<0) m_v_sga[0]+=1;
-			if (energy_gradient[1]/energy_gradient_old[1]<0) m_v_sga[1]+=1;
-			//if (n_sga%100==0) m_v_sga[0]+=1; m_v_sga[1]+=1;
-		
-			//setting max length to move to .2
 			double len_energy_gradient = sqrt(cblas_ddot(2,energy_gradient,1,energy_gradient,1));	
-			if ( (len_energy_gradient*pow((double)m_v_sga[0],-.6)>.1) 
-			|| (len_energy_gradient*pow((double)m_v_sga[1],-.6)>.1) )
+			if (n_sga>30&&n_sga<70)
 			{
-				energy_gradient[0]*=sqrt(0.1)/len_energy_gradient;
-				energy_gradient[1]*=sqrt(0.1)/len_energy_gradient;
+				len_energy_gradient_cum+=len_energy_gradient;
+			}
+			else if (n_sga==70)
+			{
+				m_v_sga[0] = 
+				m_v_sga[1] = pow(400.*(len_energy_gradient_cum/40.),.8);
+				m_sga_inc  = m_v_sga[0]/10.; //1/20 gives faster convergence, but a more unstable algo
 			}
 			
-			//f_sga=.1/(double)m_sga;
-			var_par[0]-=.05*energy_gradient_old[0]*pow((double)m_v_sga[0],-.6);
-			var_par[1]-=.05*energy_gradient_old[1]*pow((double)m_v_sga[1],-.6);
+			//setting max length to move to .05
+			if ( (len_energy_gradient*pow((double)m_v_sga[0],-.8)>.01) //.5??
+			|| (len_energy_gradient*pow((double)m_v_sga[1],-.8)>.01) )
+			{
+				energy_gradient[0]*=sqrt(0.01)/len_energy_gradient;
+				energy_gradient[1]*=sqrt(0.01)/len_energy_gradient;
+			}
+			
+			//can be proven to converge mathematically
+			if (energy_gradient[0]/energy_gradient_old[0]<0) m_v_sga[0]+=m_sga_inc;
+			if (energy_gradient[1]/energy_gradient_old[1]<0) m_v_sga[1]+=m_sga_inc;
+			//m_v_sga[0]+=m_sga_inc;
+			//m_v_sga[1]+=m_sga_inc;
+			
+			var_par[0]-=energy_gradient_old[0]*pow((double)m_v_sga[0],-.8);
+			var_par[1]-=energy_gradient_old[1]*pow((double)m_v_sga[1],-.8);
 
-			if (var_par[0]<0.1) var_par[0]=0.1;
-			if (var_par[1]<0.1) var_par[1]=0.1;
-
-			for (i=0;i<2;i++)
-				if (var_par[i]<0) var_par[i]=0.1;
+			//prevent unphysical negative values of alpha,beta
+			if (var_par[0]<0.01) var_par[0]=0.01;
+			if (var_par[1]<0.01) var_par[1]=0.01;
 #endif
 			energy_gradient_old[0]=energy_gradient[0];
 			energy_gradient_old[1]=energy_gradient[1];
 
 			n_sga++;
-			
-		//	cout<<var_par[0]<<" "<<var_par[1]<<"\n";
 			quantum_dot->wSetVarPar(var_par);
-			
+			//set variables to 0		
 			e_grad_cum[0][0]=e_grad_cum[0][1]=e_grad_cum[1][0]=e_grad_cum[1][1]=0.0;
 			result[0]=result[1]=0;
 			e_local_sga=0.;
-           
-		   	//Thermalization loops before update	
-			int sga_out_upd = 100000;
-			sga_out_upd/=sga_upd;
+
+			int sga_out_upd=100; //Start collecting data after 100 cycles (therm..)
 			if (n_sga>sga_out_upd) //make better test
 			{
+				//collect data
 				var_par_cum[0]+=var_par[0];
 				var_par_cum[1]+=var_par[1];
-				
 				var_par_cum2[0]+=var_par[0]*var_par[0];
 				var_par_cum2[1]+=var_par[1]*var_par[1];
-			
+				
 				//calculate error+std.dev
 				if (n_sga%2==0)
 				{
 					cout<<"\r"<<"                                                                                                ";
 					cout<<"\r"
-						<<setprecision(8)<<setw(10)
-						<<"beta: "<<var_par_cum[0]/(double)(n_sga-sga_out_upd)<<" alpha: "<<var_par_cum[1]/(double)(n_sga-sga_out_upd)
-						<<"beta: "<<var_par[0]<<" alpha: "<<var_par[1]
-				    	<<" variance: beta: "<<sqrt(-pow(var_par_cum[0]/(double)(n_sga-sga_out_upd),2)+var_par_cum2[0]/(double)(n_sga-sga_out_upd))
-						<<" alpha: "<<sqrt(-pow(var_par_cum[1]/(double)(n_sga-sga_out_upd),2)+var_par_cum2[1]/(double)(n_sga-sga_out_upd))
-						<<" cycles: "<<(n_sga*sga_upd)<<" m_B: "<<m_v_sga[0]<<" m_A: "<<m_v_sga[1]<<"---------";
+						<<setprecision(8)//<<setw(10)
+						<<"b_C: "<<var_par_cum[0]/(double)(n_sga-sga_out_upd)
+						<<" a_C: "<<var_par_cum[1]/(double)(n_sga-sga_out_upd)
+						<<"b: "<<var_par[0]
+						<<" a: "<<var_par[1]
+				    	<<" b_V: "<<sqrt(-pow(var_par_cum[0]/(double)(n_sga-sga_out_upd),2)+var_par_cum2[0]/(double)(n_sga-sga_out_upd))
+						<<" a_V: "<<sqrt(-pow(var_par_cum[1]/(double)(n_sga-sga_out_upd),2)+var_par_cum2[1]/(double)(n_sga-sga_out_upd))
+						<<" c: "<<(n_sga*sga_upd)
+						<<" m_B: "<<m_v_sga[0]
+						<<" m_A: "<<m_v_sga[1]
+						<<"---------";
 						fflush(stdout);
-				}	
+				}
+			//Write to file	
+			if (myrank==0)
+				{
+					ofilecga << setiosflags(ios::showpoint | ios::uppercase);
+					for (i=0;i<dimension;i++)
+					{
+						ofilecga << setw(16) << setprecision(16) 
+							<< n_sga*sga_upd << " " 							//loops
+							<< var_par[0] << " " 								//alpha
+							<< var_par_cum[0]/(double)(n_sga-sga_out_upd) <<" " //alpha mean
+							<< var_par[1] << " " 								//beta
+							<< var_par_cum[1]/(double)(n_sga-sga_out_upd) <<" "; //beta mean
+					}
+					ofilecga<<"\n";
+				}
 			}
 		}/*//endvimfold*/
 
@@ -268,6 +303,9 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 
 #endif
 	} //************************** END OF MC sampling **************************
+
+	ofilecga.close();
+
 
 	//KEEP THE BELOW LINES WHILE DEVELOPING
 	//cout<<setprecision(4)<<"alpha: "<<var_par[1];

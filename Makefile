@@ -8,12 +8,12 @@ EXEC=mpirun
 GPROFOUT=gprof_testres.txt
 
 vmcmain.out: all
-	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o\
+	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o sga.o\
 		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o mcongrid.o dmcsampler.o\
 		popControl.o -o runVMC.out $(LFLAGS)
 
 all: vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o\
-	   	newmatrix.o cgm.o mcongrid.o dmcsampler.o popControl.o
+	   	newmatrix.o cgm.o mcongrid.o dmcsampler.o popControl.o sga.o
 
 run: vmcmain.out
 	$(EXEC) $(NPROC) runVMC.out
@@ -34,6 +34,10 @@ sampler.o: $(PAT)/sampler/sampler.h $(PAT)/sampler/sampler.cpp walker.o newmatri
 dmcsampler.o: $(PAT)/dmcsampler/dmcsampler.h $(PAT)/dmcsampler/dmcsampler.cpp walker.o newmatrix.o\
 	   	popControl.o $(PAT)/definitions/sampler_Def.h zigrandom.o zignor.o
 	$(CC) $(CFLAGS) -c $(PAT)/dmcsampler/dmcsampler.h $(PAT)/dmcsampler/dmcsampler.cpp
+
+sga.o: $(PAT)/sga/sga.h $(PAT)/sga/sga.cpp walker.o newmatrix.o\
+	   	$(PAT)/definitions/sampler_Def.h zigrandom.o zignor.o popControl.o
+	$(CC) $(CFLAGS) -c $(PAT)/sga/sga.h $(PAT)/sga/sga.cpp
 
 walker.o: $(PAT)/walker/walker.h $(PAT)/walker/walker.cpp $(PAT)/definitions/randomNumberGenerators.h\
 	   	slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o newmatrix.o

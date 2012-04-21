@@ -15,6 +15,6 @@
 \contentsline {subsection}{\numberline {5.1}Optimalization of $\mathcal D^\alpha (\textbf {R})$}{5}
 \contentsline {subsection}{\numberline {5.2}Optimalization of $\mathcal J^\beta (\textbf {R})$ and $r_{ij}$}{5}
 \contentsline {subsection}{\numberline {5.3}Minimization of the wave functions, optimalization of $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{E_L}\delimiter "526930B {}$}{6}
-\contentsline {section}{\numberline {6}Results}{7}
-\contentsline {section}{\numberline {A}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{7}
-\contentsline {section}{\numberline {B}Pseudocode:}{8}
+\contentsline {section}{\numberline {6}Results}{8}
+\contentsline {section}{\numberline {A}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{8}
+\contentsline {section}{\numberline {B}Pseudocode:}{10}

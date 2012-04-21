@@ -568,7 +568,7 @@ void dmcsampler::redistributeWalkers(int myrank, int nprocs, int &num_alive, boo
 
 void dmcsampler::initializeSys(int initial_number_of_walkers, int thermalization, int corr_length, double *var_par, double *e_local_old)
 {	/*//startvimfold*/
-	int loop_c, num_init=1; 
+	int loop_c=0, num_init=1; 
 	if (myrank==0)
 		{
 			cout<<"\rStarting initialization of walkers... ";

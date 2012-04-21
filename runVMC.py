@@ -170,27 +170,58 @@ def run():
 #run program#
 #############
 
-number_of_processors= 1
 
 omega 				= .5
 delta_t 			= .05
 number_of_particles = 12
 thermal_cycles 	 	= 4e5
 
-conjugate_gradient 	= True
-sample_on_grid 		= False
-use_dmc_sampler 	= False
+
 number_of_walkers 	= 5000 #total number on all procs
 num_cycles_main_loop= 4000
 num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
 num_c_equilibri_loop= 3000
 
-sampling_cycles 	= 4e7
-min_alpha 		 	= .9796
-min_beta 	 		= .420
+
+conjugate_gradient 	= False
+sample_on_grid 		= True
+use_dmc_sampler 	= False
+sampling_cycles 	= 1e8
+min_alpha 		 	= .414
+min_beta 	 		= .899
 run()
-min_alpha 		 	= .9804
-min_beta 	 		= .4178
+min_alpha 		 	= .413
+min_beta 	 		= .900
+run()
+
+conjugate_gradient 	= True
+sample_on_grid 		= False
+use_dmc_sampler 	= False
+number_of_particles = 6
+num_cycles_main_loop= 100000 #30000
+number_of_walkers 	= 30 #total number on all procs
+num_c_ET_upd_loop 	= 1 #O(100)-O(1000)
+number_of_processors= 2
+run()
+run()
+run()
+run()
+number_of_processors= 1
+run()
+run()
+run()
+run()
+
+number_of_particles = 12
+number_of_processors= 2
+run()
+run()
+run()
+run()
+number_of_processors= 1
+run()
+run()
+run()
 run()
 
 #do simulations : change values between runs
