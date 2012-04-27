@@ -83,10 +83,10 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	int i,j,k,active_part;
 	int accepted=0;
 //sga test
-#if 1
+#if 0
 	
-	ofstream ofilecga;
-	ofilecga.open("cgadata/test.txt");
+	//ofstream ofilecga;
+	//ofilecga.open("cgadata/test.txt");
 	
 	int n_sga=1, m_sga=1;
 	double len_energy_gradient_cum=0;
@@ -304,7 +304,7 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 #endif
 	} //************************** END OF MC sampling **************************
 
-	ofilecga.close();
+	//ofilecga.close();
 
 
 	//KEEP THE BELOW LINES WHILE DEVELOPING

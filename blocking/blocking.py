@@ -20,7 +20,8 @@ plot_res=False
 def blca(datafile,numprocs): 
 	#run c++ blocking routine, saves txt data file with blocking data
 	os.system("make --silent")
-	os.system("./blocking.out 100 3000 2 %i %s"%(numprocs,datafile))
+	os.system("./blocking.out 5000 100 20000 %i %s"%(numprocs,datafile))
+#os.system("./blocking.out 100 3000 2 %i %s"%(numprocs,datafile)) #vmc
 	#read txt file and save plot
 	data = np.genfromtxt(fname=datafile+'.txt')
 	fig=plt.figure()

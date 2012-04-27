@@ -62,28 +62,28 @@ Our system of choice
 
 \subsection{Introduction}%{{{2
 Monte Carlo (MC) methods includes a wide range of computational methods for solving integrals. 
-The main idea is to sample the integrand $f(\vec r)$ in random points $\{\vec r_i\}$, 
+The main idea is to sample the integrand $f(\ts r)$ in random points $\{\ts r_i\}$, 
 and finding an approximate solution to the integral by doing statistical analysis on the sampling data. 
-The statistical error will give us an immediate idea of the precicion of the result.
+The statistical error will give us an immediate idea of the precision of the result.
 %Statistical measures will give us an idea of the quality of the results
 
 In general, any integral can be written on the form
 \begin{align}
-\int_{\mathcal D} f(\vec r) d\vec r = 
-\int_{\mathcal D} P(\vec r) g(\vec r) d\vec r,
+\int_{\mathcal D} f(\ts r) d\ts r = 
+\int_{\mathcal D} P(\ts r) g(\ts r) d\ts r,
 \end{align} 
-where $P(\vec r)$ is a probability distribution. The integral can now be approximated by the sum 
+where $P(\ts r)$ is a probability distribution. The integral can now be approximated by the sum 
 \begin{align}
-	\int_{\mathcal D} f(\vec r) d\vec r 
-\approx \frac1N\sum_{i=1}^Ng(\vec r_i),
+	\int_{\mathcal D} f(\ts r) d\ts r 
+\approx \frac1N\sum_{i=1}^Ng(\ts r_i),
 \end{align} 
-where $\{\vec{r_i}\}$ is a set of random numbers drawn from the statistical distribution $P(\vec r)$.
+where $\{\ts r_i\}$ is a set of random numbers drawn from the statistical distribution $P(\ts r)$.
 
 The simplest example, possible whenever the region of the of the integral is finite,
 is when $P$ is a uniform distribution bounded by the integration limits. Then
-$P(\vec r)$ is a constant and $g(\vec r)=f(\ts r)$. However, for many integrals this method 
+$P(\ts r)$ is a constant and $g(\ts r)=f(\ts r)$. However, for many integrals this method 
 will converge slowly and will require a very large number of samples to
-give accurate results. By choosing a smart $P(\vec r)$ that is large in the regions of interest, 
+give accurate results. By choosing a smart $P(\ts r)$ that is large in the regions of interest, 
 %for example where $g(\ts r)$ is large or changing rapidly,  
 more samples will be drawn from the important regions, often leading to a more rapid convergence.  
 %}}}2
@@ -91,27 +91,27 @@ more samples will be drawn from the important regions, often leading to a more r
 \subsection{Markov Chain Monte Carlo}%{{{2
 
 Markov Chain Monte Carlo (MCMC) provides us with a method for drawing the correct samples from $P$. 
-Instead of drawing uncorrelated random samples we use a markow chain to generate a sequence $\{\vec r_n\}$ of vectors.
-A Markov chain is caracterized by a transition kernel $q(\vec x|\vec y)$ which is a probabitity density distribution 
-of the variable $\vec y$, and which tells us the probability of a transition from $\vec x$ to $\vec y$.
-For each $\vec r_n$, we draw a new $\vec r_{n+1}$ from the distribution $q(\vec r_n,\vec y)$. The distribution 
+Instead of drawing uncorrelated random samples we use a markow chain to generate a sequence $\{\ts r_n\}$ of vectors.
+A Markov chain is characterized by a transition kernel $q(\ts x|\ts y)$ which is a probability density distribution 
+of the variable $\ts y$, and which tells us the probability of a transition from $\ts x$ to $\ts y$.
+For each $\ts r_n$, we draw a new $\ts r_{n+1}$ from the distribution $q(\ts r_n,\ts y)$. The distribution 
 of the vectors in the set 
-$\{\vec r_n\}$ will converge towards the distribution $P$ if the following 
+$\{\ts r_n\}$ will converge towards the distribution $P$ if the following 
 conditions are fulfilled (reference):
 \begin{itemize}
 \item
-	$P$ is an invariant of the kernel $q(\vec x|\vec y)$ in the sense that 
+	$P$ is an invariant of the kernel $q(\ts x|\ts y)$ in the sense that 
 	\begin{align}
-	\int_{\mathcal D} d\vec r_A\, P(\vec r_A) q(\vec r_A | \vec r_B) = P(\vec r_B) \label{eq221},
+	\int_{\mathcal D} d\ts r_A\, P(\ts r_A) q(\ts r_A | \ts r_B) = P(\ts r_B) \label{eq221},
 	\end{align}
 \item
-	The chain is ergodetic, which means that any point $\vec r_n$ is axessible in a finite number transitions from any starting point $\vec r_0$. 
-	\begin{align}
-		0>&q(r_0|r_1)q(r_1|r_2)\dots q(r_{n-1}|r_n),\notag\\
-		&\{r_0,r_1,\dots,r_n\}\in\mathcal D 
-	\end{align}
-	for all $r_0,r_n$. 	
-	(more?reference!)
+	The chain is ergodetic, which means that any point $\ts r_n$ is accessible in a finite number transitions from any starting point $\ts r_0$. 
+%	\begin{align}
+%		0>&q(r_0|r_1)q(r_1|r_2)\dots q(r_{n-1}|r_n),\notag\\
+%		&\{r_0,r_1,\dots,r_n\}\in\mathcal D 
+%	\end{align}
+%	for all $r_n$ in the integration domain. 	
+%	(more?reference!)
 %all $\vec r$ in $\mathcal D$% must be axessible to a random walker
 %starting in any point $\vec r_0$ in $\mathcal D$ during a finite number of transitions. 
 \end{itemize}
@@ -127,56 +127,55 @@ conditions are fulfilled (reference):
 %Both statements are actually quite intuitive, and i will now explain why(rewrite sentence):
 It is costumary to make the analogy to a set of $\lambda$ biased random walkers, where
 the density of walkers $P_w$ is (close to) stationary and proportional to $P$.
-This analogy is reasonable as long as the sequence $\{\vec r_n\}$ can be split into $\lambda$ 
-subsequences $\{\vec r_n^\lambda\}$ which are uncorrelated. Then one can equally well interpret the samples as $N$ samples
+This analogy is reasonable as long as the sequence $\{\ts r_n\}$ can be split into $\lambda$ 
+subsequences $\{\ts r_n^\lambda\}$ which are (practically speaking) uncorrelated. Then one can equally well interpret the samples as $N$ samples
 from one markov chain, as $N/\lambda$ samples from $\lambda$ markov chains.
 
-For $P_w$ to be stationary (), the population of walkers in any point $\vec r_A$ must be () constant,
+For $P_w$ to be stationary (), the population of walkers in any point $\ts r_A$ must be () constant,
 \begin{align}
-	\sum_n P_w(\vec r_A) q(\vec r_A|\vec r_n)  \approx	\sum_n P_w(\vec r_n) q(\vec r_n|\vec r_A) \label{eq222}
+	\sum_n P_w(\ts r_A) q(\ts r_A|\ts r_n)  \approx	\sum_n P_w(\ts r_n) q(\ts r_n|\ts r_A) \label{eq222}
 \end{align} 
-This equation resembles('') (\ref{eq221}) since both equaions states that the density is stationary.
+This equation resembles('') (\ref{eq221}) since both equations states that the density is stationary.
 %Of course, in a computer simulation the number of walkers is finite, and this equation can only be seen as an approximation.
 %The markov chain must also be ergodetic. 
 %One are free to choose any equation for the trajectories of the random walkers (any transition kernel) as long as (\ref{eq222})
 The condition of detailed balance
 \begin{align}
-    P_w(\vec r_A) q(\vec r_A|\vec r_B)  =  P_w(\vec r_B) q(\vec r_B|\vec r_A).\label{detbal}
+    P_w(\ts r_A) q(\ts r_A|\ts r_B)  =  P_w(\ts r_B) q(\ts r_B|\ts r_A).\label{detbal}
 \end{align}
 assures that (\ref{eq222}) is fulfilled. 
 %This equation is the basis for finding the transition kernels that is used in the metropolis-Hastings algorithm.
-As long as the markow chain is ergodetic the walkers will have axcess to all regions of the integration domain.
+As long as the markow chain is ergodetic the walkers will have access to all regions of the integration domain.
 % ad the entire integration domain will be sampled.
 %If not (ergodetic in regions: can be tackled ? )
 %}}}2
 
 \subsection{Metropolis-Hasting algorithm}%{{{2
-We will now outline a general algorithm for the movement of the random walkers that fullfills (\ref{detbal}).
-We introduce new scalar field to our equation $\gamma(\vec r_A,\vec r_B)$, which is a measure of the 
-probability of accepting a move from $\vec r_A$ to $\vec r_B$.
+We will now outline a general algorithm for the movement of the random walkers that fulfills (\ref{detbal}).
+We introduce new scalar field to our equation $\gamma(\ts r_A,\ts r_B)$, which is a measure of the 
+probability of accepting a move from $\ts r_A$ to $\ts r_B$.
 We split our transition kernel in two parts
 \begin{align}
-	q(\vec r_A|\vec r_b) 
+	q(\ts r_A|\ts r_b) 
 		\to 
-	\gamma(\vec r_A|\vec r_b)
-	g(\vec r_A|\vec r_b).
+	\gamma(\ts r_A|\ts r_b)
+	g(\ts r_A|\ts r_b).
 \end{align} 
-i will refer to $g(r_A|r_B)$ as the suggestion density, and $\gamma(\vec r_A|\gamma \vec r_B)$ as the acceptance probability. We set
+I will refer to $g(r_A|r_B)$ as the suggestion density, and $\gamma(\ts r_A|\gamma \ts r_B)$ as the acceptance probability. We set
 \begin{align}
-&\gamma(\vec r_B|\vec r_A)=1 \text{ when }\notag\\
+&\gamma(\ts r_B|\ts r_A)=1 \text{ when }\notag\\
 %\begin{align}
-    &P_w(\vec r_A) g(\vec r_A|\vec r_B)  >  P_w(\vec r_B) g(\vec r_B|\vec r_A).
+    &P_w(\ts r_A) g(\ts r_A|\ts r_B)  >  P_w(\ts r_B) g(\ts r_B|\ts r_A).
 \end{align}
 Then, by inserting this equations into (\ref{detbal}), we get
 \begin{align} 
-	\gamma(\vec r_A|\vec r_B)=max\left(
+	\gamma(\ts r_A|\ts r_B)=max\left(
 	\frac
-	{P_w(\vec r_B) g(\vec r_B|\vec r_A)}
-    {P_w(\vec r_A) g(\vec r_A|\vec r_B)}\, 
+	{P_w(\ts r_B) g(\ts r_B|\ts r_A)}
+    {P_w(\ts r_A) g(\ts r_A|\ts r_B)}\, 
 	,\, 1 \right) \label{gamma}
 \end{align}
-By making this choice for $\gamma$, (\ref{detbal}) will be fulfilled and the sequence of $\{r_i\}$ will sample 
-$P$. 
+By making this choice for $\gamma$, (\ref{detbal}) will be fulfilled and the sequence $\{r_i\}$ will sample $P$. 
 %This rule preserves the relative provability of the transitions between $r_A$ and $r_B$, and preserves the 
 %density of walkers in each point.  
 Note that only the relative ratio between the left and the right hand side of (eq) are 
@@ -186,13 +185,13 @@ These equations are implemented in the well known Metropolis-Hastings algorithm 
 %\begin{algorithm}[h]
 \begin{algorithmic}
 \LOOP{}
-\STATE{$\vec r_B\gets$ random from distribution $g(\vec r_T|\vec r_B)$.}
+\STATE{$\ts r_B\gets$ random from distribution $g(\ts r_T|\ts r_B)$.}
 \STATE{$\mathcal X\gets$ random uniform. ($\mathcal X\in[0,1]$)}%??(0,1)}
-\STATE{Calculate $\gamma (\vec r_n|\vec r_T))$.}
+\STATE{Calculate $\gamma (\ts r_n|\ts r_T))$.}
 \IF{$\mathcal X \le \gamma$}
-\STATE{$\vec r_{n+1}\gets \vec r_T$}
+\STATE{$\ts r_{n+1}\gets \ts r_T$}
 \ELSE
-\STATE{$\vec r_{n+1}\gets \vec r_n$}
+\STATE{$\ts r_{n+1}\gets \ts r_n$}
 \ENDIF{}
 \STATE{$n\gets n+1$}
 \ENDLOOP{}
@@ -213,38 +212,38 @@ These equations are implemented in the well known Metropolis-Hastings algorithm 
 
 The transition kernel can be written as
 \begin{align}
-	q(\vec r_n|\vec r_{n+1}) = \gamma(\vec r_n|\vec r_{n+1}) g(\vec r_n|\vec r_{n+1}), 
+	q(\ts r_n|\ts r_{n+1}) = \gamma(\ts r_n|\ts r_{n+1}) g(\ts r_n|\ts r_{n+1}), 
 \end{align}
-where $\gamma(\vec r_{n}|\vec r_{n+1})$ is given by eq. (\ref{gamma}). 
-The set $\{r_n\}$ will converge tovards the same distribution $P_w$ regardless of which $g(\vec r_n|\vec r_{n+1})$ we use. 
-(As long as the markov chain defined by $g(\vec r_n|\vec r_{n+1})$ and $\gamma(\vec r_n|\vec r_{n+1})$ is ergodetic.)
+where $\gamma(\ts r_{n}|\ts r_{n+1})$ is given by eq. (\ref{gamma}). 
+The set $\{r_n\}$ will converge tovards the same distribution $P_w$ regardless of which $g(\ts r_n|\ts r_{n+1})$ we use. 
+(As long as the markov chain defined by $g(\ts r_n|\ts r_{n+1})$ and $\gamma(\ts r_n|\ts r_{n+1})$ is ergodetic.)
 However, the rate of convergence can .. from one sugg.dens. to an other.
 %But the rate of convergence can differ widely.
 
-The transition kernel suggested by Markov ... in his original article ... corresponds to a suggestion density $g(\vec r_n|\vec r_{n+1})$ 
-that is symmetric around $\vec r_n$ along all axis. In this case $\gamma(\vec r_n|\vec r_{n+1})$ can be expressed as
+The transition kernel suggested by Markov ... in his original article ... corresponds to a suggestion density $g(\ts r_n|\ts r_{n+1})$ 
+that is symmetric around $\ts r_n$ along all axis. In this case $\gamma(\ts r_n|\ts r_{n+1})$ can be expressed as
 \begin{align} 
-	\gamma(\vec r_A|\vec r_B)=max\left(
+	\gamma(\ts r_A|\vec r_B)=max\left(
 	\frac
-	{P_w(\vec r_B)}
-    {P_w(\vec r_A)}\, 
+	{P_w(\ts r_B)}
+    {P_w(\ts r_A)}\, 
 	,\, 1 \right) \label{gamma_bruteforce}
 \end{align}
 A common choice is to set
 \begin{align}
-	g(\vec r_n|\vec r_{n+1}) = \sum_i l\left(\mathcal U(\vec r_{n+1}-\vec r_n) - \frac12\right)
+	g(\ts r_n|\ts r_{n+1}) = \sum_i l\left(\mathcal U(\ts r_{n+1}-\ts r_n) - \frac12\right)
 \end{align}
-where $l$ is a constant which we will refer to as the steplength, and $\mathcal U(\vec r)$ is the uniform distribution
+where $l$ is a constant which we will refer to as the step length, and $\mathcal U(\ts r)$ is the uniform distribution
 \begin{equation}
-	\mathcal U(\vec r) = \left\{ 
+	\mathcal U(\ts r) = \left\{ 
 	\begin{split} 
-		&1, \text{ for all } \vec r \cdot \vec e_i \in [0,1]\\
+		&1, \text{ for all } \ts r \cdot \ts e_i \in [0,1]\\
 		&0, \text{ otherwise }\\
 	\end{split}
 	\right..
 \end{equation} 
-Here $\vec e_i$ is the unit vectors of $\mathcal D$. 
-By choosing testing different steplengths $l$ will alter the number of 
+Here $\ts e_i$ is the unit vectors of $\mathcal D$. 
+By choosing testing different step lengths $l$ will alter the number of 
 accepted steps during a simulation, and will have an effect on the rate of convergence. %For example, if nearly all steps are accepted, 
 The class of sampling algorithms using a symmetric suggestion density is often referred to as brute force sampling.
 
@@ -263,27 +262,37 @@ dt = 0, gamma = 1 always, and every suggested move should be accepted.
 
 \section{Statistical analysis of the data}%{{{1
 
-The statistical error.
+The statistical error is a measure of the spread of a statistical mean.
+It is defined as the standard deviation of a sample mean, and can be estimated using the formula \cite{m.h-j}
+\begin{align}
+		err\approx\sqrt{\frac1{N}Var(\mathcal M)},
+\end{align}
+where $\mathcal M$ is a set of $N$ uncorrelated sample means.  
 
-%In our simulations, we will sample each point on the track of one single walker. 
-%This is possible as long as the system is ergodetic. 
-%That is, all $\vec r_n$ in $\mathcal D$ must be axessible to a 
-%random walker starting in any point $\vec r_0$ in $\mathcal D$. 
-%Otherwise, some parts of the integration domain would not be sampled.
-The correlation between ,,
-After a certain number of moves, the statistical correlation between
-the starting point $\vec r_0$ and the current position $\vec r_n$ will be very weak (there will be no). 
-((reference, weaker statement))
-If we denote the correlation time $\tau$ and $N$ is the total number of MCMC cycles, 
-we will have $\tau/N$ uncorrelates samples. 
+The samples obtained in the MCMC simulations is heavily correlated, mainly because of the high correlation between succeeding configurations $\ts R$.
+%We define the correlation length $\tau$ as the number of steps before the correlation between two configurations is practically zero.
+We get an estimate of $err$ by dividing our data into $N_\tau=N/\tau$ bins of $\tau$ samples, and calculating the standard deviation of the $N_\tau$ mean values. 
+\begin{align}
+	err(\tau)\approx\sqrt{\frac\tau{N_\tau}Var(\mathcal M_\tau)} = \sqrt{\frac{\tau}{N_\tau}\expec{\mathcal M_\tau^2}-\expec{\mathcal M_\tau}^2}.
+\end{align}
+This is a good estimate if 1) $\tau$ is large enough so that the means $\mathcal M_\tau$ are practically uncorrelated and 2) $N_\tau$ is large enough 
+to give us a good statistical value. Starting with a small $\tau$, $err(\tau)$ will converge towards the correct statistical error as $\tau$ increases. 
+This method is referred to as blocking analysis. Fig. (\ref{figblc}) shows a plot of $err(\tau)$ for a simulation of a $6$ particle quantum dot with an error
+close to $\pm10^{-5}$ Hartrees. The time between two practically uncorrelated samples, when the curve $err(\tau)$ flattens, will be referred to as the correlation length.
 
-When the curve flattens, this does not mean that the configuration of the particles are in step $n$ is uncorrelated with the initial configuration.
-Rather it means that the energies is weakly correlated in after n steps when the system is equilibriated.( and that the error is close to its actual value). 
-Even if the correlationlength is rather short, say 2000 steps, the thermalization phase might be longer...
-Ex: for brute force sampling, the configuration of the particles will never be truly uncorrelated because every move is limited by a finite steplength.
-Eg. if the steplength is one, the fastest one particle can move from x=0 to x=1e6 is in 1e6 steps...
 
-A method to find the correlation time.
+\begin{figure}[h!]
+\begin{center}
+\caption{{\it%\small
+		Blocking results for a $6$ particle quantum dot with $\omega=1$ and $\Delta t = 0.05$. A total of $10^8$ samples has been used in the simulation. From the plot we can see that
+		the statistical error is close to $\pm10^{-5}$ Hartrees, and that the correlation length is of the order $\mathcal O(10^3)$.}} 
+		\label{figblc}
+%\vspace{-.8cm}
+	\includegraphics[width=8.2cm]{../plots/blc_6pt_omg1_dt05.eps}
+\end{center}
+\vspace{-1.2cm}
+\end{figure}
+
 %}}}1
 
 \section{Quantum monte Carlo}%{{{1 
@@ -291,37 +300,38 @@ A method to find the correlation time.
 \subsection{Introduction}%{{{2
 
 %In the Heisenberg image, t
-The expectation values for any observable $\hat O(t)$ can be expressed on the general form
+The expectation values of an observable $\hat O$ can be expressed on the general form
 \begin{align}
-	\expec{ O(t) } = \int d\vec r \Psi(\vec r) \hat O(t) \Psi(\vec r)^*,\label{exv}
+	\expec{ O } = \int d\ts r \Psi(\ts r) \hat O \Psi(\ts r)^*,\label{exv}
 \end{align}
-where $\Psi(\vec r) = \sum_i \psi_i(\vec r)$, for some basis $\{ \vec \psi_i \}$. 
+where $\Psi(\ts r)$ %= \sum_i \psi_i(\ts r)$, for some basis $\{ \psi_i \}$. 
+is a solution to the schrödinger equation. 
 The integral can also be written 
 \begin{align}
-	\expec{ O(t) } = \int |\Psi(\vec r)|^2 \frac{ \hat O(t) \Psi(\vec r)^\dagger } {\Psi(\vec r)^\dagger},
+	\expec{ O } = \int |\Psi(\ts r)|^2 \frac{ \hat O \Psi(\ts r)^\dagger } {\Psi(\ts r)^\dagger},
 \end{align}
-Since $|\Psi(\vec r)|^2$ is a probability density distribution we see that
+Since $|\Psi(\ts r)|^2$ is a probability density distribution we see that
 \begin{align}
-	\expec{ O(t) } \approx \sum_{i=1}^N \frac{ \hat O(t) \Psi(\vec r_i)^\dagger } {\Psi(\vec r_i)^\dagger}, \label{RFQMC1} 
+	\expec{ O } \approx \sum_{i=1}^N \frac{ \hat O \Psi(\ts r_i)^\dagger } {\Psi(\ts r_i)^\dagger}, \label{RFQMC1} 
 \end{align}
 %
-where the set of numbers $\{\vec r_i\}$ are drawn from $|\Psi|^2$.
+where the set of numbers $\{\ts r_i\}$ are drawn from $|\Psi|^2$.
 This sum can be sampled using the Metropolis-Hastings algorithm with the acceptance probability 
 \begin{align}
 	\gamma(r_i|r_i+1)=\frac
-		{g(r_i|r_{i+1})\Psi(r_i)|^2}
-		{g(r_{i+1}|r_i)|\Psi(r_{i+1})|^2}.
+		{g(r_i|r_{i+1})\Psi(\ts r_i)|^2}
+		{g(r_{i+1}|r_i)|\Psi(\ts r_{i+1})|^2}.
 \end{align} 
-$g(r_i|r_{i+1})$ is the suggestion density as desctibed earlier.
+$g(r_i|r_{i+1})$ is the suggestion density as described earlier.
 %
-Note that $\Psi$ do not need to ne normalized in the above equations. This saves us a great deal of work since the normalization 
-of most wavefunctions would have to be done numerically for every new trial function.% ????
+Note that $\Psi$ does not need to be normalized in the above equations. This saves us a great deal of work since the normalization 
+of most wave functions would have to be done numerically for every new trial function.% ????
 
 %}}}2
 
 \subsection{Variational Monte Carlo}%{{{2
 
-Variational Monte Carlo (VMC) is used to calculate the lowest energy state $\epsilon_0$ in a quantum mechanical system.
+%Variational Monte Carlo (VMC) is used to calculate the lowest energy state $\epsilon_0$ in a quantum mechanical system.
 According to the ritz principle, the expectationvalue for the energy 
 \begin{align}
 	\epsilon_0\ge\bra{\Psi_T} \hat H \ket{\Psi_T}\,\forall\,\ket{\Psi_T}\in\mathcal H.
@@ -330,15 +340,16 @@ According to the ritz principle, the expectationvalue for the energy
 %
 This means that any expectation value $\expec{\hat H}$ sets an upper limit to the energy of the system. 
 %
-This principle allows us to perform a systematic search for the lowest $\expec{\hat H}$ using a set of trial wave function 
-$\ket{\Psi_T,\alpha,\beta,\dots}$ where $\alpha,\beta,\dots$ are variational parameters. % that changes the shape of the wave functions.
+This principle allows us to perform a systematic search for the lowest $\expec{\hat H}$ using a set of trial wave functions 
+$\ket{\Psi_T(\alpha,\beta,\dots)}$ where $\alpha,\beta,\dots$ are variational parameters. % that changes the shape of the wave functions.
 
-The search in the parameterspace $(\alpha,\beta, \dots)$ can be done by performing MCMC calculations on a grid. 
-More sophisticated methods are also in use, like the conjugate gradient approach which will be described later in this text.
+The search in the parameter space $(\alpha,\beta, \dots)$ can be done by performing a number of MCMC calculations on a grid. 
+More sophisticated methods are also in use, like the stochastic gradient approximation which will be described later in this text.
 
 Since the variance $\expec{\hat H^2}-\expec{\hat H}^2=0$ for the eigenfunctions of $\hat H$, the variance is a measure of how close 
-$\ket{\Psi_T,\alpha,\beta,\dots}$ is to the 'true' ground state wave function of the system. Even is the lowest energy obtained in our simulations will be closest 
-to the ground state energy, the trial function with the lowest variance migt be a better fit to the 'true' groundstate wave function.
+$\ket{\Psi_T,\alpha,\beta,\dots}$ is to the 'true' ground state wave function of the system. Even if the lowest energy obtained in our simulations will be closest 
+to the ground state energy, the trial function with the lowest variance might be a better fit to the 'true' ground state wave function. 
+%It can be shown (ref) that the minima in energy and variance only concedes for the exact ground state wave function.
 %}}}2
 
 \subsection{The trial wave functions}%{{{2
@@ -363,11 +374,13 @@ Our trial wave function can be written on the form
 \begin{align}
 	\Psi(\ts R) = \mathcal D_\downarrow^{\alpha}(\ts R) \mathcal D_\uparrow^\alpha(\ts R) \mathcal J^\beta(\ts R) 
 \end{align}
-Here $\mathcal D_\uparrow(\ts R)$is a slater determinant consisting of the one particle solutions eq. (\ref{1pts}).
+Here $\mathcal D_\uparrow(\ts R)$is a slater determinant consisting of the one particle solutions eq. (\ref{1pts}). Table \ref{tab:orb} shows which orbitals that
+enters the slater determinant up to the $6$'th full shell.
 The slater determinant automatically fulfills the Pauli principle stating that any wave function consisting of identical fermions must be 
 antisymmetric w.r.t. the exchange of two particles.
 $\mathcal D_\downarrow^\alpha(\ts R)$ is the corresponding determinant for the spin down states. Note that in the case of a spin dependent hamiltonian,
 $\mathcal D^\alpha_\downarrow \mathcal D^\alpha_\uparrow$ would have to be written as one single slater determinant to preserve the antisymmetry of the wavefunction.
+This is also the case for the open shell quantum dots since they can have a non zero net spin.
 $\mathcal J^\beta(\ts R)$ is the Jastrow factor which removes the singularities in $\hat H \Psi(\ts R)$ at $\ts r_i = \ts r_j$ (ref).
 We use a Jastrow factor with one variational parameter $\beta$,
 \begin{align}
@@ -407,6 +420,7 @@ Shell& Electrons & One particle orbitals \\
 	is needed to fill the first shell. This corresponds to a two electron quantum dot, one spin up and one spin down electron. The
 	three first orbitals (six electrons) $\psi_{20},\,\psi_{11},\,\psi_{02}$ are needed to fill the second shell. Six orbitals (twelwe electrons) are needed to fill the third shell and so on.
 	%For a quantum dot in the first shell, only $\psi_{00}$ is used, while in the $6$'th shell, all of the orbitals listed above are part of the slater determinants.
+\label{tab:orb}
 }
 \label{tab0}
 \end{center}
@@ -427,14 +441,207 @@ The quantum force
 
 %}}}1
 
-\section{Implementation}%{{{1
+\section{Minimization of the wave functions}%{{{1
+
+The minimization was performed using the stocastic gradient approach (SGA) \cite{harju_1997,harju_2005,nissenbaum_2008}. 
+This is a stocastic procedure which minimizes the gradient of the energy using a large number of sampling points.
+%Advantage: shakes its way out of fake/local minima
+The variational parameters are updated iteratively using the formula
+\begin{align}
+	(\alpha_{n+1},\beta_{n+1})=	(\alpha_{n},\beta_{n}) -
+	&\gamma_n\left({\partial_\alpha},{\partial_\beta}\right) \expec{E_L}\label{eq:sga1}
+\end{align}
+The variable steplength $\gamma_n$ is a system dependent parameter that must fulfill
+\begin{align}
+&	\sum_{n=0}^\infty \gamma_n^2 <
+	\sum_{n=0}^\infty \gamma_n = \infty,\notag\\
+    &\gamma_n>0,\quad
+	lim_{n\to\infty}\gamma_n\to0.\label{eq:sga2}
+\end{align}
+%When $\gamma_n$ gets smaller the parameters $(\alpha_n,\beta_n)$ will oscillate around the minima with an ever decreasing amplitude. 
+%After an initial thermalization phase the average values of $\alpha$ and $\beta$ are collected. 
+
+The SGA is based on the Robbins-Monroe theorem which states that under certain mathematical conditions $\lim_{n\to\infty}(\alpha_n,\beta_n)$ (\ref{eq:sga1})
+are guaranteed to converge towards the minima $(\alpha_{min},\beta_{min})$. The mathematical conditions include (\ref{eq:sga2}) and some constraints on the
+objective function which is typically met by QMC wavefunctions.
+The basis for the theory is discussed in \cite{nissenbaum_2008} with references to the original articles. 
+
+%Choosing the right $\gamma_n$ for the specific system of interest is vital for the rate of convergence of the algorithm.
+%$\gamma_n$ is system dependent, so one should devise an algorithm that automatically finds a good value for $\gamma_n$.
+%With a $\gamma_n$ that decreases slowly, the fluctuations around the minima will be large, and the convergence might be very slow. 
+%With a too large $\gamma_n$ the simulations might spend a long time to reach the minima. 
+%The problem is that each physical system has an different optimal value for $\gamma_n$.
+%Several approaches hes been used to deal with this problem in the literature.
+I have used a $\gamma_n$ on the form
+\begin{align}
+	\gamma_n=(k * n + l )^{-0.8},
+\end{align}
+where $k$ and $l$ are parameters that is calculated as a function of the average values of $|\partial_\alpha\expec{E_L}|$ and $|\partial_\beta\expec{E_L}|$ during the first iterations.
+$l$ is initially chosen to be $0$, and $k$ to be $1$.
+There is one counter $n$ for each of the parameters $\alpha,\beta$ which is updated every time the gradient changes its sign. The reason for this is that it 
+is assumed that whenever the gradient changes its sign, the system is close to it's minima\cite{harju_2005}. 
+
+The maximum step length is set to $0.1$. This stabilizes the simulation during the initial phase when $\gamma_n$ is small and the step length might be large.
+After the thermalization phase $\gamma_n$ is chosen so that the average step length becomes much smaller than $0.1$.
+%The first $30$ iterations is thermalization cycles. During the next $40$ iterations the averages of $|\partial_\alpha\expec{E_L}|$ and $|\partial_\beta\expec{E_L}|$ is collected. 
+%After $70$ iterations, $l$ is chosen so that the average step length in each direction divided by $l$ is equal to $1/300$, $k$ is chosen to be $l/20$ and
+%$n$ is reset to $0$.
+%After $k$ and $l$ are set the averages of the variational parameters are collected. 
+%\end{itemize}
+
+The approximate value of the gradient $\left({\partial_\alpha},{\partial_\beta}\right)\expec{E_L}$ is obtained during a short MC run where $m=\mathcal O (10)$ uncorrelated samples are 
+collected. I have used $m$ different walkers that collect one sample each every iteration. 
+I also tried to use one walker collecting $m$ samples every iteration, but % because of the high correlation between the samples, it was 
+%necessary to use a high number of samples $\matcal O(10^3)$ for the simulation to give the correct results. 
+the high correlation between the samples leads to bad results if the number of samples is much smaller than the correlation length ($\mathcal O(10^3)$). 
+%(close to the correlation length found during the blocking analysis), while $\mathcal O(10)$ is enough when $m$ walkers are used. 
+After my experience, using many uncorrelated walkers instead of one speeds up the algorithm considerably since the total number of samples decreases.
+
+
+See algorithm \ref{minalg} for a detailed pseudo code.
+
+The algorithm proved efficient when applied on the full shell quantum dots.%, generally converging to results with an error close to $(10^{-3})$ in less than $10^6$.total MC samples.
+The optimization of the two particle quantum dots is done in a few seconds, the six particle quantum dot in less than thirty seconds and the twelve particle QD in about four minutes.
+All with an statistical error close to $10^{-3}$.
+
+Note that the optimization converges much faster than one can calculate the energy. For example, to optimize the two particle quantum dot with an error in the variational parameters 
+$\sim10^{-3}$, only a few hundred thousand samples is needed (see figure ?), with a minima that is accurate to $\mathcal O (10^{-5})$ Hartrees. 
+To obtain the energy with an error $\sim 10^{-5}$ Hartrees about $10^8$ MC-samples are needed.
+\begin{algorithm}[h!]
+\begin{algorithmic}
+\STATE{**Initialize $m$ walkers**}
+\STATE{$k_\alpha\gets0,l_\alpha\gets1$}
+\STATE{$k_\beta\gets0,l_\beta\gets1$}
+	\LOOP{}
+		\STATE{$n=n+1$}
+		\FOR{all walkers }
+			\STATE{propose new position for walker}
+			\STATE{accept/reject move (metropolis test)}
+			\STATE{sample $\left({\partial_\alpha},{\partial_\beta}) E_L ,E_L$, $({\partial_\alpha},{\partial_\beta}) E_L* E_L$}
+		\ENDFOR{}
+		\STATE{$(\partial_\alpha,\partial_\beta)\expec{E_L}\gets$ use eq. (\ref{abgd})}
+		\FOR{$\nu=\{\alpha,\beta\}$}
+			\IF{$n\in[N_A,N_B)$}
+				\STATE{$\Delta_\nu\gets\Delta_\nu+|\partial_\nu\expec{E_L}|$}
+				%\STATE{$\Delta_\beta=\Delta_\beta+|\partial_\beta\expec{E_L}|$}
+			\ENDIF{}
+			\IF{$n=N_B$}
+				\STATE{$l_\nu\gets D^{E} (\Delta_\nu/(N_B-N_A))^{-E} $}
+				\STATE{$k_\nu\gets l_\nu/F$}
+				\STATE{$n\gets0$}
+				%\STATE{$l_\beta=300^{0.8} (\Delta_\beta/40)^{0.8} $}
+				%\STATE{$k_\alpha=l_\alpha/20$}
+			\ENDIF{}
+			\IF{$|\partial_\nu\expec{E_L}|>d_{max}$}
+				\STATE{$\nu\gets\nu-d_{max}*\partial_\nu\expec{E_L}/|\partial_\nu\expec{E_L}|$}
+			\ELSE{}
+				\STATE{$\nu\gets\nu-\partial_\nu\expec{E_L}(k_\nu*n+l_\nu)^{-E}$}
+			\ENDIF{}
+			%\IF{$\partial_\beta\expec{E_L}>0.1$}
+			%	\STATE{$\beta=\beta-0.1$}
+			%\ELSE{}
+			%	\STATE{$\beta=\beta-\partial_\beta\expec{E_L}(k_\beta*n+l_\beta)^{-0.8}$}
+			%\ENDIF{}
+			\IF{$\nu< v_{min}$}
+				\STATE{$\nu\gets v_{min}$}
+			\ENDIF{}
+			\IF{$\partial_\nu\expec{E_L}$ has changed its sign}
+				\STATE{$n_\nu\gets n_\nu+1$}
+			\ENDIF{}
+		\ENDFOR{}
+		\IF{$n>N_C$}
+			\STATE{accumulate mean values of $\alpha,\beta$}
+		\ENDIF{}
+	\ENDLOOP{}
+\end{algorithmic}
+\caption{My implementation of the SGA. %All numbers are tunable parameters that can be changed.
+$N_A,N_B,N_C$ start/stop collecting mean of gradient. At $n=N_B$, $k,l$ is calculated.
+At $N_C$ the system should be close to the minima, and we start collecting data $(\alpha,\beta)$.
+$v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit of the 
+length of the components of the gradient. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
+I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.1$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. 
+}
+\label{minalg}
+\end{algorithm}
+
+\begin{figure}[h!]
+\begin{center}
+\caption{{\it%\small 
+	Minimization of a $6$ particle (top) and a $12$ particle (bottom) quantum dot using an $\omega = 1$ and a $\delta t=0.05$. $N_C$ is the total number of MC-samples. 
+	The red line shows the $\alpha$ and $\beta$ values at $N_C$, while the black line shows the accumulated mean.
+	The means are quickly converging towards the optimal results ($\beta=0.399$, $\alpha=0.988$) (top) and ($\beta=0.877$, $\alpha=0.657$) (bottom), 
+	only using a total of total of $6\times10^5$ samples. }}
+\vspace{-.3cm}
+	\includegraphics[width=7.8cm]{../plots/minimization_2pt_omg1.eps}
+%\end{center}
+%\end{figure}
+%\begin{figure}[h]
+%\begin{center}
+	\includegraphics[width=7.8cm]{../plots/minimization_12pt_omg1.eps}
+\end{center}
+\vspace{-.8cm}
+\end{figure}
+
+
+
+%We first tried to use the minimization algorithm we use is the Broyden-Fletcher-Goldfarb-Shannon (BFGS) method. The algorithm itself is copied from (ref numerical recipes), and is a 
+%so called Quasi-Newton method which iteratively updates the inverse hessian matric $A^{-1}$, which has the property.
+%\begin{align}
+%	(\alpha_{min},\beta_{min})= (\alpha_{0},\beta_{0}) - A^{-1}\cdot \nabla \Psi(\ts R,\alpha,\beta)\big|_{(\alpha_{0},\beta_{0})}
+%\end{align}
+%The function recieves pointers to a sampling method which returns the energy $\expec {\hat E_L}$ and the gradient of the energy in the point $(\alpha,\beta)$, and updates the
+%inverse hessian every time new values are returned. The function also recieves a variable \verb gtol  which sets the limit of convergence for the algorithm. If \verb gtol  $=0$ 
+%the function will continue iterating till it has localized the point where the gradient is zero. 
+
+%The algorithm performs badly if {\verb gtol } is to high or if the number of cycles used to find the energy is to low. On the other hand, minimizing the function
+%with a high accuracy can be very time consuming. I found that a good strategy is to use %a large {\verb gtol } in the range $\mathcal O(10^{-4})-\mathcal O(10^{-5})$ with
+%a lesser number of sampling cycles $\mathcal O (10^4)-\mathcal O(10^5)$ to get an estimate to the optimal values for $\alpha,\,\beta$. Then I use a %small {\verb gtol }
+%%$\mathcal O(10^{-8})$ and a 
+%larger number of sampling cycles $\mathcal O (10^6)-\mathcal O (10^7)$ to find a better approximation. 
+%
+%The BFGS algorithm is a deterministic approach designed to work well when applied on a deterministic system. For a stocastic system like ours, the algorithm was very inefficient.
+%To obtain the minima in $(\alpha,\beta)$ with 3 significant digits, I used $10^7$ sampling cycles to sample each point $(\alpha_i,\beta_i)$. Even with a good starting point, the total number of
+%samples needed to find a minima exceeded $10^8$, often giving bad results because of false minima induced by statistical fluctuations. 
+%
+%starting vals alpha,beta .5,.5
+%
+
+%
+%
+%
+%The minimas are very good. 
+%To distinguish the energy between minimas that is as close as $10^{-3}$ in $(\alpha,\beta)$, more than $\mathcal O 10^8$ 
+%cycles are needed. ...
+%
+%  To obtain   energies was calculated using $\mathcal O 10^8$ cycles  b0.399/0.401, a0.988/.99, E3.00038/3.00040, error $\sim 10^{-5}$
+%
+%
+%Comparisons with the literature:
+%Nissenbaum has implemented a different SGA algirithm in \cite{nissenbaum_2008}. Here a line search is performed each step. This means that it is unneccesary to tune $\gamma_n$
+%for each new system. An other advantage is that the algorithm is much more efficient for asymmetric objective functions ... 
+%One way of performing the line search would be to calculate the hessian matrix and
+%For example, in \cite{nissenbaum_2008} a line search is performed along the direction of the gradient to find the minima during each iteration. 
+%One possibility is to calculate the hessian matrix and to use the Newton method. 
+%It is reported that this approach speeds up the convergence considerably. 
+%Mainly for unsymmetrical minima, because of the difference in the magnitude of the
+%gradient in the neighbourhood of the minima. steep side: shoots out to flat side, long way back..
+%
+
+
+%COMPARISONS:
+%Example: %(d/da = (f(a+h)-f(a+h))/2h),h=0.001. For example, for $\omega = 0.28,\, \Delta t=0.05$ with $6$ electrons, I got the results $\alpha=0.87269,\beta=0.32655$ giving an
+%energy $E=7.6214(1)$ and a variance ... . $(?).6218(1)$ .
+%}}}1
+
+\section{Implementation and optimization}%{{{1
 
 The simulator can be efficiently optimized by implementing some mathematical shortcuts. The optimalizations can only be done if we only change the position of one electron at the time.
 The metropolis-hastings test is performed each cycle, while the energy and other observables are updated when we have cycled through all electrons. It would also be possible to
 evaluate the energy every time a electron has been moved, but this would not be favorable for a system with many electrons since the correlation between the samples would be very high, 
 and the evaluation of the energy consumes too many flops. 
 
-\subsection{Optimalization of $\mathcal D^\alpha(\ts R)$}
+
+\subsection{Optimalization of $\mathcal D^\alpha(\ts R)$} %{{{2
 
 The inverse $D^{-1}$ of a matric $D$ can be written as the cofactor matrix $C/|D|$. $C$ has the elements $C_{ij}=|S_{ij}|$ where $S_{ij}$ is a sub matrix of $D$ with the $i$'th row and the 
 $j$'th coloumn removed. The determinant $|D|$ can be expressed as 
@@ -464,15 +671,29 @@ $\ts R'$ is equal to $\ts R$ except for the coordinates of one electron.
 The expressions for $\partial_{r_i}\mathcal D_{ij}$ and
 $\partial^2_{r_i}\mathcal D_{ij}$ is calculated by evaluating the analytical expressions 
 \begin{align}
-	\partial^2_{r_i}\mathcal D_{ij} = \partial^2_{r_i}\psi_i(\ts r_j)=\notag\\
- 	\partial_{r_i}\mathcal D_{ij} = \partial_{r_i}\psi_i(\ts r_j)=\notag\\
+	\partial^2_{r_i}\mathcal D_{ij} &= % \partial^2_{r_i}=\notag\\
+	\psi_{n_{xi},n_{yi}}((x_j,y_j),\alpha) \, \omega\alpha\notag\\
+	&\bigg( 
+		\frac{\omega}2(x_j^2+y_j^2)-2\notag\\
+	&	+4n_{xi}(n_{xi}-1) \frac{H_{n_{xi}-2}(\sqrt{\omega\alpha}x_j)}{H_{n_{xi}}(\sqrt{\omega\alpha}x_j)}\notag\\
+	&	+4n_{yi}(n_{yi}-1) \frac{H_{n_{yi}-2}(\sqrt{\omega\alpha}y_j)}{H_{n_{yi}}(\sqrt{\omega\alpha}y_j)}\notag\\
+	&		-4x\sqrt{\omega\alpha}\,n_{xi}\frac{H_{n_{xi}-1}(\sqrt{\omega\alpha}x_j)}{H_{n_{xi}}(\sqrt{\omega\alpha}x_j)}\notag\\
+	&		-4y\sqrt{\omega\alpha}\,n_{yi}\frac{H_{n_{yi}-1}(\sqrt{\omega\alpha}y_j)}{H_{n_{yi}}(\sqrt{\omega\alpha}y_j)}
+	\bigg)\\
+ 	\partial_{r_i}\mathcal D_{ij} &%= \partial_{r_i}\psi_i(\ts r_j)=\notag\\
+	=\psi_{n_{xi},n_{yi}}((x_j,y_j),\alpha) \notag\\
+		&\bigg( 
+		\ts e_x(2n_{xi}\sqrt{\omega\alpha}\frac{H_{n_{xi}-1}(\sqrt{\omega\alpha}x_j)}{H_{n_{xi}}(\sqrt{\omega\alpha}x_j)}-x\omega\alpha)\notag\\
+		&\ts e_y(2n_{yi}\sqrt{\omega\alpha}\frac{H_{n_{yi}-1}(\sqrt{\omega\alpha}y_j)}{H_{n_{yi}}(\sqrt{\omega\alpha}y_j)}-y\omega\alpha)
+		\bigg)
 \end{align}
 The expressions is derived using the same strategy as we have used when $(\partial_\alpha)\psi_i(\ts r_j)$ is derived in appendix A.
-
+The full derivation is found in \cite{lars_eivind_thesis}.
 When only one particle is updated, only one of the determinants $\mathcal D_\downarrow$, $\mathcal D_\uparrow$ needs to be evaluated since ...
+Analytical vs. numerical derivatives.
+%}}}2
 
-
-\subsection{Optimalization of $\mathcal J^\beta(\ts R)$ and $r_{ij}$}
+\subsection{Optimalization of $\mathcal J^\beta(\ts R)$ and $r_{ij}$}%{{{2
 There are only $n(n-1)/2$ distinct values of $r_{ij}$. Therefore, all values can be stored in a lower tridiaginal matric with zeros on the diagonal.
 \begin{align}
 	P = 
@@ -484,7 +705,7 @@ There are only $n(n-1)/2$ distinct values of $r_{ij}$. Therefore, all values can
 	r_{41} 	& r_{42}&r_{43} & &\\
 	\vdots 	& 		& 		& &\\
 \end{matrix}
-\right)
+\right)\label{eqP}
 \end{align}
 If we move one electron, only $(n-1)$ elements has to be updated. 
 
@@ -501,132 +722,20 @@ when only the electron with coordinates $\ts r_k$ has been moved. This expressio
 \end{align}
 The laplacian and the gradient $..$ can be evaluated ...
 the gradient: subltract old value, add new.
- 
-\subsection{Minimization of the wave functions, optimalization of $(\partial_\alpha,\partial_\beta)\expec{E_L}$}
-%We first tried to use the minimization algorithm we use is the Broyden-Fletcher-Goldfarb-Shannon (BFGS) method. The algorithm itself is copied from (ref numerical recipes), and is a 
-%so called Quasi-Newton method which iteratively updates the inverse hessian matric $A^{-1}$, which has the property.
-%\begin{align}
-%	(\alpha_{min},\beta_{min})= (\alpha_{0},\beta_{0}) - A^{-1}\cdot \nabla \Psi(\ts R,\alpha,\beta)\big|_{(\alpha_{0},\beta_{0})}
-%\end{align}
-%The function recieves pointers to a sampling method which returns the energy $\expec {\hat E_L}$ and the gradient of the energy in the point $(\alpha,\beta)$, and updates the
-%inverse hessian every time new values are returned. The function also recieves a variable \verb gtol  which sets the limit of convergence for the algorithm. If \verb gtol  $=0$ 
-%the function will continue iterating till it has localized the point where the gradient is zero. 
+%}}}2 
 
-%The algorithm performs badly if {\verb gtol } is to high or if the number of cycles used to find the energy is to low. On the other hand, minimizing the function
-%with a high accuracy can be very time consuming. I found that a good strategy is to use %a large {\verb gtol } in the range $\mathcal O(10^{-4})-\mathcal O(10^{-5})$ with
-%a lesser number of sampling cycles $\mathcal O (10^4)-\mathcal O(10^5)$ to get an estimate to the optimal values for $\alpha,\,\beta$. Then I use a %small {\verb gtol }
-%%$\mathcal O(10^{-8})$ and a 
-%larger number of sampling cycles $\mathcal O (10^6)-\mathcal O (10^7)$ to find a better approximation. 
-%
-%The BFGS algorithm is a deterministic approach designed to work well when applied on a deterministic system. For a stocastic system like ours, the algorithm was very inefficient.
-%To obtain the minima in $(\alpha,\beta)$ with 3 significant digits, I used $10^7$ sampling cycles to sample each point $(\alpha_i,\beta_i)$. Even with a good starting point, the total number of
-%samples needed to find a minima exceeded $10^8$, often giving bad results because of false minima induced by statistical fluctuations. 
-%
-%starting vals alpha,beta .5,.5
-%
-
-The minimization was performed using the stocastic gradient approach (SGA) \cite{harju_1997,harju_2005,nissenbaum_2008}. 
-The variational parameters are updated iteratively
-\begin{align}
-	(\alpha_{n+1},\beta_{n+1})=	(\alpha_{n},\beta_{n}) -
-	&\gamma_n\left({\partial_\alpha},{\partial_\beta}\right) \expec{E_L}\label{eq:sga1}
-\end{align}
-The variable steplength $\gamma_n$ is a system dependent parameter that must fulfill
-\begin{align}
-&	\sum_{n=0}^\infty \gamma_n^2 <
-	\sum_{n=0}^\infty \gamma_n = \infty,\notag\\
-    &\gamma_n>0,\quad
-	lim_{n\to\infty}\gamma_n\to0.\label{eq:sga2}
-\end{align}
-When $\gamma_n$ gets smaller the parameters $(\alpha_n,\beta_n)$ will oscillate around the minima with a decreasing amplitude. 
-
-The SGA is based on the Robbins-Monroe theorem which states that under certain mathematical conditions the series (\ref{eq:sga1})
-are guaranteed to converge towards the minima $(\alpha_{min},\beta_{min})$. The mathematical conditions include (\ref{eq:sga2}) and some constraints on the
-objective function which is typically met by QMC wavefunctions.
-The basis for the theory is discussed in \cite{nissenbaum_2008} with references to the original articles. 
-
-Choosing the right $\gamma_n$ is vital for the rate of convergence of the algorithm.
-$\gamma_n$ is system dependent, so one should devise an algorithm that automatically finds a good value for $\gamma_n$.
-%With a $\gamma_n$ that decreases slowly, the fluctuations around the minima will be large, and the convergence might be very slow. 
-%With a too large $\gamma_n$ the simulations might spend a long time to reach the minima. 
-%The problem is that each physical system has an different optimal value for $\gamma_n$.
-%Several approaches hes been used to deal with this problem in the literature.
-I have used a simple algorithm with a $\gamma_n$ on the form
-\begin{align}
-	\gamma_n=(n_0 + k_n * n)^{-0.8},
-\end{align}
-where $k_n$ and $n_0$ are parameters that is calculated as a function of the average length of the gradient during an initial thermalization phase.
-There is one counter $n$ for each of the parameters $\alpha,\beta$ which is updated every time the gradient changes its sign. The reason for this is that it 
-is assumed that whenever the gradient changes its sign, the system is close to it's minima. After the thermalization phase, each of the counters are set to $0$
-
-I have found that the following procedure works well:
-\begin{itemize}
-\item The maximum step length is set to $0.01$. This stabilizes the simulation during the initial phase when $\gamma_n$ is small and the step length might be large.
-	After the thermalization phase the average step length becomes much smaller than $0.01$.
-\item $n_0$ is initially chosen to be $0$, and $k_n$ to be $1$.
-\item $n$ is updated every time the gradient changes its sign.
-\item The $30$ first cycles is thermalization cycles. During the next $40$ cycles the average of the absolute value of the gradient is collected. 
-After the $70$ first iterations, $n_0$ is chosen so that the average step length multiplied by $n_0$ is equal to $1/400$. $k_n$ is chosen to be $1/40$ of $n_0$. 
-$n$ is reset to $0$.
-\item Averages are collected after the system is thermalized and $n_0$ and $k_n$ is calculated.
-\end{itemize}
-The approximate value of the gradient $\left({\partial_\alpha},{\partial_\beta}\right)\expec{E_L}$ is obtained during a short MC run, with $m=\mathcal O (1000)$.
-(This is close to correlation length found during the blocking analysis). I get bad results if $m$ is chosen to be smaller than this. 
-
-The algorithm proved efficient when applied on the full shell quantum dots, generally converging to results with an error close to $(10^{-3})$ in less than $10^6$
-total MC cycles. The minimas are very good. To distinguish the energy between minimas that is as close as $10^{-3}$ in $(\alpha,\beta)$, more than $\mathcal O 10^8$ 
-cycles are needed. ...
-
-   To obtain   energies was calculated using $\mathcal O 10^8$ cycles  b0.399/0.401, a0.988/99, E3.00038/3.00040, error $\sim 10^{-5}$
-
-
-Comparisons with the literature:
-Harju et. al. has implemented an SGA algorithm in \cite{harju_2005}. Here the number of cycles $m$ is set to $\mathcal O(10^1)-\mathcal O(10^2)$. My algorithm gives bad results for 
-$m$ that is smaller than $\mathcal O(10^3)$. On main difference between his implementation and mine is that he uses 10 (?) uncorrelated walkers or more, while I use only one. 
-The high correlation between the samples will lead to bad results if the number of samples is much smaller than the correlation length. Therefore I think that it would be better to 
-use a larger number of walkers.
-
-Nissenbaum has implemented a different SGA algirithm in \cite{nissenbaum_2008}. Here a line search is performed each step. This means that it is unneccesary to tune $\gamma_n$
-for each new system. An other advantage is that the algorithm is much more efficient for asymmetric objective functions ... 
-One way of performing the line search would be to calculate the hessian matrix and
-For example, in \cite{nissenbaum_2008} a line search is performed along the direction of the gradient to find the minima during each iteration. 
-One possibility is to calculate the hessian matrix and to use the Newton method. 
-It is reported that this approach speeds up the convergence considerably. 
-%Mainly for unsymmetrical minima, because of the difference in the magnitude of the
-%gradient in the neighbourhood of the minima. steep side: shoots out to flat side, long way back..
-%
-\begin{figure}[h]
-\begin{center}
-%	\includegraphics[width=7.8cm]{../plots/minimization_2pt_omg1.eps}
-%\end{center}
-%\vspace{-.8cm}
-%\end{figure}
-%\begin{figure}[h]
-%\begin{center}
-	\includegraphics[width=7.8cm]{../plots/minimization_12pt_omg1.eps}
-\end{center}
-\vspace{-.8cm}
-\caption{{\it\small 
-	Minimization of a $12$ particle quantum dot. $N_C$ is the total number of MC-samples. 
-	The red line shows the $\alpha$ and $\beta$ values at $N_C$, while the black line shows the accumulated mean.
-	The mean are quickly converging to the optimal results  $\beta=0.877$ and $\alpha=0.657$, only using a total of total of $6\times10^5$ samples. }}
-\end{figure}
-
-
-The gradient are calculated using analytical expressions for the energy. 
-In the cases where comparisons where performed, the analytical expressions gave better results then the numerical derivatives.
-
-COMPARISONS:
-Example: %(d/da = (f(a+h)-f(a+h))/2h),h=0.001. For example, for $\omega = 0.28,\, \Delta t=0.05$ with $6$ electrons, I got the results $\alpha=0.87269,\beta=0.32655$ giving an
-%energy $E=7.6214(1)$ and a variance ... . $(?).6218(1)$ .
-
-The gradient of the expectationvalue of the energy can be written \cite{lin_2000}
+\subsection{Optimalization of $(\partial_\alpha,\partial_\beta)\expec{E_L}$}%{{{2
+The gradient are calculated using an analytical expression for the energy. 
+%In the cases where comparisons where performed, the analytical expressions gave better results then the numerical derivatives.
+%The gradient of the expectationvalue of the energy can be written 
+\cite{lin_2000}
 \begin{align}
 	&\left({\partial_\alpha},{\partial_\beta}\right) \expec{E_L} = \notag\\
 		&2\Big\langle\frac{\left({\partial_\alpha},{\partial_\beta}\right)\Psi}{\Psi} E_L\Big\rangle
-		-2\Big\langle\frac{\left({\partial_\alpha},{\partial_\beta}\right)\Psi}{\Psi}\Big\rangle\expec{E_L}  
+		-2\Big\langle\frac{\left({\partial_\alpha},{\partial_\beta}\right)\Psi}{\Psi}\Big\rangle\expec{E_L}\label{abgd},
 \end{align}
-To find the gradients I used the expression
+%To find the gradients I used the expression
+where
 \begin{align}
 	&\frac{\left({\partial_\alpha},{\partial_\beta}\right) \Psi(\ts R,\alpha,\beta)}{\Psi(\ts R,\alpha,\beta)}\notag\\
 	&= 	\left(\frac{\partial_\alpha \mathcal D(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}
@@ -639,7 +748,7 @@ From the definition of the Jastrow eq. (..) we can derive
 	\frac {r_{kl}} {1+\beta r_{kl}}.
 \right)^2
 \end{align}
-The expression is calculated as a sum over the relevant distances $r_{kl}=|\ts r_k-\ts t_l|$ which is already stored as a class variable in the class \verb ipdist  .
+The expression is calculated as a sum over the relevant distances $r_{kl}=|\ts r_k-\ts t_l|$ which is already stored in the matrix $P$ (\ref{eqP}).
 The gradient of alpha is calculated using the expression:
 \begin{align}
 	&\frac{\partial_\alpha \mathcal D(\ts R,\alpha)}{\mathcal D(\ts R,\alpha)}=\sum_i\sum_j(\partial_\alpha \psi_i(\ts r_j,\alpha)) \mathcal D^{-1}_{ji} %INDEXES OK??
@@ -656,12 +765,15 @@ The gradient of alpha is calculated using the expression:
 Here $r_j\to(x_j,y_j)$ and $i\to n_{xi},n_{yi}$.  
 The values 	$\partial_\alpha \psi_i(\ts r_j,\alpha)$ are already stored in the matrix $\mathcal D$, and does not have to be calculated. 
 All of the analytical expressions above is derivated in appendix A.
+%}}}2
 %}}}1
 
-\section{Results}
+\section{Results} %{{{1
 
 The results are summarized in tables \ref{tab1} and \ref{tab2}. I have used the values $\omega=0.28,0.5,1.0$ and $\Delta t = 0.01,0.25,0.05$ to be able to compare my 
 results with ref(...). I have also calculated the values using the same number of cycles. The results are well consistent with the results of (refLE),..
+
+Speed tests.
 
 %but the minima obtained seems to give lower energies in most cases cases. 
 %This can probably be explained by the fact that I have used a analytical expression to calculate $(\partial_\alpha,\partial_\beta) \expec{E_L}$ while
@@ -771,6 +883,8 @@ $N_{p}$ & $\omega$ & $\Delta t$ & $N_{s}$ & $\expec{E_L}$ & $\sigma^2$ \\
 %\hspace{50mm}
 \end{table}
 
+%}}}1
+
 \begin{appendix}
 \section{Derivation of the analytical expressions for $(\partial_\alpha,\partial_\beta)\expec{\hat H}$}%{{{1
 
@@ -867,8 +981,8 @@ We combine eq. (\ref{A1}), eq. (\ref{A2}) and eq. (\ref{A3})
 	&\partial_\alpha \psi_i(\ts r_j,\alpha)=\notag\\
 	&\psi_{n_{xi},n_{yi}}((x_j,y_j),\alpha)
 	\bigg(
-	 	n_{xi} \sqrt{\frac\omega\alpha} \frac{H_{n_{xi}-1}(\sqrt{\omega\alpha}x_j)}{H_{n_{xi}}(\sqrt{\omega\alpha}x_j)}\notag\\
-	 	&+n_{yi} \sqrt{\frac\omega\alpha} \frac{H_{n_{yi}-1}(\sqrt{\omega\alpha}y_j)}{H_{n_{yi}}(\sqrt{\omega\alpha}y_j)}
+	 	x_j n_{xi} \sqrt{\frac\omega\alpha} \frac{H_{n_{xi}-1}(\sqrt{\omega\alpha}x_j)}{H_{n_{xi}}(\sqrt{\omega\alpha}x_j)}\notag\\
+	 	&+y_j n_{yi} \sqrt{\frac\omega\alpha} \frac{H_{n_{yi}-1}(\sqrt{\omega\alpha}y_j)}{H_{n_{yi}}(\sqrt{\omega\alpha}y_j)}
 		-\frac{\omega}2(x_j^2+y_j^2)
 	\bigg)
 \end{align}

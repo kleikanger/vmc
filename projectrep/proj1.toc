@@ -9,12 +9,13 @@
 \contentsline {subsection}{\numberline {4.1}Introduction}{3}
 \contentsline {subsection}{\numberline {4.2}Variational Monte Carlo}{4}
 \contentsline {subsection}{\numberline {4.3}The trial wave functions}{4}
-\contentsline {subsection}{\numberline {4.4}Brute force sampling}{4}
-\contentsline {subsection}{\numberline {4.5}Sampling based on Langevin dynamics}{4}
-\contentsline {section}{\numberline {5}Implementation}{5}
-\contentsline {subsection}{\numberline {5.1}Optimalization of $\mathcal D^\alpha (\textbf {R})$}{5}
-\contentsline {subsection}{\numberline {5.2}Optimalization of $\mathcal J^\beta (\textbf {R})$ and $r_{ij}$}{5}
-\contentsline {subsection}{\numberline {5.3}Minimization of the wave functions, optimalization of $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{E_L}\delimiter "526930B {}$}{6}
-\contentsline {section}{\numberline {6}Results}{8}
-\contentsline {section}{\numberline {A}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{8}
+\contentsline {subsection}{\numberline {4.4}Brute force sampling}{5}
+\contentsline {subsection}{\numberline {4.5}Sampling based on Langevin dynamics}{5}
+\contentsline {section}{\numberline {5}Minimization of the wave functions}{5}
+\contentsline {section}{\numberline {6}Implementation and optimization}{6}
+\contentsline {subsection}{\numberline {6.1}Optimalization of $\mathcal D^\alpha (\textbf {R})$}{6}
+\contentsline {subsection}{\numberline {6.2}Optimalization of $\mathcal J^\beta (\textbf {R})$ and $r_{ij}$}{7}
+\contentsline {subsection}{\numberline {6.3}Optimalization of $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{E_L}\delimiter "526930B {}$}{8}
+\contentsline {section}{\numberline {7}Results}{8}
+\contentsline {section}{\numberline {A}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{9}
 \contentsline {section}{\numberline {B}Pseudocode:}{10}

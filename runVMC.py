@@ -26,12 +26,12 @@ use_dmc_sampler 	= True
 
 #vmc variables
 #(for cgm and , min_alpha, min_beta is the starting point)
-omega 				= 1
+omega 				= .28
 delta_t				= .005
-min_alpha 	 		= .9#8718 # 0.93 # 0.98 #init value cgm-method and DMC
+min_alpha 	 		= .899#8718 # 0.93 # 0.98 #init value cgm-method and DMC
 max_alpha 		 	= 0.5
 alpha_variations 	= 1 	#min 1
-min_beta 	 		= .42#.6677 #0.56 # 0.4 	#init value cgm-method and DMC
+min_beta 	 		= .414#.6677 #0.56 # 0.4 	#init value cgm-method and DMC
 max_beta 		 	= 0.9
 beta_variations 	= 1 	#min 1
 number_of_particles = 2
@@ -95,7 +95,7 @@ use_cgm_minimization = ''
 def gen_sampl_h():
 	#use conjugate gradient method minimization
 	if conjugate_gradient:
-		use_cgm_minimization = 'true'
+		use_cgm_minimization = 'false'
 	else: 
 		use_cgm_minimization = 'false'
 	
@@ -169,7 +169,21 @@ def run():
 #############
 #run program#
 #############
-
+number_of_processors= 2
+number_of_walkers 	= 1000 #total number on all procs
+num_cycles_main_loop= 200
+num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
+num_c_equilibri_loop= 3000
+initial_e_trial 	= 3.0004
+min_alpha 			= .873
+min_beta 			= .326
+omega 				= .28
+number_of_particles = 6
+#reproduces results ref to in LE's master
+delta_t=0.005
+#run()
+delta_t=0.001
+#run()
 
 omega 				= .5
 delta_t 			= .05
@@ -183,54 +197,111 @@ num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
 num_c_equilibri_loop= 3000
 
 
+number_of_processors= 2
+number_of_particles = 6
 conjugate_gradient 	= False
 sample_on_grid 		= True
 use_dmc_sampler 	= False
 sampling_cycles 	= 1e8
-min_alpha 		 	= .414
-min_beta 	 		= .899
-run()
-min_alpha 		 	= .413
-min_beta 	 		= .900
-run()
+min_alpha 		 	= .899
+min_beta 	 		= .414
+#run()
+min_alpha 		 	= .900
+min_beta 	 		= .413
+#run()
 
+#MINIMIZATION
+omega 				= .1
 conjugate_gradient 	= True
 sample_on_grid 		= False
 use_dmc_sampler 	= False
-number_of_particles = 6
-num_cycles_main_loop= 100000 #30000
+number_of_particles = 2
+num_cycles_main_loop= 500000 #30000
 number_of_walkers 	= 30 #total number on all procs
 num_c_ET_upd_loop 	= 1 #O(100)-O(1000)
 number_of_processors= 2
-run()
-run()
-run()
-run()
-number_of_processors= 1
-run()
-run()
-run()
-run()
+#run()
+#run()
+#run()
+#run()
 
-number_of_particles = 12
+omega = .1
 number_of_processors= 2
-run()
-run()
-run()
-run()
-number_of_processors= 1
-run()
-run()
-run()
-run()
+delta_t=0.05
+number_of_particles = 2
+#run()
+#run()
+#run()
+#run()
+number_of_particles = 6
+#run()
+#run()
+#run()
+#run()
+number_of_particles = 12
+#run()
+#run()
+#run()
+#num_cycles_main_loop= 1000000 #30000
+#run()
 
-#do simulations : change values between runs
-#delta_t = 0.01
+omega 				= .1
+conjugate_gradient 	= False
+sample_on_grid 		= False
+use_dmc_sampler 	= True
+number_of_particles = 2
+number_of_processors= 2
+
+number_of_walkers 	= 1000 #total number on all procs
+num_cycles_main_loop= 3000
+num_c_ET_upd_loop 	= 100 #O(100)-O(1000)
+num_c_equilibri_loop= 5000#3000
+initial_e_trial 	= 3.0004
+number_of_particles = 2
+min_beta 			= 0.177
+min_alpha   		= 0.949
+#delta_t = 0.007
 #run()
-#delta_t = 0.025
+#delta_t = 0.005
 #run()
-#delta_t = 0.05
+delta_t = 0.003
+run()
+delta_t = 0.001
 #run()
+
+min_beta 			= 0.219
+min_alpha   		= 0.810
+number_of_particles = 6
+delta_t = 0.007
+#run()
+write_blocking_data = 'true'
+delta_t = 0.005
+#run()
+write_blocking_data = 'false'
+delta_t = 0.003
+#run()
+delta_t = 0.001
+#run()
+number_of_particles = 12
+min_beta 			= 0.253
+min_alpha   		= 0.727
+delta_t = 0.007
+run()
+write_blocking_data = 'true'
+delta_t = 0.005
+write_blocking_data = 'false'
+run()
+delta_t = 0.003
+run()
+delta_t = 0.001
+#run()
+
+conjugate_gradient 	= False
+sample_on_grid 		= True
+use_dmc_sampler 	= False
+delta_t = 0.05
+#run()
+
 
 #CGM:
 #

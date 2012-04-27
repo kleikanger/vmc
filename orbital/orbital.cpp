@@ -121,6 +121,10 @@ double orbital::valueWF(double* dR) const {
 		case 5: return h1(dR[0],sq_omg_alp)*h1(dR[1],sq_omg_alp)
 				*psi_10(r_sqrd,omg_alp);//n_y=1,n_x=1
 		case 6: return h2(dR[0],omg_alp)*psi_10(r_sqrd,omg_alp);//n_y=0,n_x=2
+		case 7: return h3(dR[0],sq_omg_alp)*psi_10(r_sqrd,omg_alp);//x3 y0
+		case 8: return h2(dR[0],omg_alp)*h1(dR[1],sq_omg_alp)*psi_10(r_sqrd,omg_alp);//x2 y1
+		case 9: return h1(dR[0],sq_omg_alp)*h2(dR[1],omg_alp)*psi_10(r_sqrd,omg_alp);//x1 y2
+		case 10: return h3(dR[1],sq_omg_alp)*psi_10(r_sqrd,omg_alp);//x0 y3
 		default: 
 				cerr<<"\n error in orbital::orbitalWavefunctions(): energy_level out of bounds\n"
 					<<", energy_level= " <<energy_level<<"\n";
@@ -181,6 +185,26 @@ double orbital::D1(double* dR, const int &axis) const {
 				( 4.*sq_omg_alp*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)-dR[0]*omg_alp );	
 				else return
 				( -dR[1]*omg_alp );
+		case 7: //x3 y0
+				if (axis==0) return 
+				( 6.*sq_omg_alp*h2(dR[0],omg_alp)/h3(dR[0],sq_omg_alp)-dR[0]*omg_alp );	
+				else return
+				( -dR[1]*omg_alp );
+		case 8: //x2 y1
+				if (axis==0) return 
+				( 4.*sq_omg_alp*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)-dR[0]*omg_alp );	
+				else return
+				( 2.*sq_omg_alp/h1(dR[1],sq_omg_alp)-dR[1]*omg_alp );	
+		case 9: //x1 y2
+				if (axis==0) return 
+				( 2.*sq_omg_alp/h1(dR[0],sq_omg_alp)-dR[0]*omg_alp );	
+				else return
+				( 4.*sq_omg_alp*h1(dR[1],sq_omg_alp)/h2(dR[1],omg_alp)-dR[1]*omg_alp );	
+		case 10: //x0 y3
+				if (axis==0) return 
+				( -dR[0]*omg_alp );
+				else return
+				( 6.*sq_omg_alp*h2(dR[1],omg_alp)/h3(dR[1],sq_omg_alp)-dR[1]*omg_alp );	
 		default: 
 				cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"
 					<<", energy_level= " <<energy_level<<"\n";
@@ -240,6 +264,32 @@ double orbital::D2(double* dR) const
 		case 6: return //x2,y0
 				omg_alp*(8./h2(dR[0],omg_alp)+omg_alp*r_sq
 						-8.*sq_omg_alp*dR[0]*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)-2.);
+		case 7: //x3 y0
+				return
+				omg_alp*( omg_alp*r_sq-2.
+						+24.*h1(dR[0],sq_omg_alp)/h3(dR[0],sq_omg_alp)
+						-12.*sq_omg_alp*dR[0]*h2(dR[0],omg_alp)/h3(dR[0],sq_omg_alp)
+						);
+		case 8: //x2 y1
+				return
+				omg_alp*( omg_alp*r_sq-2.
+						-4.*sq_omg_alp*dR[1]/h1(dR[1],sq_omg_alp)
+						+8./h2(dR[0],omg_alp)
+						-8.*sq_omg_alp*dR[0]*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)
+						);
+		case 9: //x1 y2
+				return
+				omg_alp*( omg_alp*r_sq-2.
+						-4.*sq_omg_alp*dR[0]/h1(dR[0],sq_omg_alp)
+						+8./h2(dR[1],omg_alp)
+						-8.*sq_omg_alp*dR[1]*h1(dR[1],sq_omg_alp)/h2(dR[1],omg_alp)
+						);
+		case 10: //x0 y3
+				return
+				omg_alp*( omg_alp*r_sq-2.
+						+24.*h1(dR[1],sq_omg_alp)/h3(dR[1],sq_omg_alp)
+						-12.*sq_omg_alp*dR[1]*h2(dR[1],omg_alp)/h3(dR[1],sq_omg_alp)
+						);
 		default: 
 				cerr<<"\n error in orbital::D2(): energy_level out of bounds\n"
 					<<", energy_level= " <<energy_level<<"\n";
@@ -290,6 +340,26 @@ double orbital::valuedPdA(double* dR)
 		case 6: //x2 y0
 				return
 				(2.*dR[0]*sqrt_omg_ove_alp*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)
+				-0.5*omega*r_sqrd)*valueWF(dR);
+		case 7: //x3 y0
+				return
+				(dR[0]*3.*sqrt_omg_ove_alp*h2(dR[0],omg_alp)/h3(dR[0],sq_omg_alp)
+				-0.5*omega*r_sqrd)*valueWF(dR);
+		case 8: //x2 y1
+				return
+				sqrt_omg_ove_alp*
+				( dR[0]*2.*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)
+				+dR[1]/h1(dR[1],sq_omg_alp) 
+				-0.5*omega*r_sqrd)*valueWF(dR);
+		case 9: //x1 y2
+				return
+				sqrt_omg_ove_alp*
+				( dR[1]*2.*h1(dR[1],sq_omg_alp)/h2(dR[1],omg_alp)
+				+dR[0]/h1(dR[0],sq_omg_alp) 
+				-0.5*omega*r_sqrd)*valueWF(dR);
+		case 10: //x0 y3
+				return
+				(dR[1]*3.*sqrt_omg_ove_alp*h2(dR[1],omg_alp)/h3(dR[1],sq_omg_alp)
 				-0.5*omega*r_sqrd)*valueWF(dR);
 		default: 
 				cerr<<"\n error in orbital::D1(): energy_level out of bounds\n"

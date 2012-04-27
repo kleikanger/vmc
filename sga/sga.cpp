@@ -65,16 +65,17 @@ void sga::SGAMin(
 	RAN_UNI_SET(&idum_d,5);	
 	
 	int corr_length = 3000; //number of steps between init of particles
-	int sga_out_upd = 100; //Start collecting data after 100 cycles (therm..)
+	int sga_out_upd = 200; //Start collecting data after 100 cycles (therm..)
 	
 	int i, n_sga=0;
 	int sga_upd=initial_number_of_walkers*num_c_dmc_inner_loop;
-	double e_local_temp, e_mean, len_energy_gradient;
+	double e_local_temp, temp, e_mean, len_energy_gradient;
 	double **e_grad_cum = (double**)matrix(2,2,sizeof(double));
 	double energy_gradient[2], energy_gradient_old[2];
 	double var_par_cum[2], var_par_cum2[2], m_sga_inc[2];
 	double e_local_sga=0., len_energy_gradient_cum[2];
 	double m_v_sga[2], e_grad_temp[2];;  
+	bool sga_init[2] = {true,true};
 
 	//array of walkers	
 	quantum_dot = new walker*[initial_number_of_walkers]; 
@@ -82,6 +83,7 @@ void sga::SGAMin(
 	e_grad_cum[0][0] = e_grad_cum[1][0] 
 	= e_grad_cum[0][1] = e_grad_cum[1][1] = 0.0;
 	len_energy_gradient_cum[0]=len_energy_gradient_cum[1]=0.;
+	energy_gradient_old[0] = energy_gradient_old[1]=0.0;
 	m_sga_inc[0]=m_sga_inc[1]=1.0;
 	m_v_sga[0]=m_v_sga[1]=1.0;
 
@@ -121,7 +123,6 @@ void sga::SGAMin(
 	//**********************************
 	for (int loop_main=0; loop_main<num_c_dmc_main_loop; loop_main++) //XXX TODO While some convergence criteria || loop<max_iter
 	{
-		//set some variables to 0		
 		e_grad_cum[0][0]
 			=e_grad_cum[0][1]
 			=e_grad_cum[1][0]
@@ -153,6 +154,12 @@ void sga::SGAMin(
 			}
 		}
 
+		//cout<<e_grad_cum[0][0]<<" "
+		//	<<e_grad_cum[0][1]<<" "
+		//	<<e_grad_cum[1][0]<<" "
+		//	<<e_grad_cum[1][1]<<" "
+		//	<<e_mean<<"\n";
+
 		//****collect and broadcast. MPI only optimized for 1 computer, too much communication!!
 		MPI_Allreduce(MPI_IN_PLACE, e_grad_cum[0], 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(MPI_IN_PLACE, e_grad_cum[1], 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -163,48 +170,39 @@ void sga::SGAMin(
 		e_grad_cum[1][1]/=nprocs;
 		e_mean/=nprocs;
 		MPI_Barrier(MPI_COMM_WORLD);//XXX necc? (feels safe)
-
+	
 		//energy minimization
 		e_mean /= (double)sga_upd;
 		energy_gradient[0] = 2*(e_grad_cum[1][0]-e_grad_cum[0][0]*e_mean)/(double)sga_upd;
 		energy_gradient[1] = 2*(e_grad_cum[1][1]-e_grad_cum[0][1]*e_mean)/(double)sga_upd;
-			
-		if (n_sga>30&&n_sga<70)
-		{
-			//len_energy_gradient_cum+=len_energy_gradient;
-			len_energy_gradient_cum[1]+=fabs(energy_gradient[1]);
-			len_energy_gradient_cum[0]+=fabs(energy_gradient[0]);
-		}
-		else if (n_sga==70)
-		{
-			//XXX .8, 300, 20 are tunable parameters XXX
-			m_v_sga[0] = pow(300.*(len_energy_gradient_cum[0]/40.),.8); 
-			m_v_sga[1] = pow(300.*(len_energy_gradient_cum[1]/40.),.8);
-			m_sga_inc[0]  = m_v_sga[0]/20.;
-			m_sga_inc[1]  = m_v_sga[1]/20.;
-		}
-		//setting max length to move to .01. Vector still has the correct direction. 
-		len_energy_gradient = sqrt(cblas_ddot(2,energy_gradient,1,energy_gradient,1));	
-		if ( (len_energy_gradient*pow((double)m_v_sga[0],-.8)>.01)
-		|| (len_energy_gradient*pow((double)m_v_sga[1],-.8)>.01) )
-		{
-			energy_gradient[0]*=sqrt(0.01)/len_energy_gradient;
-			energy_gradient[1]*=sqrt(0.01)/len_energy_gradient;
-		}
-		
-		//can be proven to converge mathematically
+
 		for (i=0;i<2;i++)
 		{
+			//Calculate m_v_sga and m_sga_inc
+			if (sga_init[i]) //initially set to true
+				if (n_sga>=50&&n_sga<120)
+					len_energy_gradient_cum[i]+=fabs(energy_gradient[i]);
+				else if (n_sga==120)
+				{
+					//XXX .8, 300, 20 are tunable parameters XXX
+					m_v_sga[i]=pow(300.*(len_energy_gradient_cum[i]/70.),.8); 
+					m_sga_inc[i]=m_v_sga[i]/20.;
+					sga_init[i]=false;
+				}
+			temp = energy_gradient[i]*pow(m_v_sga[i],-.8);
+			//setting max length to move (each dim) to .01.
+			if (fabs(temp)>.01) //.01??
+				temp*=0.01/fabs(temp);
 			//m++ if the gradient changed its sign
-			if (energy_gradient[i]/energy_gradient_old[i]<0) m_v_sga[i]+=m_sga_inc[i];
+			if (energy_gradient[i]/energy_gradient_old[i]<0) 
+				m_v_sga[i]+=m_sga_inc[i];
 			//store old gradient
 			energy_gradient_old[i]=energy_gradient[i];
 			//new value of the variational parameters
-			var_par[i]-=energy_gradient_old[i]*pow((double)m_v_sga[i],-.8);
+			var_par[i]-=temp;
 			//prevent unphysical negative values of alpha,beta
 			if (var_par[i]<0.01) var_par[i]=0.01;
 		}
-		n_sga++;
 		//reset variational parameter 
 		for (i=0;i<initial_number_of_walkers;i++)
 			quantum_dot[i]->wSetVarPar(var_par);
@@ -218,40 +216,42 @@ void sga::SGAMin(
 			var_par_cum2[1]+=var_par[1]*var_par[1];
 			
 			//calculate error+std.dev
-			if (myrank==0)
-			if (n_sga%100==0)
+			if ((myrank==0) && (n_sga%100==0))
 			{
-				cout<<"\r"<<"                                                                                                ";
-				cout<<"\r"<<myrank
-					<<setprecision(8)//<<setw(10)
+				cout<<"\r"<<"                                                       "
+					  <<"                                                       ";
+				cout<<"\r"<<setprecision(8)//<<setw(10)
 					<<"b_C: "<<var_par_cum[0]/(double)(n_sga-sga_out_upd)
 					<<" a_C: "<<var_par_cum[1]/(double)(n_sga-sga_out_upd)
 					<<" b: "<<var_par[0]
 					<<" a: "<<var_par[1]
-					<<" b_V: "<<sqrt(-pow(var_par_cum[0]/(double)(n_sga-sga_out_upd),2)+var_par_cum2[0]/(double)(n_sga-sga_out_upd))
-					<<" a_V: "<<sqrt(-pow(var_par_cum[1]/(double)(n_sga-sga_out_upd),2)+var_par_cum2[1]/(double)(n_sga-sga_out_upd))
+					<<" b_V: "<<sqrt(-pow(var_par_cum[0]/(double)(n_sga-sga_out_upd),2)
+							+var_par_cum2[0]/(double)(n_sga-sga_out_upd))
+					<<" a_V: "<<sqrt(-pow(var_par_cum[1]/(double)(n_sga-sga_out_upd),2)
+							+var_par_cum2[1]/(double)(n_sga-sga_out_upd))
 					<<" c: "<<n_sga*sga_upd*nprocs
 					<<" m_B: "<<m_v_sga[0]
 					<<" m_A: "<<m_v_sga[1]
 					<<"---------";
 					fflush(stdout);
 			}
+		}
 		//Write to file	
 		if (myrank==0)
+		{
+			ofilecga << setiosflags(ios::showpoint | ios::uppercase);
+			for (i=0;i<dimension;i++)
 			{
-				ofilecga << setiosflags(ios::showpoint | ios::uppercase);
-				for (i=0;i<dimension;i++)
-				{
-					ofilecga << setw(16) << setprecision(16) 
-						<< n_sga*sga_upd*nprocs << " " 							//loops
-						<< var_par[0] << " " 								//alpha
-						<< var_par_cum[0]/(double)(n_sga-sga_out_upd) <<" " //alpha mean
-						<< var_par[1] << " " 								//beta
-						<< var_par_cum[1]/(double)(n_sga-sga_out_upd) <<" ";//beta mean
-				}
-				ofilecga<<"\n";
+				ofilecga << setw(16) << setprecision(16) 
+					<< n_sga*sga_upd*nprocs << " " 						//loops
+					<< var_par[0] << " " 								//alpha
+					<< var_par_cum[0]/(double)(n_sga-sga_out_upd) <<" " //alpha mean
+					<< var_par[1] << " " 								//beta
+					<< var_par_cum[1]/(double)(n_sga-sga_out_upd) <<" ";//beta mean
 			}
+			ofilecga<<"\n";
 		}
+		n_sga++;
 	}
 
 	//Collect results
@@ -259,13 +259,14 @@ void sga::SGAMin(
 	//Write results to screen
 	if (myrank==0)
 	{	
-				cout<<"\n"
+				cout<<"\r"
 					<<"                                                         "
 					<<"                                                         "
 					<<"                                                         ";
 				cout<<"\rFinal result:" 
-					<<"alpha="<<var_par_cum[1]/((double)(n_sga-sga_out_upd)*nprocs)
-					<<", beta="<<var_par_cum[0]/((double)(n_sga-sga_out_upd)*nprocs)
+					<<setprecision(8)//<<setw(10)
+					<<"alpha="<<var_par_cum[1]/((double)(n_sga-1-sga_out_upd)*nprocs)
+					<<", beta="<<var_par_cum[0]/((double)(n_sga-1-sga_out_upd)*nprocs)
 					<<"\n\n";
 	}
 }/*//endvimfold*/

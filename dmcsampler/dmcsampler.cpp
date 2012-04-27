@@ -82,21 +82,30 @@ void dmcsampler::sampleDMC(
 {/*//startvimfold*/
 	
 #if WRITEOFB/*//startvimfold*/
+	ofstream blockofile;
+  	//char *blockoutfilename;
+	ostringstream ost;
+	ost <<OFPATHB<<
+		//"p"<<num_part<<"a"<<var_par[1]<<"b"<<var_par[0]
+		//<<"w"<<var_par[2]<<
+		"r"<<myrank<<".dat";
+	blockofile.open(ost.str().c_str(), ios::out | ios::binary );
+	//blockofile.write((char*)(all_energies+1),n_all_e * sizeof (double));
+	//blockofile.close();
+	//delete [] all_energies;
 	//Only for rank 0 proc
 	//if (rank=0) ?
 	//if (num_cycles>1.1e7)
     //ofile.open(OFPATHB);
-	double* all_energies = new double[num_c_dmc_inner_loop*num_c_dmc_main_loop*num_part*initial_number_of_walkers*2 + 1]; //resize evt write directly to file
-	int n_all_e=0;
+	//double* all_energies = new double[num_c_dmc_inner_loop*num_c_dmc_main_loop*num_part*initial_number_of_walkers*2 + 1]; //resize evt write directly to file
+	//int n_all_e=0;
 	if (myrank==0)
-		cout<<"writing blockingdata to file\n";
+		cout<<"writing blockingdata to file"<<(OFPATHB)<<"\n";
 #endif
 #if WRITEOFC
 	ofstream ofilec;
 	ofilec.open((OFPATHC));
 #endif/*//endvimfold*/
-//	ofstream ofiletest;
-//	ofiletest.open("test.dat");
 
 	int idum_d=time(NULL)*(myrank+1);
 	RAN_UNI_SET(&idum_d,5);
@@ -269,6 +278,8 @@ void dmcsampler::sampleDMC(
 	//************************** END OF equilibriation phase *****************
 	//************************** START sampling phase ************************
 
+	ofstream ofiletest;
+	ofiletest.open("dmctest.dat");
 
 	//XXX XXX test XXX XXX
 	double e_tot=0.0;
@@ -328,8 +339,12 @@ void dmcsampler::sampleDMC(
 				e2_cumulative+=pow(branching_factor*e_local_temp,2);
 #if WRITEOFB
 		//blocking analysis data to file
-		all_energies[n_all_e]=branching_factor*e_local_temp;
-		n_all_e++;
+		//blockofile<<setiosflags(ios::binary);//showpoint | ios::uppercase );
+		//blockofile<<(char)branching_factor*e_local_temp<<"\n";
+		double eb_temp = branching_factor*e_local_temp;
+		blockofile.write((char*)&eb_temp, sizeof (double));
+		//all_energies[n_all_e]=branching_factor*e_local_temp;
+		//n_all_e++;
 #endif
 				//kill and resurrect walkers
 				num_new_walkers=(int)(branching_factor+RAN_UNI());
@@ -391,7 +406,8 @@ void dmcsampler::sampleDMC(
 			cout<<"\rcycles in main loop: "<<loop_main+1<<" of "
 				<<num_c_dmc_main_loop<<" e_trial<"<<e_trial<<" e_tot approx:"<< e_tot/(double)(loop_main+1);
 		fflush(stdout);
-//		ofiletest<<setprecision(16)<<e_tot/(double)(loop_main+1)<<" "<<e_trial<<"\n";
+		//write to file
+		ofiletest<<setprecision(16)<<e_tot/(double)(loop_main+1)<<" "<<e_trial<<" "<<num_alive*2.<<"\n";
 		}/*//endvimfold*/
 
 	} //************************** END OF DMC sampling **************************
@@ -413,27 +429,25 @@ void dmcsampler::sampleDMC(
 	}
 
 #if WRITEOFB/*//startvimfold*/
-	ofstream blockofile;
-  	//char *blockoutfilename;
-	ostringstream ost;
-	ost <<OFPATHB<<
-		//"p"<<num_part<<"a"<<var_par[1]<<"b"<<var_par[0]
-		//<<"w"<<var_par[2]<<
-		"r"<<myrank<<".dat";
-	blockofile.open(ost.str().c_str(),ios::out|ios::binary);
-	blockofile.write((char*)(all_energies+1),n_all_e * sizeof (double));
+	//ofstream blockofile;
+	//ostringstream ost;
+	//ost <<OFPATHB<<
+	//	//"p"<<num_part<<"a"<<var_par[1]<<"b"<<var_par[0]
+	//	//<<"w"<<var_par[2]<<
+	//	"r"<<myrank<<".dat";
+	//blockofile.open(ost.str().c_str(),ios::out|ios::binary);
+	//blockofile.write((char*)(all_energies+1),n_all_e * sizeof (double));
 	blockofile.close();
-	delete [] all_energies;
+	//delete [] all_energies;
 #endif
 #if WRITEOFC
 	ofilec.close();
 #endif/*//endvimfold*/
-//	ofiletest.close();
+	ofiletest.close();
 
 }/*//endvimfold*/
 void dmcsampler::sortWalkers(int &num_alive, int killsd, 
 		int num_resurrected, bool *occupancy, double *e_local_old)	
-
 {/*//startvimfold*/
 		int sorted=0, i=0; 
 		int j=num_alive+num_resurrected-1;//starting on the last one
