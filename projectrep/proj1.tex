@@ -388,7 +388,7 @@ We use a Jastrow factor with one variational parameter $\beta$,
 	&\mathcal J_{ij} = \exp\left( \frac {a_{ij}r_{ij}}{1+\beta r_{ij}} \right)
 \end{align}
 $a_{ij}=1$ if the spins of particle $i$ and $j$ are parallel and $a_{ij}=\frac13$ if the spins are perpendicular.
-See ref. (LE) for a detailed derivation of the Jastrow factor.
+See ref. \cite{lars_eivind_thesis} for a detailed derivation of the Jastrow factor.
 
 The wave functions $\psi^\alpha{n_x,n_y}(\ts R)$ is $n+1$ times degenerated in the $n$'th energy level (starting at $0$). 
 In the $s$'th full shell we then have $2\sum_{a=1}^s a$ particles. The basis states used in the different energy levels are listed in table (\ref{tab0}).
@@ -555,7 +555,7 @@ To obtain the energy with an error $\sim 10^{-5}$ Hartrees about $10^8$ MC-sampl
 	\ENDLOOP{}
 \end{algorithmic}
 \caption{My implementation of the SGA. %All numbers are tunable parameters that can be changed.
-$N_A,N_B,N_C$ start/stop collecting mean of gradient. At $n=N_B$, $k,l$ is calculated.
+$N_A,N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
 At $N_C$ the system should be close to the minima, and we start collecting data $(\alpha,\beta)$.
 $v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit of the 
 length of the components of the gradient. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
@@ -882,6 +882,15 @@ $N_{p}$ & $\omega$ & $\Delta t$ & $N_{s}$ & $\expec{E_L}$ & $\sigma^2$ \\
 \label{tab2}
 %\hspace{50mm}
 \end{table}
+
+The SGA algorithm works well. First of all, it seems as the algorithm is working for different systems. Some parameter tuning seems inevitable for any new system. This can be solved by implementing
+some sort of line search along the gradient $\partial ...$. One possibility is to implement a Newtonian approach to estimate the minima for each iteration. The hessian matrix can be evaluated 
+analytically for each new configuration of the system [ref]. This approach has many advantages. In particular for trial functions with asymmetrical minima, 
+where the gradient is larger on one side of the minima then on the other. For an algorithm without an adaptive step size, the step length will have to be very small to give accurate results.
+
+
+Two reasons: 1) mean value of variational parameters taken gives higher stability.
+The algorithm as it is implemented by (refs) Does not take the mean, but lets $\gamma$ increase faster to obtain a 
 
 %}}}1
 

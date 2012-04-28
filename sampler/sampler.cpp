@@ -346,14 +346,5 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 
 }/*//endvimfold*/
 
-//Experimental
-#if 1
-void sampler::minimizeVarPar(double &de_l_da, double &de_l_db, double* e_grad_temp)
-{
-	//quantum_dot->getdELdvElem(de_l_db, de_l_da, dbJ_ove_J, daD_ove_D)
-	quantum_dot->getdELdvElem(de_l_db, de_l_da, e_grad_temp[0], e_grad_temp[1]);
-}
-#endif
-
 // For vim users: Defining vimfolds.
 /// vim:fdm=marker:fmr=//startvimfold,//endvimfold

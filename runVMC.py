@@ -242,6 +242,23 @@ number_of_particles = 12
 #run()
 #run()
 #run()
+omega 				= 1
+thermal_cycles 		= 1000
+number_of_particles = 20
+#run()
+omega 				= 1
+
+sampling_cycles     = 1e6
+conjugate_gradient 	= False
+sample_on_grid 		= True
+use_dmc_sampler 	= False
+number_of_particles = 20
+min_beta 			= 0.739
+min_alpha   		= 0.838
+run()
+min_beta 			= 0.76
+min_alpha   		= 0.84
+run()
 #num_cycles_main_loop= 1000000 #30000
 #run()
 
@@ -265,7 +282,7 @@ min_alpha   		= 0.949
 #delta_t = 0.005
 #run()
 delta_t = 0.003
-run()
+#run()
 delta_t = 0.001
 #run()
 
@@ -286,11 +303,11 @@ number_of_particles = 12
 min_beta 			= 0.253
 min_alpha   		= 0.727
 delta_t = 0.007
-run()
+#run()
 write_blocking_data = 'true'
 delta_t = 0.005
-write_blocking_data = 'false'
 run()
+write_blocking_data = 'false'
 delta_t = 0.003
 run()
 delta_t = 0.001

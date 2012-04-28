@@ -93,7 +93,7 @@ void sga::SGAMin(
 
 	//write to screen
 	if (myrank==0)
-	cout<<"\nDMC simulation - \n"
+	cout<<"\nSGA minimization - \n"
 		<<"initial_number_of_walkers/procs: "<<initial_number_of_walkers<<"\n"
 		<<"nprocs:                          "<<nprocs<<"\n"
 		<<"cycles main loop:                "<<num_c_dmc_main_loop<<"\n"
@@ -280,7 +280,7 @@ void sga::initWalkers(int initial_number_of_walkers, int thermalization, int cor
 	int i, loop_c=0, num_init=1; 
 	if (myrank==0)
 		{
-			cout<<"\rStarting initialization of walkers... ";
+			cout<<"\rStarting initialization of walkers... (thermalizing)";
 			fflush(stdout);
 		}
 	while (num_init<initial_number_of_walkers)
@@ -324,7 +324,7 @@ void sga::initWalkers(int initial_number_of_walkers, int thermalization, int cor
 	//print to screen
 	if (myrank==0)
 	{
-		cout<<"\r"<<"                                            ";
+		cout<<"\r"<<"                                                       ";
 		cout<<"\rinitialization of walkers finished.\n";
 		fflush(stdout);
 	}

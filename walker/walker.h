@@ -103,8 +103,6 @@ class walker {
 		   */
 		bool nodeCrossed();
 	
-		//experimental	
-		void getdELdvElem(double &de_l_db, double &de_l_da, double &dbJ_ove_J, double &daD_ove_D);
 		void wSetVarPar(double* varPar);
 	
 	friend class popControl;

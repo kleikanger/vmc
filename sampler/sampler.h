@@ -29,9 +29,6 @@ class sampler {
 	   */
 	void sample(int num_cycles, int thermalization, double* var_par, double delta_t, double* result);
 
-	//experimental
-	void minimizeVarPar(double &de_l_da, double &de_l_db, double* e_grad_temp);
-
 };
 
 #endif

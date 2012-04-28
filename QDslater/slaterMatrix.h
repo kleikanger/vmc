@@ -147,10 +147,6 @@ class slaterMatrix {
 		   Updating slater matrix when particle i_upd are moved to coord r_new.  
 			*/
 		void updateSlaterMatrix(double* r_new, int i_upd);
-		/*
-			Experimental- To find the minima in the variance.
-		   */
-		void updateInvA(double* d_R, const int &i_upd);
 
 		friend class popControl;
 };

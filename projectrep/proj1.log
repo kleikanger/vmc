@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  27 APR 2012 20:46
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  28 APR 2012 01:12
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -496,22 +496,21 @@ Overfull \hbox (12.03252pt too wide) in paragraph at lines 831--875
  [] 
  []
 
+[8]
+Overfull \hbox (7.74205pt too wide) in paragraph at lines 918--918
+[] 
+ []
+
+
+Overfull \hbox (8.10329pt too wide) in paragraph at lines 949--949
+[] 
+ []
+
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [8]
-Overfull \hbox (7.74205pt too wide) in paragraph at lines 909--909
-[] 
- []
-
-
-Overfull \hbox (8.10329pt too wide) in paragraph at lines 940--940
-[] 
- []
-
-[9] (./proj1.bbl) [10] [11
-
-] (./proj1.aux) ) 
+ [9]
+(./proj1.bbl [10]) [11] (./proj1.aux) ) 
 Here is how much of TeX's memory you used:
  2062 strings out of 495062
  23030 string characters out of 1182644
@@ -519,6 +518,6 @@ Here is how much of TeX's memory you used:
  5207 multiletter control sequences out of 15000+50000
  14336 words of font info for 55 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 32i,16n,23p,706b,535s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,16n,23p,708b,535s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (11 pages, 71148 bytes).
+Output written on proj1.dvi (11 pages, 72448 bytes).

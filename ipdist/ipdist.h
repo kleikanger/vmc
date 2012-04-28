@@ -125,11 +125,6 @@ class ipdist{
 		//Testing
 		void print();
 		
-		//experimental		
-		void getdbJasGrad(double **ret_vec, double **r) const;
-		double getdbJasLapl(double** r) const;
-	
-
 		friend class popControl;
 };
 #endif
