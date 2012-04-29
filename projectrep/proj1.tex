@@ -243,35 +243,31 @@ where $l$ is a constant which we will refer to as the step length, and $\mathcal
 	\right..
 \end{equation} 
 Here $\ts e_i$ is the unit vectors of $\mathcal D$. 
-By choosing testing different step lengths $l$ will alter the number of 
+The step length $l$ will alter the number of 
 accepted steps during a simulation, and will have an effect on the rate of convergence. %For example, if nearly all steps are accepted, 
-The class of sampling algorithms using a symmetric suggestion density is often referred to as brute force sampling.
+Sampling using a symmetric suggestion density is often referred to as brute force sampling.
 
-An other class of sampling algorithms is based on Langevin dynamics, which is describing the dynamical properties of brownian particles following the Fokker-Planck equation
+%An other class of sampling algorithms is based on Langevin dynamics describing the dynamical properties of brownian particles obeying the Fokker-Planck equation
+%
 
+An other class of transition kernels makes use of our knowledge of the mathematical form of $P$ by using a suggestion density that is dependent on it. 
+By solving the Fokker-Planck equation for the stationary distribution $P$ one can construct a transition kernel that in principle will sample $P$ perfectly without the 
+Metropolis-Hastings accept/reject procedure \cite{lars_eivind_thesis, scemama_2006}. However, it is necessary to discretize the 
+dynamical equations in time $t\to t_n= \Delta t n$, and an time step error arises. The time step error is quadratic in $\Delta t$ 
+and leads to an imperfect sampling of $P$.
+The Metropolis-Hastings algorithm corrects this error (sampling part) perfectly for any time step $\Delta t>0$.
 
- suggestion density on the form
+The suggestion density can be written \cite{lars_eivind_thesis}
 \begin{align}
-	g(\ts r_{n+1}|\ts r_n)=D\frac{\nabla P(\ts r_n)}{P(\ts r_n)} + \mathcal N(\ts r_{n+1}-\ts r_{n}).	
+	g(\ts r_{n+1}|\ts r_n)=D\Delta t \frac{\nabla P(\ts r_n)}{P(\ts r_n)} + \sqrt{\Delta t}\mathcal N(\ts r_{n+1}-\ts r_{n}),	
 \end{align}
-Here $D$ is a constant 
-The transitionkernel is the sum of a drift term proportional to the negative gradient of the , and a normal distributed ... . 
-(intuitively smart) Inserted into the M.H. eq.'s ...
+where $D$ is the diffusion constant originating from the Fokker-Planck equation and $\mathcal N$ is a normal distribution with the variance $2D$. 
+From this equation it is evident that a small $\Delta t$ will lead to a small average step length $|\ts r_{n+1}-\ts r_n|$. This might slow down the 
+convergence of the system even though the acceptance rate increases. (Since the random walkers in $\mathcal D$ will be very slow). In practice one 
+has to experiment to find a $\Delta$ that gives a small time step error and a rapid convergence. 
 
-.. can be derived in many ways. 1) looking at the system as a diffusional system obeying langevin dynamics (ref). 2) Deriving the qm propagator ... (why is this sensible.)
-Not eqact: time ordered product, error propto delta t. problems with to small delta t as well.
+Time step error resulting from nodal surfaces..
 
-\cite{scemama_2006}
-
- .., where the random walkers ... the Langevin equation for 
-The trajectories of ... is gouverned by Langevin dynamics. 
-...
-...
-discretization of the langevin equation.
-...
-...
-Langevin eq and diffusion: not exact for dt>0, but gamma ensures that the sampling is correct. in the special case that 
-dt = 0, gamma = 1 always, and every suggested move should be accepted. 
 %}}}
 
 %}}}1
