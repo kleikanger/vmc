@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  28 APR 2012 01:12
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  29 APR 2012 12:08
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -423,37 +423,39 @@ Package amsmath Warning: Cannot use `split' here;
 (amsmath)                trying to recover with `aligned' on input line 242.
 
 
-Underfull \hbox (badness 1275) in paragraph at lines 263--263
+Underfull \hbox (badness 1275) in paragraph at lines 275--275
 []\OT1/cmr/bx/n/14.4 Statistical anal-y-sis of the
  []
 
 File: ../plots/blc_6pt_omg1_dt05.eps Graphic file (type eps)
 <../plots/blc_6pt_omg1_dt05.eps>
-Overfull \hbox (12.3125pt too wide) in paragraph at lines 291--292
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 302--303
  [] 
  []
 
-[3] [4]
-Underfull \hbox (badness 10000) in paragraph at lines 492--499
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[3] [4] [5]
+Underfull \hbox (badness 10000) in paragraph at lines 506--513
 []\OT1/cmr/m/n/10 The ap-prox-i-mate value of the gra-di-ent
  []
 
 
-Underfull \hbox (badness 2119) in paragraph at lines 492--499
+Underfull \hbox (badness 2119) in paragraph at lines 506--513
 [] \OMS/cmsy/m/n/10 h[][]i[]$ \OT1/cmr/m/n/10 is ob-tained dur-ing a short MC
  []
 
 
-Underfull \hbox (badness 1275) in paragraph at lines 492--499
+Underfull \hbox (badness 1275) in paragraph at lines 506--513
 \OT1/cmr/m/n/10 tried to use one walker col-lect-ing $\OML/cmm/m/it/10 m$ \OT1/
 cmr/m/n/10 sam-ples
  []
 
-[5]
 ! Missing \right. inserted.
 <inserted text> 
                 \right .
-l.520 ...rtial_\alpha},{\partial_\beta}) E_L ,E_L$
+l.534 ...rtial_\alpha},{\partial_\beta}) E_L ,E_L$
                                                   , $({\partial_\alpha},{\pa...
 
 ? 
@@ -464,12 +466,12 @@ File: ../plots/minimization_2pt_omg1.eps Graphic file (type eps)
 <../plots/minimization_2pt_omg1.eps>
 File: ../plots/minimization_12pt_omg1.eps Graphic file (type eps)
  <../plots/minimization_12pt_omg1.eps>
-Overfull \hbox (0.93158pt too wide) in paragraph at lines 575--581
+Overfull \hbox (0.93158pt too wide) in paragraph at lines 589--595
  [] 
  []
 
 
-Overfull \hbox (0.93158pt too wide) in paragraph at lines 575--581
+Overfull \hbox (0.93158pt too wide) in paragraph at lines 589--595
  [] 
  []
 
@@ -477,32 +479,26 @@ Overfull \hbox (0.93158pt too wide) in paragraph at lines 575--581
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 2050) in paragraph at lines 636--636
+Underfull \hbox (badness 2050) in paragraph at lines 650--650
 []\OT1/cmr/bx/n/14.4 Implementation and op-ti-
  []
 
 
-Underfull \vbox (badness 2197) has occurred while \output is active []
-
-
-Overfull \vbox (1.27159pt too high) has occurred while \output is active []
-
-
-[6]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [7]
-Overfull \hbox (12.03252pt too wide) in paragraph at lines 831--875
+ [6]
+[7]
+Overfull \hbox (12.03252pt too wide) in paragraph at lines 845--889
  [] 
  []
 
 [8]
-Overfull \hbox (7.74205pt too wide) in paragraph at lines 918--918
+Overfull \hbox (7.74205pt too wide) in paragraph at lines 932--932
 [] 
  []
 
 
-Overfull \hbox (8.10329pt too wide) in paragraph at lines 949--949
+Overfull \hbox (8.10329pt too wide) in paragraph at lines 963--963
 [] 
  []
 
@@ -510,14 +506,25 @@ Overfull \hbox (8.10329pt too wide) in paragraph at lines 949--949
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [9]
-(./proj1.bbl [10]) [11] (./proj1.aux) ) 
+(./proj1.bbl [10]
+Underfull \hbox (badness 1642) in paragraph at lines 38--42
+[]\OT1/cmr/m/n/10 Anthony Sce-mama, Tony Leli^^Revre, Gabriel
+ []
+
+
+Underfull \hbox (badness 1831) in paragraph at lines 38--42
+\OT1/cmr/m/n/10 carlo.  \OT1/cmr/m/it/10 The Jour-nal of Chem-i-cal Physics\OT1
+/cmr/m/n/10 ,
+ []
+
+) [11] (./proj1.aux) ) 
 Here is how much of TeX's memory you used:
- 2062 strings out of 495062
- 23030 string characters out of 1182644
+ 2064 strings out of 495062
+ 23052 string characters out of 1182644
  110660 words of memory out of 3000000
- 5207 multiletter control sequences out of 15000+50000
+ 5209 multiletter control sequences out of 15000+50000
  14336 words of font info for 55 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  32i,16n,23p,708b,535s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (11 pages, 72448 bytes).
+Output written on proj1.dvi (11 pages, 73752 bytes).

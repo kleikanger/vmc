@@ -247,7 +247,23 @@ By choosing testing different step lengths $l$ will alter the number of
 accepted steps during a simulation, and will have an effect on the rate of convergence. %For example, if nearly all steps are accepted, 
 The class of sampling algorithms using a symmetric suggestion density is often referred to as brute force sampling.
 
-An other class of sampling algorithms is based on the ..., where the random walkers ... the Langevin equation for 
+An other class of sampling algorithms is based on Langevin dynamics, which is describing the dynamical properties of brownian particles following the Fokker-Planck equation
+
+
+ suggestion density on the form
+\begin{align}
+	g(\ts r_{n+1}|\ts r_n)=D\frac{\nabla P(\ts r_n)}{P(\ts r_n)} + \mathcal N(\ts r_{n+1}-\ts r_{n}).	
+\end{align}
+Here $D$ is a constant 
+The transitionkernel is the sum of a drift term proportional to the negative gradient of the , and a normal distributed ... . 
+(intuitively smart) Inserted into the M.H. eq.'s ...
+
+.. can be derived in many ways. 1) looking at the system as a diffusional system obeying langevin dynamics (ref). 2) Deriving the qm propagator ... (why is this sensible.)
+Not eqact: time ordered product, error propto delta t. problems with to small delta t as well.
+
+\cite{scemama_2006}
+
+ .., where the random walkers ... the Langevin equation for 
 The trajectories of ... is gouverned by Langevin dynamics. 
 ...
 ...
@@ -280,7 +296,6 @@ to give us a good statistical value. Starting with a small $\tau$, $err(\tau)$ w
 This method is referred to as blocking analysis. Fig. (\ref{figblc}) shows a plot of $err(\tau)$ for a simulation of a $6$ particle quantum dot with an error
 close to $\pm10^{-5}$ Hartrees. The time between two practically uncorrelated samples, when the curve $err(\tau)$ flattens, will be referred to as the correlation length.
 
-
 \begin{figure}[h!]
 \begin{center}
 \caption{{\it%\small
@@ -288,7 +303,7 @@ close to $\pm10^{-5}$ Hartrees. The time between two practically uncorrelated sa
 		the statistical error is close to $\pm10^{-5}$ Hartrees, and that the correlation length is of the order $\mathcal O(10^3)$.}} 
 		\label{figblc}
 %\vspace{-.8cm}
-	\includegraphics[width=8.2cm]{../plots/blc_6pt_omg1_dt05.eps}
+	\includegraphics[width=8.cm]{../plots/blc_6pt_omg1_dt05.eps}
 \end{center}
 \vspace{-1.2cm}
 \end{figure}
@@ -326,6 +341,17 @@ $g(r_i|r_{i+1})$ is the suggestion density as described earlier.
 %
 Note that $\Psi$ does not need to be normalized in the above equations. This saves us a great deal of work since the normalization 
 of most wave functions would have to be done numerically for every new trial function.% ????
+%}}}2
+
+\subsection{Brute force sampling}%{{{2
+suggestion density:
+%}}}2
+
+\subsection{Sampling based on Langevin dynamics}%{{{2
+The quantum force
+suggestion density:
+
+%}}}2
 
 %}}}2
 
@@ -430,14 +456,6 @@ Shell& Electrons & One particle orbitals \\
 
 %}}}2
 
-\subsection{Brute force sampling}%{{{2
-
-%}}}2
-
-\subsection{Sampling based on Langevin dynamics}%{{{2
-The quantum force
-
-%}}}2
 
 %}}}1
 

@@ -364,7 +364,7 @@ void walker::getVarParGrad(double* grad_var_par) const
 }/*//endvimfold*/
 
 void walker::wSetVarPar(double* var_par)
-{
+{/*//startvimfold*/
 	int i,j;
 	
 	//update alpha in orbitals & jastrow
@@ -403,7 +403,7 @@ void walker::wSetVarPar(double* var_par)
 	{
 		sla_grad_bu[i][j] = sla_grad[i][j]; 
 	}
-}
+}/*//endvimfold*/
 
 // For vim users: Defining vimfolds.
 // vim:fdm=marker:fmr=//startvimfold,//endvimfold

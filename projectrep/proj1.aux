@@ -9,43 +9,44 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Metropolis-Hasting algorithm}{2}}
 \newlabel{gamma}{{8}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Choice of transition kernel}{2}}
+\citation{scemama_2006}
 \citation{m.h-j}
 \newlabel{gamma_bruteforce}{{10}{3}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Statistical analysis of the data}{3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces {\it  Blocking results for a $6$ particle quantum dot with $\omega =1$ and $\Delta t = 0.05$. A total of $10^8$ samples has been used in the simulation. From the plot we can see that the statistical error is close to $\pm 10^{-5}$ Hartrees, and that the correlation length is of the order $\mathcal  O(10^3)$.}}}{3}}
-\newlabel{figblc}{{1}{3}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Quantum monte Carlo}{3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Introduction}{3}}
-\newlabel{exv}{{15}{3}}
+\newlabel{exv}{{16}{3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces {\it  Blocking results for a $6$ particle quantum dot with $\omega =1$ and $\Delta t = 0.05$. A total of $10^8$ samples has been used in the simulation. From the plot we can see that the statistical error is close to $\pm 10^{-5}$ Hartrees, and that the correlation length is of the order $\mathcal  O(10^3)$.}}}{4}}
+\newlabel{figblc}{{1}{4}}
+\newlabel{RFQMC1}{{18}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Brute force sampling}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Sampling based on Langevin dynamics}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Variational Monte Carlo}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}The trial wave functions}{4}}
+\newlabel{hamiltonian}{{21}{4}}
+\newlabel{1pts}{{22}{4}}
 \citation{lars_eivind_thesis}
-\newlabel{RFQMC1}{{17}{4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Variational Monte Carlo}{4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}The trial wave functions}{4}}
-\newlabel{hamiltonian}{{20}{4}}
-\newlabel{1pts}{{21}{4}}
 \citation{harju_1997}
 \citation{harju_2005}
 \citation{nissenbaum_2008}
 \citation{nissenbaum_2008}
 \citation{harju_2005}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Minimization of the wave functions}{5}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \it  This table shows the one particle orbitals that is part of the slater determinants. Only the first orbital state $\psi _{00}$ is needed to fill the first shell. This corresponds to a two electron quantum dot, one spin up and one spin down electron. The three first orbitals (six electrons) $\psi _{20},\tmspace  +\thinmuskip {.1667em}\psi _{11},\tmspace  +\thinmuskip {.1667em}\psi _{02}$ are needed to fill the second shell. Six orbitals (twelwe electrons) are needed to fill the third shell and so on.  }}{5}}
 \newlabel{tab:orb}{{1}{5}}
 \newlabel{tab0}{{1}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Brute force sampling}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Sampling based on Langevin dynamics}{5}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Minimization of the wave functions}{5}}
-\newlabel{eq:sga1}{{24}{5}}
-\newlabel{eq:sga2}{{25}{5}}
+\newlabel{eq:sga1}{{25}{5}}
+\newlabel{eq:sga2}{{26}{5}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Implementation and optimization}{6}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Optimalization of $\mathcal  D^\alpha (\textbf  {R})$}{6}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces {\it  Minimization of a $6$ particle (top) and a $12$ particle (bottom) quantum dot using an $\omega = 1$ and a $\delta t=0.05$. $N_C$ is the total number of MC-samples. The red line shows the $\alpha $ and $\beta $ values at $N_C$, while the black line shows the accumulated mean. The means are quickly converging towards the optimal results ($\beta =0.399$, $\alpha =0.988$) (top) and ($\beta =0.877$, $\alpha =0.657$) (bottom), only using a total of total of $6\times 10^5$ samples. }}}{6}}
 \citation{lars_eivind_thesis}
-\newlabel{eqDet}{{28}{7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Optimalization of $\mathcal  D^\alpha (\textbf  {R})$}{7}}
+\newlabel{eqDet}{{29}{7}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Optimalization of $\mathcal  J^\beta (\textbf  {R})$ and $r_{ij}$}{7}}
-\newlabel{eqP}{{34}{7}}
+\newlabel{eqP}{{35}{7}}
 \citation{lin_2000}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Optimalization of $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{E_L}\delimiter "526930B {}$}{8}}
-\newlabel{abgd}{{37}{8}}
+\newlabel{abgd}{{38}{8}}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Results}{8}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces {\it  Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization. $\alpha _{min}$ and $\beta _{min}$ is the values of the variational parameters at the minima. We have used a $\Delta t=0.05$ during the minimization. }}}{8}}
 \newlabel{tab1}{{2}{8}}
@@ -60,9 +61,10 @@
 \bibcite{lars_eivind_thesis}{4}
 \bibcite{lin_2000}{5}
 \bibcite{nissenbaum_2008}{6}
-\newlabel{A1}{{50}{10}}
-\newlabel{A2}{{51}{10}}
-\newlabel{A3}{{52}{10}}
+\newlabel{A1}{{51}{10}}
+\newlabel{A2}{{52}{10}}
+\newlabel{A3}{{53}{10}}
 \@writefile{toc}{\contentsline {section}{\numberline {B}Pseudocode:}{10}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces My implementation of the SGA. $N_A,N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated. At $N_C$ the system should be close to the minima, and we start collecting data $(\alpha ,\beta )$. $v_{min}$ is the lower limit of the variational parameters $\alpha ,\beta $. $d_{max}$ is the upper limit of the length of the components of the gradient. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (25\hbox {}). I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.1$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. }}{11}}
+\bibcite{scemama_2006}{7}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces My implementation of the SGA. $N_A,N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated. At $N_C$ the system should be close to the minima, and we start collecting data $(\alpha ,\beta )$. $v_{min}$ is the lower limit of the variational parameters $\alpha ,\beta $. $d_{max}$ is the upper limit of the length of the components of the gradient. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (26\hbox {}). I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.1$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. }}{11}}
 \newlabel{minalg}{{1}{11}}
