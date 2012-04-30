@@ -186,7 +186,7 @@ These equations are implemented in the well known Metropolis-Hastings algorithm 
 \begin{algorithmic}
 \LOOP{}
 \STATE{$\ts r_B\gets$ random from distribution $g(\ts r_T|\ts r_B)$.}
-\STATE{$\mathcal X\gets$ random uniform. ($\mathcal X\in[0,1]$)}%??(0,1)}
+\STATE{$\mathcal X\gets$ random uniform. ($\mathcal X\in(0,1)$)}%??(0,1)}
 \STATE{Calculate $\gamma (\ts r_n|\ts r_T))$.}
 \IF{$\mathcal X \le \gamma$}
 \STATE{$\ts r_{n+1}\gets \ts r_T$}
@@ -210,28 +210,32 @@ These equations are implemented in the well known Metropolis-Hastings algorithm 
 
 \subsection{Choice of transition kernel} %{{{2
 
-The transition kernel can be written as
-\begin{align}
-	q(\ts r_n|\ts r_{n+1}) = \gamma(\ts r_n|\ts r_{n+1}) g(\ts r_n|\ts r_{n+1}), 
-\end{align}
-where $\gamma(\ts r_{n}|\ts r_{n+1})$ is given by eq. (\ref{gamma}). 
-The set $\{r_n\}$ will converge tovards the same distribution $P_w$ regardless of which $g(\ts r_n|\ts r_{n+1})$ we use. 
-(As long as the markov chain defined by $g(\ts r_n|\ts r_{n+1})$ and $\gamma(\ts r_n|\ts r_{n+1})$ is ergodetic.)
-However, the rate of convergence can .. from one sugg.dens. to an other.
+%The transition kernel can be written as
+%\begin{align}
+%	q(\ts r_n|\ts r_{n+1}) = \gamma(\ts r_n|\ts r_{n+1}) g(\ts r_n|\ts r_{n+1}), 
+%\end{align}
+%where $\gamma(\ts r_{n}|\ts r_{n+1})$ is given by eq. (\ref{gamma}). 
+%The set $\{r_n\}$ will converge tovards the same distribution $P_w$ regardless of which $g(\ts r_n|\ts r_{n+1})$ we use. 
+%(As long as the markov chain defined by $g(\ts r_n|\ts r_{n+1})$ and $\gamma(\ts r_n|\ts r_{n+1})$ is ergodetic.)
+%However, the rate of convergence can .. from one sugg.dens. to an other.
 %But the rate of convergence can differ widely.
-
-The transition kernel suggested by Markov ... in his original article ... corresponds to a suggestion density $g(\ts r_n|\ts r_{n+1})$ 
-that is symmetric around $\ts r_n$ along all axis. In this case $\gamma(\ts r_n|\ts r_{n+1})$ can be expressed as
+%
+%Sampling using a symmetric suggestion density is often referred to as brute force sampling.
+%The transition kernel suggested by Markov ... in his original article ...
+One possibility us to use a suggestion density $g(\ts r_n|\ts r_{n+1})$ that is symmetric around $\ts r_n$ along all axis. 
+This method is referred to as brute force sampling.
+In this case $\gamma(\ts r_{n+1}|\ts r_{n})$ can be expressed as
 \begin{align} 
-	\gamma(\ts r_A|\vec r_B)=max\left(
+	\gamma(\ts r_{n+1}|\vec r_n)=max\left(
 	\frac
-	{P_w(\ts r_B)}
-    {P_w(\ts r_A)}\, 
+	{P_w(\ts r_{n+1})}
+    {P_w(\ts r_n)}\, 
 	,\, 1 \right) \label{gamma_bruteforce}
 \end{align}
 A common choice is to set
 \begin{align}
 	g(\ts r_n|\ts r_{n+1}) = \sum_i l\left(\mathcal U(\ts r_{n+1}-\ts r_n) - \frac12\right)
+	\label{sugdebf}
 \end{align}
 where $l$ is a constant which we will refer to as the step length, and $\mathcal U(\ts r)$ is the uniform distribution
 \begin{equation}
@@ -245,7 +249,6 @@ where $l$ is a constant which we will refer to as the step length, and $\mathcal
 Here $\ts e_i$ is the unit vectors of $\mathcal D$. 
 The step length $l$ will alter the number of 
 accepted steps during a simulation, and will have an effect on the rate of convergence. %For example, if nearly all steps are accepted, 
-Sampling using a symmetric suggestion density is often referred to as brute force sampling.
 
 %An other class of sampling algorithms is based on Langevin dynamics describing the dynamical properties of brownian particles obeying the Fokker-Planck equation
 %
@@ -253,9 +256,9 @@ Sampling using a symmetric suggestion density is often referred to as brute forc
 An other class of transition kernels makes use of our knowledge of the mathematical form of $P$ by using a suggestion density that is dependent on it. 
 By solving the Fokker-Planck equation for the stationary distribution $P$ one can construct a transition kernel that in principle will sample $P$ perfectly without the 
 Metropolis-Hastings accept/reject procedure \cite{lars_eivind_thesis, scemama_2006}. However, it is necessary to discretize the 
-dynamical equations in time $t\to t_n= \Delta t n$, and an time step error arises. The time step error is quadratic in $\Delta t$ 
-and leads to an imperfect sampling of $P$.
-The Metropolis-Hastings algorithm corrects this error (sampling part) perfectly for any time step $\Delta t>0$.
+dynamical equations in time $t\to t_n= \Delta t n$, and an time step error arises leading to an imperfect sampling of $P$. %The time step error is quadratic in $\Delta t$ and leads to an imperfect sampling of $P$.
+The Metropolis-Hastings algorithm corrects this error %for any time step $\Delta t>0$ 
+by restoring detailed balance.% \cite{scemama}.
 
 The suggestion density can be written \cite{lars_eivind_thesis}
 \begin{align}
@@ -263,10 +266,9 @@ The suggestion density can be written \cite{lars_eivind_thesis}
 \end{align}
 where $D$ is the diffusion constant originating from the Fokker-Planck equation and $\mathcal N$ is a normal distribution with the variance $2D$. 
 From this equation it is evident that a small $\Delta t$ will lead to a small average step length $|\ts r_{n+1}-\ts r_n|$. This might slow down the 
-convergence of the system even though the acceptance rate increases. (Since the random walkers in $\mathcal D$ will be very slow). In practice one 
-has to experiment to find a $\Delta$ that gives a small time step error and a rapid convergence. 
+convergence of the system even though the acceptance rate will increase. %(Since the random walkers in $\mathcal D$ will be very slow + high correlation between samples). 
+In practice one has to experiment to find the optimal values for $\Delta t$ that gives a ((small time step error)) and a rapid convergence. 
 
-Time step error resulting from nodal surfaces..
 
 %}}}
 
@@ -274,8 +276,7 @@ Time step error resulting from nodal surfaces..
 
 \section{Statistical analysis of the data}%{{{1
 
-The statistical error is a measure of the spread of a statistical mean.
-It is defined as the standard deviation of a sample mean, and can be estimated using the formula \cite{m.h-j}
+The statistical error is defined as the standard deviation of a sample mean, and can be estimated using the formula \cite{m.h-j}
 \begin{align}
 		err\approx\sqrt{\frac1{N}Var(\mathcal M)},
 \end{align}
@@ -297,11 +298,11 @@ close to $\pm10^{-5}$ Hartrees. The time between two practically uncorrelated sa
 \caption{{\it%\small
 		Blocking results for a $6$ particle quantum dot with $\omega=1$ and $\Delta t = 0.05$. A total of $10^8$ samples has been used in the simulation. From the plot we can see that
 		the statistical error is close to $\pm10^{-5}$ Hartrees, and that the correlation length is of the order $\mathcal O(10^3)$.}} 
-		\label{figblc}
+		\label{fig:timesteperror}
 %\vspace{-.8cm}
 	\includegraphics[width=8.cm]{../plots/blc_6pt_omg1_dt05.eps}
 \end{center}
-\vspace{-1.2cm}
+%\vspace{-1.2cm}
 \end{figure}
 
 %}}}1
@@ -340,16 +341,40 @@ of most wave functions would have to be done numerically for every new trial fun
 %}}}2
 
 \subsection{Brute force sampling}%{{{2
-suggestion density:
+Brute force sampling is implemented using the suggestion density eq. (\ref{sugdebf}) and a acceptance probability
+\begin{align} 
+	\gamma(\ts r_{n+1}|\vec r_n)=max\left(
+	\frac
+	{\Psi(\ts R_{n+1})}
+    {\Psi(\ts R_n)}\, 
+	,\, 1 \right) 
+\end{align}
 %}}}2
 
 \subsection{Sampling based on Langevin dynamics}%{{{2
-The quantum force
-suggestion density:
+For a quantum mechanical system in two dimensions, the suggestion density becomes
+\begin{align}
+	g(\ts r_{n+1}|\ts r_n)=\Delta t \frac{\nabla \Psi(\ts R_{n+1}))}{\Psi (\ts R_n)} + \sqrt{\Delta t}\mathcal N(\ts R_{n+1}-\ts R_{n}).i
+\end{align}
+
 
 %}}}2
 
 %}}}2
+
+\subsection{Systematic errors}
+\begin{figure}[h!]
+\begin{center}
+\caption{{\it%\small
+			Energy as a function of $\Delta t$ for a $2$ particle quantum dot with $\alpha=0.988,\beta=0.399,\omega=1$. All energies are calculated using $10^7$ samples.
+			The energy are plotted for 40 values of $\Delta t$ between $0.01$ and $0.4$. 
+		}}
+		\label{figblc}
+%\vspace{-.8cm}
+	\includegraphics[width=8.cm]{../plots/time_step_error_2ptomg1.eps}
+\end{center}
+%\vspace{-1.2cm}
+\end{figure}
 
 \subsection{Variational Monte Carlo}%{{{2
 
@@ -507,10 +532,9 @@ The approximate value of the gradient $\left({\partial_\alpha},{\partial_\beta}\
 collected. I have used $m$ different walkers that collect one sample each every iteration. 
 I also tried to use one walker collecting $m$ samples every iteration, but % because of the high correlation between the samples, it was 
 %necessary to use a high number of samples $\matcal O(10^3)$ for the simulation to give the correct results. 
-the high correlation between the samples leads to bad results if the number of samples is much smaller than the correlation length ($\mathcal O(10^3)$). 
+the high correlation between the samples leads to bad results if the number of samples $m$ is much smaller than the correlation length ($\mathcal O(10^3)$). 
 %(close to the correlation length found during the blocking analysis), while $\mathcal O(10)$ is enough when $m$ walkers are used. 
-After my experience, using many uncorrelated walkers instead of one speeds up the algorithm considerably since the total number of samples decreases.
-
+After my experience, using many uncorrelated walkers instead of one speeds up the convergence of the algorithm considerably. %since the total number of samples decreases.
 
 See algorithm \ref{minalg} for a detailed pseudo code.
 
@@ -521,62 +545,6 @@ All with an statistical error close to $10^{-3}$.
 Note that the optimization converges much faster than one can calculate the energy. For example, to optimize the two particle quantum dot with an error in the variational parameters 
 $\sim10^{-3}$, only a few hundred thousand samples is needed (see figure ?), with a minima that is accurate to $\mathcal O (10^{-5})$ Hartrees. 
 To obtain the energy with an error $\sim 10^{-5}$ Hartrees about $10^8$ MC-samples are needed.
-\begin{algorithm}[h!]
-\begin{algorithmic}
-\STATE{**Initialize $m$ walkers**}
-\STATE{$k_\alpha\gets0,l_\alpha\gets1$}
-\STATE{$k_\beta\gets0,l_\beta\gets1$}
-	\LOOP{}
-		\STATE{$n=n+1$}
-		\FOR{all walkers }
-			\STATE{propose new position for walker}
-			\STATE{accept/reject move (metropolis test)}
-			\STATE{sample $\left({\partial_\alpha},{\partial_\beta}) E_L ,E_L$, $({\partial_\alpha},{\partial_\beta}) E_L* E_L$}
-		\ENDFOR{}
-		\STATE{$(\partial_\alpha,\partial_\beta)\expec{E_L}\gets$ use eq. (\ref{abgd})}
-		\FOR{$\nu=\{\alpha,\beta\}$}
-			\IF{$n\in[N_A,N_B)$}
-				\STATE{$\Delta_\nu\gets\Delta_\nu+|\partial_\nu\expec{E_L}|$}
-				%\STATE{$\Delta_\beta=\Delta_\beta+|\partial_\beta\expec{E_L}|$}
-			\ENDIF{}
-			\IF{$n=N_B$}
-				\STATE{$l_\nu\gets D^{E} (\Delta_\nu/(N_B-N_A))^{-E} $}
-				\STATE{$k_\nu\gets l_\nu/F$}
-				\STATE{$n\gets0$}
-				%\STATE{$l_\beta=300^{0.8} (\Delta_\beta/40)^{0.8} $}
-				%\STATE{$k_\alpha=l_\alpha/20$}
-			\ENDIF{}
-			\IF{$|\partial_\nu\expec{E_L}|>d_{max}$}
-				\STATE{$\nu\gets\nu-d_{max}*\partial_\nu\expec{E_L}/|\partial_\nu\expec{E_L}|$}
-			\ELSE{}
-				\STATE{$\nu\gets\nu-\partial_\nu\expec{E_L}(k_\nu*n+l_\nu)^{-E}$}
-			\ENDIF{}
-			%\IF{$\partial_\beta\expec{E_L}>0.1$}
-			%	\STATE{$\beta=\beta-0.1$}
-			%\ELSE{}
-			%	\STATE{$\beta=\beta-\partial_\beta\expec{E_L}(k_\beta*n+l_\beta)^{-0.8}$}
-			%\ENDIF{}
-			\IF{$\nu< v_{min}$}
-				\STATE{$\nu\gets v_{min}$}
-			\ENDIF{}
-			\IF{$\partial_\nu\expec{E_L}$ has changed its sign}
-				\STATE{$n_\nu\gets n_\nu+1$}
-			\ENDIF{}
-		\ENDFOR{}
-		\IF{$n>N_C$}
-			\STATE{accumulate mean values of $\alpha,\beta$}
-		\ENDIF{}
-	\ENDLOOP{}
-\end{algorithmic}
-\caption{My implementation of the SGA. %All numbers are tunable parameters that can be changed.
-$N_A,N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
-At $N_C$ the system should be close to the minima, and we start collecting data $(\alpha,\beta)$.
-$v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit of the 
-length of the components of the gradient. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
-I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.1$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. 
-}
-\label{minalg}
-\end{algorithm}
 
 \begin{figure}[h!]
 \begin{center}
@@ -780,6 +748,10 @@ Here $r_j\to(x_j,y_j)$ and $i\to n_{xi},n_{yi}$.
 The values 	$\partial_\alpha \psi_i(\ts r_j,\alpha)$ are already stored in the matrix $\mathcal D$, and does not have to be calculated. 
 All of the analytical expressions above is derivated in appendix A.
 %}}}2
+
+\subsection{Scaling and time consume}%{{{2
+%{{{2
+
 %}}}1
 
 \section{Results} %{{{1
@@ -1012,7 +984,70 @@ We combine eq. (\ref{A1}), eq. (\ref{A2}) and eq. (\ref{A3})
 
 %}}}1
 
-\section{Pseudocode:}%{{{1
+\section{Pseudocode: The SGA algorithm.}%{{{1
+My implementation of the SGA. %All numbers are tunable parameters that can be changed.
+At $n=N_A/N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
+At $N_C$ the system should be thermalized and we start collecting data.
+$v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit for the 
+length of a step in each variational parameter. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
+I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.01$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. 
+\vspace{-.6cm}
+\begin{algorithm}[h!]
+\begin{algorithmic}
+\STATE{**Initialize $m$ walkers**}
+\STATE{$k_\alpha\gets0,l_\alpha\gets1$}
+\STATE{$k_\beta\gets0,l_\beta\gets1$}
+	\LOOP{}
+		\STATE{$n=n+1$}
+		\FOR{all walkers }
+			\STATE{propose new position for walker}
+			\STATE{accept/reject move (metropolis test)}
+			\STATE{sample $\left({\partial_\alpha},{\partial_\beta}) E_L ,E_L$, $({\partial_\alpha},{\partial_\beta}) E_L* E_L$}
+		\ENDFOR{}
+		\STATE{$(\partial_\alpha,\partial_\beta)\expec{E_L}\gets$ use eq. (\ref{abgd})}
+		\FOR{$\nu=\{\alpha,\beta\}$}
+			\IF{$n\in[N_A,N_B)$}
+				\STATE{$\Delta_\nu\gets\Delta_\nu+|\partial_\nu\expec{E_L}|$}
+				%\STATE{$\Delta_\beta=\Delta_\beta+|\partial_\beta\expec{E_L}|$}
+			\ENDIF{}
+			\IF{$n=N_B$}
+				\STATE{$l_\nu\gets D^{E} (\Delta_\nu/(N_B-N_A))^{-E} $}
+				\STATE{$k_\nu\gets l_\nu/F$}
+				\STATE{$n\gets0$}
+				%\STATE{$l_\beta=300^{0.8} (\Delta_\beta/40)^{0.8} $}
+				%\STATE{$k_\alpha=l_\alpha/20$}
+			\ENDIF{}
+			\IF{$|\partial_\nu\expec{E_L}|>d_{max}$}
+				\STATE{$\nu\gets\nu-d_{max}*\partial_\nu\expec{E_L}/|\partial_\nu\expec{E_L}|$}
+			\ELSE{}
+				\STATE{$\nu\gets\nu-\partial_\nu\expec{E_L}(k_\nu*n+l_\nu)^{-E}$}
+			\ENDIF{}
+			%\IF{$\partial_\beta\expec{E_L}>0.1$}
+			%	\STATE{$\beta=\beta-0.1$}
+			%\ELSE{}
+			%	\STATE{$\beta=\beta-\partial_\beta\expec{E_L}(k_\beta*n+l_\beta)^{-0.8}$}
+			%\ENDIF{}
+			\IF{$\nu< v_{min}$}
+				\STATE{$\nu\gets v_{min}$}
+			\ENDIF{}
+			\IF{$\partial_\nu\expec{E_L}$ has changed its sign}
+				\STATE{$n_\nu\gets n_\nu+1$}
+			\ENDIF{}
+		\ENDFOR{}
+		\IF{$n>N_C$}
+			\STATE{accumulate mean values of $\alpha,\beta$}
+		\ENDIF{}
+	\ENDLOOP{}
+\end{algorithmic}
+%\caption{My implementation of the SGA. %All numbers are tunable parameters that can be changed.
+%At $n=N_A/N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
+%At $N_C$ the system should be thermalized and we start collecting data.
+%$v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit for the 
+%length of a step in each variational parameter. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
+%I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.01$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. 
+%}
+\label{minalg}
+\end{algorithm}
 %}}}1
 \end{appendix}
 

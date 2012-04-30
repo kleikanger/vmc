@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  29 APR 2012 14:28
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  30 APR 2012 18:54
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -417,96 +417,99 @@ Underfull \hbox (badness 10000) in paragraph at lines 177--187
 
  []
 
-[2]
 
 Package amsmath Warning: Cannot use `split' here;
-(amsmath)                trying to recover with `aligned' on input line 242.
+(amsmath)                trying to recover with `aligned' on input line 246.
 
-
-Underfull \hbox (badness 1275) in paragraph at lines 275--275
+[2]
+Underfull \hbox (badness 1275) in paragraph at lines 277--277
 []\OT1/cmr/bx/n/14.4 Statistical anal-y-sis of the
  []
 
 File: ../plots/blc_6pt_omg1_dt05.eps Graphic file (type eps)
 <../plots/blc_6pt_omg1_dt05.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 302--303
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 303--304
  [] 
- []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[3] [4] [5]
-Underfull \hbox (badness 10000) in paragraph at lines 506--513
-[]\OT1/cmr/m/n/10 The ap-prox-i-mate value of the gra-di-ent
- []
-
-
-Underfull \hbox (badness 2119) in paragraph at lines 506--513
-[] \OMS/cmsy/m/n/10 h[][]i[]$ \OT1/cmr/m/n/10 is ob-tained dur-ing a short MC
- []
-
-
-Underfull \hbox (badness 1275) in paragraph at lines 506--513
-\OT1/cmr/m/n/10 tried to use one walker col-lect-ing $\OML/cmm/m/it/10 m$ \OT1/
-cmr/m/n/10 sam-ples
- []
-
-! Missing \right. inserted.
-<inserted text> 
-                \right .
-l.534 ...rtial_\alpha},{\partial_\beta}) E_L ,E_L$
-                                                  , $({\partial_\alpha},{\pa...
-
-? 
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-File: ../plots/minimization_2pt_omg1.eps Graphic file (type eps)
-<../plots/minimization_2pt_omg1.eps>
-File: ../plots/minimization_12pt_omg1.eps Graphic file (type eps)
- <../plots/minimization_12pt_omg1.eps>
-Overfull \hbox (0.93158pt too wide) in paragraph at lines 589--595
- [] 
- []
-
-
-Overfull \hbox (0.93158pt too wide) in paragraph at lines 589--595
- [] 
- []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-Underfull \hbox (badness 2050) in paragraph at lines 650--650
-[]\OT1/cmr/bx/n/14.4 Implementation and op-ti-
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [6]
-[7]
-Overfull \hbox (12.03252pt too wide) in paragraph at lines 845--889
+ [3]
+Overfull \hbox (11.47975pt too wide) in paragraph at lines 358--358
+[] 
+ []
+
+File: ../plots/time_step_error_2ptomg1.eps Graphic file (type eps)
+<../plots/time_step_error_2ptomg1.eps>
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 374--375
  [] 
  []
 
-[8]
-Overfull \hbox (7.74205pt too wide) in paragraph at lines 932--932
-[] 
+[4] [5]
+Underfull \hbox (badness 10000) in paragraph at lines 531--538
+[]\OT1/cmr/m/n/10 The ap-prox-i-mate value of the gra-di-ent
  []
 
 
-Overfull \hbox (8.10329pt too wide) in paragraph at lines 963--963
-[] 
+Underfull \hbox (badness 2119) in paragraph at lines 531--538
+[] \OMS/cmsy/m/n/10 h[][]i[]$ \OT1/cmr/m/n/10 is ob-tained dur-ing a short MC
+ []
+
+File: ../plots/minimization_2pt_omg1.eps Graphic file (type eps)
+<../plots/minimization_2pt_omg1.eps>
+File: ../plots/minimization_12pt_omg1.eps Graphic file (type eps)
+ <../plots/minimization_12pt_omg1.eps>
+Overfull \hbox (0.93158pt too wide) in paragraph at lines 557--563
+ [] 
+ []
+
+
+Overfull \hbox (0.93158pt too wide) in paragraph at lines 557--563
+ [] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Underfull \hbox (badness 2050) in paragraph at lines 618--618
+[]\OT1/cmr/bx/n/14.4 Implementation and op-ti-
+ []
+
+[6]
+Overfull \vbox (22.59195pt too high) has occurred while \output is active []
+
+
+[7] [8]
+Overfull \hbox (12.03252pt too wide) in paragraph at lines 817--861
+ [] 
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [9]
-(./proj1.bbl [10]
+Overfull \hbox (7.74205pt too wide) in paragraph at lines 904--904
+[] 
+ []
+
+
+Overfull \hbox (8.10329pt too wide) in paragraph at lines 935--935
+[] 
+ []
+
+! Missing \right. inserted.
+<inserted text> 
+                \right .
+l.1005 ...tial_\alpha},{\partial_\beta}) E_L ,E_L$
+                                                  , $({\partial_\alpha},{\pa...
+
+? 
+[10] (./proj1.bbl
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
 Underfull \hbox (badness 1642) in paragraph at lines 38--42
 []\OT1/cmr/m/n/10 Anthony Sce-mama, Tony Leli^^Revre, Gabriel
  []
@@ -519,12 +522,12 @@ Underfull \hbox (badness 1831) in paragraph at lines 38--42
 
 ) [11] (./proj1.aux) ) 
 Here is how much of TeX's memory you used:
- 2064 strings out of 495062
- 23052 string characters out of 1182644
- 110660 words of memory out of 3000000
- 5209 multiletter control sequences out of 15000+50000
+ 2067 strings out of 495062
+ 23137 string characters out of 1182644
+ 98660 words of memory out of 3000000
+ 5211 multiletter control sequences out of 15000+50000
  14336 words of font info for 55 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 32i,16n,23p,708b,535s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,16n,23p,619b,567s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (11 pages, 74264 bytes).
+Output written on proj1.dvi (11 pages, 74572 bytes).

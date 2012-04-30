@@ -248,17 +248,24 @@ number_of_particles = 20
 #run()
 
 
-sampling_cycles     = 1e6
 conjugate_gradient 	= False
 sample_on_grid 		= True
 use_dmc_sampler 	= False
-number_of_particles = 20
-min_beta 			= 0.739
-min_alpha   		= 0.838
+number_of_particles = 2
+min_beta 			= 0.399
+min_alpha   		= 0.988
+sampling_cycles     = 1e7
+omega 				= 1
+
+import numpy as np
+for a in np.linspace(0.001,.4,40):
+	delta_t=a
+	run()
+
+#min_beta 			= 0.76
+#min_alpha   		= 0.84
 #run()
-min_beta 			= 0.76
-min_alpha   		= 0.84
-#run()
+delta_t=0.5
 #num_cycles_main_loop= 1000000 #30000
 #run()
 
@@ -316,10 +323,10 @@ number_of_particles = 20
 min_beta 			= 0.289
 min_alpha   		= 0.650
 delta_t = 0.007
-run()
+#run()
 #write_blocking_data = 'true'
 delta_t = 0.005
-run()
+#run()
 #write_blocking_data = 'false'
 delta_t = 0.003
 #run()
