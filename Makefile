@@ -1,5 +1,5 @@
 LFLAGS=-llapack -lcblas 
-CFLAGS=-O3  -I/opt/intel/mkl/include/ -I/usr/include/i386-linux-gnu/ # -pg -g2 # -L/opt/intel/mkl/lib/32
+CFLAGS=-O3  -I/opt/intel/mkl/include/ -I/usr/include/i386-linux-gnu/ -pg -g2 # -L/opt/intel/mkl/lib/32
 DEBUG=-Wall -g
 PAT=/home/karleik/masterProgging/vmc
 NPROC=-n 2
@@ -19,11 +19,13 @@ run: vmcmain.out
 	$(EXEC) $(NPROC) runVMC.out
 
 profile: all
-	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o \
-		zignor.o zigrandom.o newmatrix.o -o vmcmain_gprof.out $(LFLAGS)
-	$(EXEC) $(NPROC) vmcmain_gprof.out 
-	gprof ./vmcmain_gprof.out gmon.out > $(GPROFOUT)
-	less $(GPROFOUT)
+	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o sga.o\
+		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o mcongrid.o dmcsampler.o\
+		popControl.o -o runVMC.out $(LFLAGS)
+#$(EXEC) $(NPROC) vmcmain_gprof.out 
+#python runVMC.py
+#gprof ./vmcmain.out gmon.out > $(GPROFOUT)
+#less $(GPROFOUT)
 
 vmcmain.o: $(PAT)/vmcmain/vmcmain.cpp
 	$(CC) $(CFLAGS) -c $(PAT)/vmcmain/vmcmain.cpp 

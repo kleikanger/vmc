@@ -169,7 +169,7 @@ I will refer to $g(r_A|r_B)$ as the suggestion density, and $\gamma(\ts r_A|\gam
 \end{align}
 Then, by inserting this equations into (\ref{detbal}), we get
 \begin{align} 
-	\gamma(\ts r_A|\ts r_B)=max\left(
+	\gamma(\ts r_A|\ts r_B)=min\left(
 	\frac
 	{P_w(\ts r_B) g(\ts r_B|\ts r_A)}
     {P_w(\ts r_A) g(\ts r_A|\ts r_B)}\, 
@@ -226,7 +226,7 @@ One possibility us to use a suggestion density $g(\ts r_n|\ts r_{n+1})$ that is 
 This method is referred to as brute force sampling.
 In this case $\gamma(\ts r_{n+1}|\ts r_{n})$ can be expressed as
 \begin{align} 
-	\gamma(\ts r_{n+1}|\vec r_n)=max\left(
+	\gamma(\ts r_{n+1}|\vec r_n)=min\left(
 	\frac
 	{P_w(\ts r_{n+1})}
     {P_w(\ts r_n)}\, 
@@ -234,14 +234,14 @@ In this case $\gamma(\ts r_{n+1}|\ts r_{n})$ can be expressed as
 \end{align}
 A common choice is to set
 \begin{align}
-	g(\ts r_n|\ts r_{n+1}) = \sum_i l\left(\mathcal U(\ts r_{n+1}-\ts r_n) - \frac12\right)
+	g(\ts r_n|\ts r_{n+1}) = l\left(\mathcal U(\ts r_{n+1}-\ts r_n) - \frac12\right)
 	\label{sugdebf}
 \end{align}
 where $l$ is a constant which we will refer to as the step length, and $\mathcal U(\ts r)$ is the uniform distribution
 \begin{equation}
 	\mathcal U(\ts r) = \left\{ 
 	\begin{split} 
-		&1, \text{ for all } \ts r \cdot \ts e_i \in [0,1]\\
+		&1, \text{ if all } \ts r \cdot \ts e_i \in [0,1]\\
 		&0, \text{ otherwise }\\
 	\end{split}
 	\right..
@@ -260,15 +260,21 @@ dynamical equations in time $t\to t_n= \Delta t n$, and an time step error arise
 The Metropolis-Hastings algorithm corrects this error %for any time step $\Delta t>0$ 
 by restoring detailed balance.% \cite{scemama}.
 
-The suggestion density can be written \cite{lars_eivind_thesis}
+The suggestion density becomes \cite{lars_eivind_thesis}
 \begin{align}
-	g(\ts r_{n+1}|\ts r_n)=D\Delta t \frac{\nabla P(\ts r_n)}{P(\ts r_n)} + \sqrt{\Delta t}\mathcal N(\ts r_{n+1}-\ts r_{n}),	
+	g(\ts r_{n+1}|\ts r_n)=K\exp(-D\Delta t \frac{\nabla P(\ts r_n)}{P(\ts r_n)} + \ts r_{n+1}-\ts r_{n})^2,	
+	\label{sugdeis}
 \end{align}
-where $D$ is the diffusion constant originating from the Fokker-Planck equation and $\mathcal N$ is a normal distribution with the variance $2D$. 
+where $D$ is the diffusion constant originating from the Fokker-Planck equation and $K$ is a normalization constant. 
+Samples from this density are generated using the Langevin equation on the form (ref HAMMOND) (exact ? or is this where the dt dependent error enters)
+\begin{align}
+	\ts r_{n+1}=\ts r_n+D\Delta t \frac{\nabla P(\ts r_n)}{P(\ts r_n)} + \sqrt{\Delta t}\mathcal N(\ts r_{n+1}-\ts r_{n}),	
+	\label{rp1}
+\end{align}
+where $\mathcal N$ is a normal distribution with the variance $2D$.
 From this equation it is evident that a small $\Delta t$ will lead to a small average step length $|\ts r_{n+1}-\ts r_n|$. This might slow down the 
 convergence of the system even though the acceptance rate will increase. %(Since the random walkers in $\mathcal D$ will be very slow + high correlation between samples). 
 In practice one has to experiment to find the optimal values for $\Delta t$ that gives a ((small time step error)) and a rapid convergence. 
-
 
 %}}}
 
@@ -340,41 +346,50 @@ Note that $\Psi$ does not need to be normalized in the above equations. This sav
 of most wave functions would have to be done numerically for every new trial function.% ????
 %}}}2
 
-\subsection{Brute force sampling}%{{{2
+\subsection{Transition kernels}%{{{2
 Brute force sampling is implemented using the suggestion density eq. (\ref{sugdebf}) and a acceptance probability
 \begin{align} 
-	\gamma(\ts r_{n+1}|\vec r_n)=max\left(
+	\gamma(\ts R_{n+1}|\ts R_n)=max\left(
 	\frac
-	{\Psi(\ts R_{n+1})}
-    {\Psi(\ts R_n)}\, 
+	{|\Psi(\ts R_{n+1})|^2}
+    {|\Psi(\ts R_n)|^2}\, 
 	,\, 1 \right) 
 \end{align}
-%}}}2
-
-\subsection{Sampling based on Langevin dynamics}%{{{2
-For a quantum mechanical system in two dimensions, the suggestion density becomes
+%The brute force method is only used during the implementation phase to test the
+ 
+Importance sampling based on Langevin dynamics is implemented using the following equations.
+The gradient of $P\to\abs{\Psi}^2$ is
 \begin{align}
-	g(\ts r_{n+1}|\ts r_n)=\Delta t \frac{\nabla \Psi(\ts R_{n+1}))}{\Psi (\ts R_n)} + \sqrt{\Delta t}\mathcal N(\ts R_{n+1}-\ts R_{n}).i
+	\ts F_n=\frac{\nabla|\Psi(\ts R_n)|^2}{|\Psi(\ts R_n)|^2} = 2 \frac{\nabla \Psi(\ts R_n)}{\Psi(\ts R_n)},
+\end{align}
+and the diffusion constant $D$ can be shown to be $1/2$ in our dimensionless units(ref). Combining these two quantities with eq. (\ref{rp1}) gives 
+us an equation to sample the suggestion density eq. (\ref{sugdeis}). 
+%
+%A new position $\ts R_{n+1}$ is suggested using the equation
+\begin{align}
+	\ts R_{n+1}&=\ts R_n+\Delta t \frac{\nabla \Psi(\ts R_{n})}{\Psi (\ts R_n)}\notag\\& + \sqrt{\Delta t}\mathcal N(\ts R_{n+1}-\ts R_{n}).
+\end{align}
+The acceptance probability is found combining eq. (\ref{sugdeis}) and eq. (\ref{gamma}) 
+\begin{align} 
+	&\gamma(\ts R_{n+1}|\ts R_n)=
+	min\left(
+	G(\ts R_{n+1},\ts R_n)\frac
+	{|\Psi(\ts R_{n+1})|^2}
+    {|\Psi(\ts R_{n})|^2}\, 
+	,\, 1 \right)
+\end{align}
+where $G(\ts R_{n+1},\ts R)$ is the greens function
+\begin{align}
+	G(\ts R_{n+1},\ts R_n)& =%\notag\\&
+	 e^{
+		-\frac12 
+		\Big(\ts F_{n+1}+\ts F_n\Big) }\times\notag\\
+	&e^{ 
+		\Big(\frac14\Delta t \big(\ts F_{n}-\ts F_{n+1}\big) 
+		+ \ts R_{n}-\ts R_{n+1}\Big)}.
 \end{align}
 
-
 %}}}2
-
-%}}}2
-
-\subsection{Systematic errors}
-\begin{figure}[h!]
-\begin{center}
-\caption{{\it%\small
-			Energy as a function of $\Delta t$ for a $2$ particle quantum dot with $\alpha=0.988,\beta=0.399,\omega=1$. All energies are calculated using $10^7$ samples.
-			The energy are plotted for 40 values of $\Delta t$ between $0.01$ and $0.4$. 
-		}}
-		\label{figblc}
-%\vspace{-.8cm}
-	\includegraphics[width=8.cm]{../plots/time_step_error_2ptomg1.eps}
-\end{center}
-%\vspace{-1.2cm}
-\end{figure}
 
 \subsection{Variational Monte Carlo}%{{{2
 
@@ -412,7 +427,7 @@ The equations
 	\phi_{n_xn_y}^\alpha(\ts r_i) = H_{n_y}(\sqrt{\omega\alpha}y)H_{n_x}(\sqrt{\omega\alpha}x)\notag\\
 	\times \exp(-\frac12\omega\alpha|\ts r_i|^2) \label{1pts}
 \end{align}
-are the eigenstates for the hamiltonian eq. (\ref{hamiltonian}) when $\alpha=1$. $H_n(x)$ is the hermitepolynomials and $\alpha$ is a variational 
+are the eigenstates for the hamiltonian eq. (\ref{hamiltonian}) when $\alpha=1$. $H_n(x)$ is the Hermite polynomials and $\alpha$ is a variational 
 parameter $\alpha\in[0,1)$ which represents the ''shielding'' effect that occurs when more than one electron is present in the system. Since the 
 electrons carry a negative charge, the efficient external potential seen by the individual particles will be lower than the actual external potential.
 %The energy level $n=n_x+n_y$ will be $n+1$ times degenerated. ...
@@ -622,6 +637,12 @@ The metropolis-hastings test is performed each cycle, while the energy and other
 evaluate the energy every time a electron has been moved, but this would not be favorable for a system with many electrons since the correlation between the samples would be very high, 
 and the evaluation of the energy consumes too many flops. 
 
+\subsection{Random number generators}
+I have used the random number generator \verb DRanNormalZig32  for generating normal distributed random numbers and \verb DRan_MWC8222  for generating uniformly distributes random numbers. 
+The random number generators are programmed by Jurgen A. Doornik \cite{Doornik}. 
+
+\subsection{The update algorithm}%{{{2
+%}}}2
 
 \subsection{Optimalization of $\mathcal D^\alpha(\ts R)$} %{{{2
 
@@ -749,12 +770,78 @@ The values 	$\partial_\alpha \psi_i(\ts r_j,\alpha)$ are already stored in the m
 All of the analytical expressions above is derivated in appendix A.
 %}}}2
 
-\subsection{Scaling and time consume}%{{{2
-%{{{2
 
 %}}}1
 
 \section{Results} %{{{1
+
+\subsection{Scaling and time consume}%{{{2
+
+I have used the package \verb GNU  \verb gprof  to profile my program. 
+
+The time spent on running the code for $n_p=\{2$, $6$, $12$, $20\}$ particles is listed in table \ref{tab:scaletime}. 
+A curve fit to this data indicates that the algorithm scales as $\mathcal O(n_p^{2.5})$. 
+
+In table \ref{tab:scaletime} I have also listed the percentage of the total floating point operation spent on the three most expensive functions. 
+%For the $2$ and $6$ particle quantum dots, the evaluation of the gradients was the most time consuming part of the code. 
+For the $6$ and $12$ particle quantum dots the evaluation of the first derivatives single particle orbitals is the most time consuming part of the code.
+This part of the code scales bad since the mathematical expressions for the orbitals eq. (\ref{1pts}) gets more complex as the orbital energies increases.
+% since Hermite polynomials of an higher order must be calculated.
+%The problem is that half of these derivatives are calculated each time one particle is moved. It does not pay off storing them since the number of derivatives is
+%$1/2(n_p)^2$(*dim?) for our system, and half of the derivatives would have to be updated every time a move is accepted and reset every time a move is rejected.
+
+%1) calculating the first derivative of the orbitals, 
+%2) calculating the gradients of the slater determinant (the orbital derivatives are not included)
+%and 3) calculating the gradient of the jastrow factor are listed.
+%The functions calculating the gradient of the jastrow function and the slater determinant consumes less than 15\% of the computational load each for all simulations. 
+%The function that updates the inverse slater matrix consumes even less.
+
+\subsection{Systematic errors}
+
+Systematic time step error see HAMMOND (monte carlo methods in ab initio quantum chemistry)
+
+\begin{figure}[h!]
+\begin{center}
+\caption{{\it%\small
+			Energy as a function of $\Delta t$ for a $2$ particle quantum dot with $\alpha=0.988,\beta=0.399,\omega=1$. All energies are calculated using $10^7$ samples.
+			The energy are plotted for 40 values of $\Delta t$ between $0.01$ and $0.4$. 
+		}}
+		\label{figblc}
+%\vspace{-.8cm}
+	\includegraphics[width=8.cm]{../plots/time_step_error_2ptomg1.eps}
+\end{center}
+%\vspace{-1.2cm}
+\end{figure}
+
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+$N_{p}$ & cpu time & d1  & jasgrad  & slagrad  \\ 
+\hline
+\hline
+ $2$  & $1.1s$ &4\% &10\% &6\%\\ 
+ $6$  & $8.5s$ & 10\% &16\% &14\%\\ 
+ $12$ & $37.8s$ & 20\% &14\% &13\%\\ 
+ $20$ & $135.3s$ & 37\% &11\% &16\%\\ 
+\hline
+\end{tabular}
+\end{center}
+\caption{{\it 
+	Running time for $\omega=1$ quantum dots with $N_p$ particles and the optimal values for the variational parameters. All runs done on one $2.4 MHz$ processor with $10^6$ iterations.
+	The percentage of time consume of the most expensive functions are listed in the table. 
+	(d1) :evaluation of the first derivatives of the orbitals,
+	(jasgrad)  :evaluation of the gradient of the Jastrow factor,
+	(slagrad)  :evaluation of the gradient of the Slater matrix (d1 not included).
+}}
+\label{tab:scaletime}
+%\hspace{50mm}
+\end{table}
+
+
+\subsection{Numerical results}
+%{{{2
 
 The results are summarized in tables \ref{tab1} and \ref{tab2}. I have used the values $\omega=0.28,0.5,1.0$ and $\Delta t = 0.01,0.25,0.05$ to be able to compare my 
 results with ref(...). I have also calculated the values using the same number of cycles. The results are well consistent with the results of (refLE),..
@@ -881,6 +968,72 @@ The algorithm as it is implemented by (refs) Does not take the mean, but lets $\
 %}}}1
 
 \begin{appendix}
+\section{Pseudocode: The SGA algorithm.}%{{{1
+My implementation of the SGA. %All numbers are tunable parameters that can be changed.
+At $n=N_A/N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
+At $N_C$ the system should be thermalized and we start collecting data.
+$v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit for the 
+length of a step in each variational parameter. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
+I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.01$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. 
+%\vspace{-.6cm}
+%\begin{algorithm}[h!]
+\begin{algorithmic}
+\STATE{**Initialize $m$ walkers**}
+\STATE{$k_\alpha\gets0,l_\alpha\gets1$}
+\STATE{$k_\beta\gets0,l_\beta\gets1$}
+	\LOOP{}
+		\STATE{$n=n+1$}
+		\FOR{all walkers }
+			\STATE{propose new position for walker}
+			\STATE{accept/reject move (metropolis test)}
+			\STATE{sample $\left({\partial_\alpha},{\partial_\beta}) E_L ,E_L$, $({\partial_\alpha},{\partial_\beta}) E_L* E_L$}
+		\ENDFOR{}
+		\STATE{$(\partial_\alpha,\partial_\beta)\expec{E_L}\gets$ use eq. (\ref{abgd})}
+		\FOR{$\nu=\{\alpha,\beta\}$}
+			\IF{$n\in[N_A,N_B)$}
+				\STATE{$\Delta_\nu\gets\Delta_\nu+|\partial_\nu\expec{E_L}|$}
+				%\STATE{$\Delta_\beta=\Delta_\beta+|\partial_\beta\expec{E_L}|$}
+			\ENDIF{}
+			\IF{$n=N_B$}
+				\STATE{$l_\nu\gets D^{E} (\Delta_\nu/(N_B-N_A))^{-E} $}
+				\STATE{$k_\nu\gets l_\nu/F$}
+				\STATE{$n\gets0$}
+				%\STATE{$l_\beta=300^{0.8} (\Delta_\beta/40)^{0.8} $}
+				%\STATE{$k_\alpha=l_\alpha/20$}
+			\ENDIF{}
+			\IF{$|\partial_\nu\expec{E_L}|>d_{max}$}
+				\STATE{$\nu\gets\nu-d_{max}*\partial_\nu\expec{E_L}/|\partial_\nu\expec{E_L}|$}
+			\ELSE{}
+				\STATE{$\nu\gets\nu-\partial_\nu\expec{E_L}(k_\nu*n+l_\nu)^{-E}$}
+			\ENDIF{}
+			%\IF{$\partial_\beta\expec{E_L}>0.1$}
+			%	\STATE{$\beta=\beta-0.1$}
+			%\ELSE{}
+			%	\STATE{$\beta=\beta-\partial_\beta\expec{E_L}(k_\beta*n+l_\beta)^{-0.8}$}
+			%\ENDIF{}
+			\IF{$\nu< v_{min}$}
+				\STATE{$\nu\gets v_{min}$}
+			\ENDIF{}
+			\IF{$\partial_\nu\expec{E_L}$ has changed its sign}
+				\STATE{$n_\nu\gets n_\nu+1$}
+			\ENDIF{}
+		\ENDFOR{}
+		\IF{$n>N_C$}
+			\STATE{accumulate mean values of $\alpha,\beta$}
+		\ENDIF{}
+	\ENDLOOP{}
+\end{algorithmic}
+%\caption{My implementation of the SGA. %All numbers are tunable parameters that can be changed.
+%At $n=N_A/N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
+%At $N_C$ the system should be thermalized and we start collecting data.
+%$v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit for the 
+%length of a step in each variational parameter. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
+%I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.01$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. 
+%}
+%\label{minalg}
+%\end{algorithm}
+%}}}1
+
 \section{Derivation of the analytical expressions for $(\partial_\alpha,\partial_\beta)\expec{\hat H}$}%{{{1
 
 The derivative of the jastrow factor can be written
@@ -984,71 +1137,6 @@ We combine eq. (\ref{A1}), eq. (\ref{A2}) and eq. (\ref{A3})
 
 %}}}1
 
-\section{Pseudocode: The SGA algorithm.}%{{{1
-My implementation of the SGA. %All numbers are tunable parameters that can be changed.
-At $n=N_A/N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
-At $N_C$ the system should be thermalized and we start collecting data.
-$v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit for the 
-length of a step in each variational parameter. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
-I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.01$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. 
-\vspace{-.6cm}
-\begin{algorithm}[h!]
-\begin{algorithmic}
-\STATE{**Initialize $m$ walkers**}
-\STATE{$k_\alpha\gets0,l_\alpha\gets1$}
-\STATE{$k_\beta\gets0,l_\beta\gets1$}
-	\LOOP{}
-		\STATE{$n=n+1$}
-		\FOR{all walkers }
-			\STATE{propose new position for walker}
-			\STATE{accept/reject move (metropolis test)}
-			\STATE{sample $\left({\partial_\alpha},{\partial_\beta}) E_L ,E_L$, $({\partial_\alpha},{\partial_\beta}) E_L* E_L$}
-		\ENDFOR{}
-		\STATE{$(\partial_\alpha,\partial_\beta)\expec{E_L}\gets$ use eq. (\ref{abgd})}
-		\FOR{$\nu=\{\alpha,\beta\}$}
-			\IF{$n\in[N_A,N_B)$}
-				\STATE{$\Delta_\nu\gets\Delta_\nu+|\partial_\nu\expec{E_L}|$}
-				%\STATE{$\Delta_\beta=\Delta_\beta+|\partial_\beta\expec{E_L}|$}
-			\ENDIF{}
-			\IF{$n=N_B$}
-				\STATE{$l_\nu\gets D^{E} (\Delta_\nu/(N_B-N_A))^{-E} $}
-				\STATE{$k_\nu\gets l_\nu/F$}
-				\STATE{$n\gets0$}
-				%\STATE{$l_\beta=300^{0.8} (\Delta_\beta/40)^{0.8} $}
-				%\STATE{$k_\alpha=l_\alpha/20$}
-			\ENDIF{}
-			\IF{$|\partial_\nu\expec{E_L}|>d_{max}$}
-				\STATE{$\nu\gets\nu-d_{max}*\partial_\nu\expec{E_L}/|\partial_\nu\expec{E_L}|$}
-			\ELSE{}
-				\STATE{$\nu\gets\nu-\partial_\nu\expec{E_L}(k_\nu*n+l_\nu)^{-E}$}
-			\ENDIF{}
-			%\IF{$\partial_\beta\expec{E_L}>0.1$}
-			%	\STATE{$\beta=\beta-0.1$}
-			%\ELSE{}
-			%	\STATE{$\beta=\beta-\partial_\beta\expec{E_L}(k_\beta*n+l_\beta)^{-0.8}$}
-			%\ENDIF{}
-			\IF{$\nu< v_{min}$}
-				\STATE{$\nu\gets v_{min}$}
-			\ENDIF{}
-			\IF{$\partial_\nu\expec{E_L}$ has changed its sign}
-				\STATE{$n_\nu\gets n_\nu+1$}
-			\ENDIF{}
-		\ENDFOR{}
-		\IF{$n>N_C$}
-			\STATE{accumulate mean values of $\alpha,\beta$}
-		\ENDIF{}
-	\ENDLOOP{}
-\end{algorithmic}
-%\caption{My implementation of the SGA. %All numbers are tunable parameters that can be changed.
-%At $n=N_A/N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
-%At $N_C$ the system should be thermalized and we start collecting data.
-%$v_{min}$ is the lower limit of the variational parameters $\alpha,\beta$. $d_{max}$ is the upper limit for the 
-%length of a step in each variational parameter. $k,l$ are dependent on $D,E,F$. $E$ is the (negative) exponent limited by eq. (\ref{eq:sga2}).
-%I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.01$, $d_{max}=0.1$, $D=300$, $E=0.8$, $F=20$ in all calculations. 
-%}
-\label{minalg}
-\end{algorithm}
-%}}}1
 \end{appendix}
 
 

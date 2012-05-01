@@ -117,13 +117,13 @@ double ipdist::sumInvlen() const
 	}
 	return sum;
 }/*//endvimfold*/
+#define A 0.3333333333333333
 void ipdist::jasGrad(double** ret_vec, double** r, double** r_old, const int & i_upd) const 
 {//startvimfold
 	int j,i; //k
 	//temporary variable
 	double r_kj=0;
 	//jastrow par
-	double a=0.3333333333333333;
 	double temp;
 	
 	//Only changing the elements that has nev values changed
@@ -148,8 +148,8 @@ void ipdist::jasGrad(double** ret_vec, double** r, double** r_old, const int & i
 
 		if ((i<iCutoff)==(spin_up_particle)) 
 		{
-			temp =  a /(r_kj * pow(1.+beta*r_kj,2));
-			temp_old = a /(r_kj_old * pow(1.+beta*r_kj_old,2));
+			temp =  A /(r_kj * pow(1.+beta*r_kj,2));
+			temp_old = A /(r_kj_old * pow(1.+beta*r_kj_old,2));
 		}
 		//particles with antiparallel spins
 		else	
@@ -182,8 +182,8 @@ void ipdist::jasGrad(double** ret_vec, double** r, double** r_old, const int & i
 		
 		if (((i+1)<iCutoff)==(spin_up_particle)) 
 		{
-			temp =  a /(r_kj * pow(1.+beta*r_kj,2));
-			temp_old = a /(r_kj_old * pow(1.+beta*r_kj_old,2));
+			temp =  A /(r_kj * pow(1.+beta*r_kj,2));
+			temp_old = A /(r_kj_old * pow(1.+beta*r_kj_old,2));
 
 		}
 		//particles with antiparallel spins
@@ -217,8 +217,6 @@ double ipdist::jasLapl(double** r) const
 	double r_kj;
    	//summation variable
 	double sum = 0.0;
-	//jastrow parameter
-	double a=0.3333333333333333;
 
 	for (k=0;k<=n_min_one;k++)
 	{
@@ -229,7 +227,7 @@ double ipdist::jasLapl(double** r) const
 			//Particles with parallel spins:
 			if ((k<iCutoff)==(j<iCutoff)) 
 			{
-				sum += a * ( 1.0-beta*r_kj ) / ( r_kj * pow((1.0+r_kj*beta),3) );
+				sum += A * ( 1.0-beta*r_kj ) / ( r_kj * pow((1.0+r_kj*beta),3) );
 			}
 			//particles with antiparallel spins
 			else	
@@ -270,7 +268,6 @@ double ipdist::logJasR(const int &i_upd) const
 	double r_12;
 	int i;
 	double sum=0.0;
-	double a=0.3333333333333333;
 	bool i_upd_spin_up=(i_upd<iCutoff);
 	int i_upd_mo=i_upd-1;
 	//n-1 elements in ip_len needs to be summed
@@ -280,7 +277,7 @@ double ipdist::logJasR(const int &i_upd) const
 		if (i_upd_spin_up==i<iCutoff) //? a=con : a=1.0; 
 		//if (i_upd_spin_up==(i<iCutoff))  a=con; else a=1.0; 
 		{
-			sum+=a*r_12/(1.0 + beta*r_12);
+			sum+=A*r_12/(1.0 + beta*r_12);
 		}
 		else
 		{
@@ -293,7 +290,7 @@ double ipdist::logJasR(const int &i_upd) const
 		if (i_upd_spin_up==((i+1)<iCutoff)) //? a=con : a=1.0;
 		//if (i_upd_spin_up==((i+1)<iCutoff))  a=con; else a=1.0;
 		{
-			sum+=a*r_12/(1.0 + beta*r_12);
+			sum+=A*r_12/(1.0 + beta*r_12);
 		}
 		else
 		{
@@ -303,7 +300,6 @@ double ipdist::logJasR(const int &i_upd) const
 	}
 	return sum;
 }/*//endvimfold*/
-#define A 0.3333333333333333
 double ipdist::getdPdA() const
 {/*//startvimfold*/
 	int i,j,l;
