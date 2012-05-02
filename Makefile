@@ -1,5 +1,5 @@
 LFLAGS=-llapack -lcblas 
-CFLAGS=-O3  -I/opt/intel/mkl/include/ -I/usr/include/i386-linux-gnu/ -pg -g2 # -L/opt/intel/mkl/lib/32
+CFLAGS=-O3  -I/opt/intel/mkl/include/ -I/usr/include/i386-linux-gnu/# -pg -g2 # -L/opt/intel/mkl/lib/32
 DEBUG=-Wall -g
 PAT=/home/karleik/masterProgging/vmc
 NPROC=-n 2

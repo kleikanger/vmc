@@ -159,7 +159,8 @@ def run():
 	gen_sampl_h()
 	gen_vmcmain_h()
 	running_arguments = (('%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s')%(all_param()))
-	if (os.system('make profile --silent CC=mpic++ DEBUG=')==0): #--silent
+#if (os.system('make profile --silent CC=mpic++ DEBUG=')==0): #--silent
+	if (os.system('make --silent CC=mpic++ DEBUG=')==0): #--silent
 		os.system("echo 'Compilation successful.'")
 		os.system('mpirun -n %i runVMC.out %s'%(number_of_processors,running_arguments))
 	else:
@@ -169,6 +170,21 @@ def run():
 #############
 #run program#
 #############
+
+#generate one particle densities
+conjugate_gradient 	= False
+sample_on_grid 		= True
+use_dmc_sampler 	= False
+write_opd 			= 'true'
+number_of_particles = 6
+delta_t 			= 0.05
+sampling_cycles     = 1e7
+thermal_cycles 		= 10000
+omega 				= 1
+run()
+write_opd 			= 'false'
+
+
 number_of_processors= 2
 number_of_walkers 	= 1000 #total number on all procs
 num_cycles_main_loop= 200
@@ -267,23 +283,23 @@ delta_t = 0.05
 number_of_particles = 2
 min_beta 			= 0.399
 min_alpha   		= 0.988
-run()
-os.system("gprof ./runVMC.out")
+#run()
+#os.system("gprof ./runVMC.out")
 min_beta 			= 0.557
 min_alpha   		= 0.924
 number_of_particles = 6
-run()
-os.system("gprof ./runVMC.out")
+#run()
+#os.system("gprof ./runVMC.out")
 min_beta 			= 0.548
 min_alpha   		= 0.877
 number_of_particles = 12
-run()
-os.system("gprof ./runVMC.out")
+#run()
+#os.system("gprof ./runVMC.out")
 min_beta 			= 0.68
 min_alpha   		= 0.87
 number_of_particles = 20
-run()
-os.system("gprof ./runVMC.out")
+#run()
+#os.system("gprof ./runVMC.out")
 
 
 omega 				= .1
