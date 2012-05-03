@@ -784,10 +784,15 @@ A curve fit to this data indicates that the algorithm scales as $\mathcal O(n_p^
 
 In table \ref{tab:scaletime} I have also listed the percentage of the total floating point operation spent on the three most expensive functions. 
 %For the $2$ and $6$ particle quantum dots, the evaluation of the gradients was the most time consuming part of the code. 
-For the $6$ and $12$ particle quantum dots the evaluation of the first derivatives single particle orbitals is the most time consuming part of the code.
+%For the $6$ and $12$ particle quantum dots 
+The evaluation of the first derivatives of the single particle orbitals soon becomes the most time consuming part of the code.
 This part of the code scales bad since the mathematical expressions for the orbitals eq. (\ref{1pts}) gets more complex as the orbital energies increases.
 % since Hermite polynomials of an higher order must be calculated.
-%The problem is that half of these derivatives are calculated each time one particle is moved. It does not pay off storing them since the number of derivatives is
+The problem is that half of these derivatives are calculated each time one particle is moved. 
+It is possible to store the values, reducing the number of analytical expressions that has to be calculated $n/2$ times (?).
+This did not pay off when I tried to implement it since the number of variables that has to be stored is too high ($1/2(n_p)^2$(*dim?) for our system).
+The copying and accessing of the elements when accepting or rejecting a move is simply too expensive.
+%It does not pay off storing them since the number of derivatives is
 %$1/2(n_p)^2$(*dim?) for our system, and half of the derivatives would have to be updated every time a move is accepted and reset every time a move is rejected.
 
 %1) calculating the first derivative of the orbitals, 
@@ -806,7 +811,7 @@ Systematic time step error see HAMMOND (monte carlo methods in ab initio quantum
 			Energy as a function of $\Delta t$ for a $2$ particle quantum dot with $\alpha=0.988,\beta=0.399,\omega=1$. All energies are calculated using $10^7$ samples.
 			The energy are plotted for 40 values of $\Delta t$ between $0.01$ and $0.4$. 
 		}}
-		\label{figblc}
+		\label{fig:ef}
 %\vspace{-.8cm}
 	\includegraphics[width=8.cm]{../plots/time_step_error_2ptomg1.eps}
 \end{center}
@@ -816,17 +821,31 @@ Systematic time step error see HAMMOND (monte carlo methods in ab initio quantum
 \begin{figure}[h!]
 \begin{center}
 \caption{{\it%\small
-			Different energies as a function of $\omega$ for a $2$ particle quantum dot with the optimal variational parameters. All energies are calculated using $10^7$ samples.
-			The energy are plotted for 12 values of $\Delta t$ between $0.01$ and $0.1$.
+			Different quantities are plotted as a function of $\omega$ for a $2$ particle quantum dot with the optimal variational parameters. 
+			All energies are calculated using $10^7$ samples and $\Delta t = 0.05$.
 			Top plot: The total energy.
 			Middle plot:
 			Blue line ($-+$): kinetic energy, red line ($-\times$) oscillator potential energy, black line ($-*$) electron-electron potential energy.
 			Percentage of total energy for each $\omega$ plotted.
-			Bottom plot: The Hartree-Fock energies as a ratio of the vmc energies $\expec{E_L}$ for each $\omega$. 
+			Bottom plot: The Jastrow energy as a percentage of the total energy. ((Hartree-Fock energy) - $\expec{E_L}$ ) / $\expec{E_L}$. 
 		}}
-		\label{figblc}
+		\label{figes}
 %\vspace{-.8cm}
 	\includegraphics[width=6.5cm]{../plots/energies2pt.eps}
+\end{center}
+%\vspace{-1.2cm}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\caption{{\it%\small
+		The single particle densities for a two particle dot with $\omega=1$ (top plot) and $\omega=0.01$ (bottom plot). 
+		The single particle densities are calculated with and without the Jastrow function. These plots demonstrates that the correlation effects 
+		included in the Jastrow function are more important when $\omega$ gets small.
+		}}
+		\label{fig:ef}
+\vspace{.1cm}
+	\includegraphics[width=7.7cm]{../plots/spds.eps}
 \end{center}
 %\vspace{-1.2cm}
 \end{figure}
