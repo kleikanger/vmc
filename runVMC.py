@@ -172,16 +172,39 @@ def run():
 #############
 
 #generate one particle densities
+conjugate_gradient 	= True
+sample_on_grid 		= False
+use_dmc_sampler 	= False
+number_of_particles = 2
+num_cycles_main_loop= 80000
+number_of_walkers 	= 30 #total number on all procs
+num_c_ET_upd_loop 	= 1 #O(100)-O(1000)
+
 conjugate_gradient 	= False
 sample_on_grid 		= True
 use_dmc_sampler 	= False
 write_opd 			= 'true'
-number_of_particles = 6
+number_of_particles = 2
 delta_t 			= 0.05
 sampling_cycles     = 1e7
 thermal_cycles 		= 10000
+min_alpha 			= .988
+min_beta 			= .399
 omega 				= 1
 run()
+write_opd 			= 'false'
+
+conjugate_gradient 	= True
+sample_on_grid 		= True
+use_dmc_sampler 	= False
+import numpy as np
+for omm in np.linspace(0.01,0.075,3):
+	omega 				= omm
+#run()
+for omm in np.linspace(0.1,1,10):
+	omega 				= omm
+#run()
+
 write_opd 			= 'false'
 
 

@@ -57,17 +57,13 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 #if WRITEOFC
 	ofstream ofilec;
 	ofilec.open((OFPATHC));
-#endif
-#if CONJGRAD
-	//dim: num of varpar-1, 2
-	double e_grad_temp[2];
-	double **e_grad_cum = (double**)matrix(2,2,sizeof(double));
-	e_grad_cum[0][0] 	= e_grad_cum[1][0] = e_grad_cum[0][1]
-						= e_grad_cum[1][1] = 0.0; //[num_var_par-1][2]
 #endif/*//endvimfold*/
 	double e_local=0.0;
 	double e_local_squared=0.0;
 	double e_local_temp=0.0;
+	//kin,pot and ocs energies cum
+	double energies[3];
+	for (int i=0;i<3;i++) energies[i] = 0.0;
 
 	int i,j,k,active_part;
 	int accepted=0;
@@ -94,19 +90,10 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		}//All particles moved
 		//if thermalization finished, start collecting data.
 		if (loop_c<thermalization) { continue; }
-		e_local_temp = quantum_dot->calcLocalEnergy(var_par);
+		e_local_temp = quantum_dot->calcLocalEnergy(energies);
+		//e_local_temp = quantum_dot->calcLocalEnergy();
 		e_local += e_local_temp;
 		e_local_squared += e_local_temp*e_local_temp;	
-
-#if CONJGRAD
-		/*
-		quantum_dot->getVarParGrad(e_grad_temp); //TODO NEW NAME
-		e_grad_cum[0][0]+=e_grad_temp[0];
-		e_grad_cum[0][1]+=e_grad_temp[1];
-		e_grad_cum[1][0]+=e_grad_temp[0]*e_local_temp;
-		e_grad_cum[1][1]+=e_grad_temp[1]*e_local_temp;
-		*/
-#endif
 #if WRITEOFB //write to file blocking data
 		all_energies[loop_c-thermalization]=e_local_temp;
 #endif
@@ -127,28 +114,15 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		}
 #endif
 	} //************************** END OF MC sampling **************************
-	//ofilecga.close();
-
-	//KEEP THE BELOW LINES WHILE DEVELOPING
-	//cout<<setprecision(4)<<"alpha: "<<var_par[1];
-	//cout<<setprecision(4)<<" beta: "<<var_par[0]<<"\t";
-	//cout<<setprecision(10)<< "Local energy: "<<(e_local/(double)num_cycles);	
-	//cout<<setprecision(5)<<" variance^2: "<<(e_local_squared-e_local*e_local/num_cycles)/num_cycles;
-	//cout<<setprecision(5)<<" Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
+	//write to screen
+	cout<<setprecision(4)<< "(alpha,beta) = ("<<var_par[1]<<","<<var_par[0]<<"),";
+	cout<<setprecision(10)<< " kinE: "<<(energies[0]/(double)num_cycles);	
+	cout<<setprecision(10)<< ", pot(osc)E: "<<(energies[1]/(double)num_cycles);	
+	cout<<setprecision(10)<< ", pot(ee)E: "<<(energies[2]/(double)num_cycles);	
+	cout<<setprecision(5)<< ", Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
 	//return values
 	result[0] = (e_local/(double)num_cycles);
 	result[1] = (e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
-#if CONJGRAD
-	//for CGM minimization. see: sampler::getEnergyGrad()
-	
-	//energy minimization
-	//energy_gradient[0] = 2*(e_grad_cum[1][0]-e_grad_cum[0][0]*result[0])/(double)num_cycles;
-	//energy_gradient[1] = 2*(e_grad_cum[1][1]-e_grad_cum[0][1]*result[0])/(double)num_cycles;
-	
-	//variance minimization
-	energy_gradient[0] = 2.*(e_grad_cum[1][0]-e_grad_cum[0][0]*result[0])/(double)num_cycles;
-	energy_gradient[1] = 2.*(e_grad_cum[1][1]-e_grad_cum[0][1]*result[0])/(double)num_cycles;
-#endif
 #if WRITEOFB
 	ofstream blockofile;
   	//char *blockoutfilename;

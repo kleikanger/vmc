@@ -272,7 +272,7 @@ void walker::rejectStep(int active_part)
 	}
 }/*//endvimfold*/
 
-double walker::calcLocalEnergy(double* var_par) const 
+double walker::calcLocalEnergy() const 
 {	/*//startvimfold*/
 	int i;	
 	double e_kinetic=0;
@@ -302,6 +302,43 @@ double walker::calcLocalEnergy(double* var_par) const
 	e_potential += ipd->sumInvlen();
 
 	return e_potential+e_kinetic;
+}/*//endvimfold*/
+
+double walker::calcLocalEnergy(double* energies) const 
+{	/*//startvimfold*/
+	int i;	
+	double e_kinetic=0;
+	//Laplacian of slatermatrices
+	e_kinetic-=slater->lapl(r_old);
+	//Laplacian of jastrow 
+	e_kinetic-=ipd->jasLapl(r_old);
+	for (i=0;i<num_part;i++)
+	{
+		//part of the exp for the jastrow laplacian
+		e_kinetic-=cblas_ddot(dimension,jas_grad[i],1,jas_grad[i],1);
+	}
+	e_kinetic *= 0.5;	
+	//cross term of the total laplacian
+	for (i=0;i<num_part;i++)
+	{
+		e_kinetic-=cblas_ddot(dimension,jas_grad[i],1,sla_grad[i],1);
+	}
+	double e_osc=0.0;
+	//e - V_ext electrostatic pot
+	for (i = 0; i < num_part; i++) 
+	{
+		e_osc+=cblas_ddot(dimension,r_old[i],1,r_old[i],1);
+	}
+	e_osc*=0.5*omega*omega;
+	double e_ee=0.0;
+	// e-e electrostatic interaction
+	e_ee = ipd->sumInvlen();
+
+	energies[0] += e_kinetic;
+	energies[1] += e_osc;
+	energies[2] += e_ee;
+
+	return e_kinetic+e_osc+e_ee;
 }/*//endvimfold*/
 
 void walker::getNewPos(int const &active_part, double* ipd_upd)

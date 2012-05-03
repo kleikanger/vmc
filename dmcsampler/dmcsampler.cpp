@@ -199,7 +199,7 @@ void dmcsampler::sampleDMC(
 				}//All particles moved
 
 				//find local energy
-				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy(var_par);
+				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy();
 				//calculate new branching factor
 				branching_factor = exp(-delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_ref));
 				//collect energy weighted by the branching factor
@@ -330,7 +330,7 @@ void dmcsampler::sampleDMC(
 				}//All particles moved
 
 				//find local energy
-				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy(var_par);
+				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy();
 				//calculate new branching factor
 				branching_factor = exp(-delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_trial)); //e_trial is the (vmc) calculated mean
 				
@@ -604,7 +604,7 @@ void dmcsampler::initializeSys(int initial_number_of_walkers, int thermalization
 		if ((loop_c>thermalization) && (loop_c%corr_length==0)) 
 		{ 	
 			popCtr->cloneWalker(quantum_dot[0],quantum_dot[num_init]);
-			e_local_old[num_init] = quantum_dot[0]->calcLocalEnergy(var_par);
+			e_local_old[num_init] = quantum_dot[0]->calcLocalEnergy();
 			num_init++;	
 			//print to screen
 			if (myrank==0&&num_init%((initial_number_of_walkers)/200+1)==0)
@@ -626,7 +626,7 @@ void dmcsampler::initializeSys(int initial_number_of_walkers, int thermalization
 			else  
 				quantum_dot[0]->rejectStep(active_part);
 		}//All particles moved
-	e_local_old[0] = quantum_dot[0]->calcLocalEnergy(var_par);
+	e_local_old[0] = quantum_dot[0]->calcLocalEnergy();
 	
 	//print to screen
 	if (myrank==0)

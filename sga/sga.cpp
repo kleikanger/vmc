@@ -142,7 +142,7 @@ void sga::SGAMin(
 					else  
 						quantum_dot[loop_p]->rejectStep(i);
 				//find local energy
-				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy(var_par);
+				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy();
 				//collecting gradient
 				quantum_dot[loop_p]->getVarParGrad(e_grad_temp);
 				e_grad_cum[0][0]+=e_grad_temp[0];
@@ -256,6 +256,9 @@ void sga::SGAMin(
 
 	//Collect results
 	MPI_Allreduce(MPI_IN_PLACE, var_par_cum, 2, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
+	//update variational parameters
+	var_par[0] = var_par_cum[0]/((double)(n_sga-1-sga_out_upd)*nprocs);
+	var_par[1] = var_par_cum[1]/((double)(n_sga-1-sga_out_upd)*nprocs);
 	//Write results to screen
 	if (myrank==0)
 	{	
@@ -265,8 +268,8 @@ void sga::SGAMin(
 					<<"                                                         ";
 				cout<<"\rFinal result:" 
 					<<setprecision(8)//<<setw(10)
-					<<"alpha="<<var_par_cum[1]/((double)(n_sga-1-sga_out_upd)*nprocs)
-					<<", beta="<<var_par_cum[0]/((double)(n_sga-1-sga_out_upd)*nprocs)
+					<<"alpha="<<var_par[1]
+					<<", beta="<<var_par[0]
 					<<"\n\n";
 	}
 }/*//endvimfold*/
