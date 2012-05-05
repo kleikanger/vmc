@@ -122,7 +122,7 @@ void dmcsampler::sampleDMC(
 	int num_resurrected = 0;
 	double e_cumulative=0.0;
 	double e2_cumulative=0.0;
-	int loop_c_cumulative;
+	long int loop_c_cumulative;
 	long int total_loop_c_cumulative=0;
 	double e_ref=e_trial;
 	int loop_main, loop_c, killsd=0; 
@@ -279,8 +279,10 @@ void dmcsampler::sampleDMC(
 	//************************** START sampling phase ************************
 
 	ofstream ofiletest;
-	ofiletest.open("dmctest.dat");
-
+	if (myrank==0)	
+	{
+		ofiletest.open("dmctest.dat");
+	}
 	//XXX XXX test XXX XXX
 	double e_tot=0.0;
 
@@ -405,9 +407,9 @@ void dmcsampler::sampleDMC(
 		{
 			cout<<"\rcycles in main loop: "<<loop_main+1<<" of "
 				<<num_c_dmc_main_loop<<" e_trial<"<<e_trial<<" e_tot approx:"<< e_tot/(double)(loop_main+1);
-		fflush(stdout);
-		//write to file
-		ofiletest<<setprecision(16)<<e_tot/(double)(loop_main+1)<<" "<<e_trial<<" "<<num_alive*2.<<"\n";
+			fflush(stdout);
+			//write to file
+			ofiletest<<setprecision(16)<<e_tot/(double)(loop_main+1)<<" "<<e_trial<<" "<<num_alive*2.<<"\n";
 		}/*//endvimfold*/
 
 	} //************************** END OF DMC sampling **************************
@@ -443,7 +445,7 @@ void dmcsampler::sampleDMC(
 #if WRITEOFC
 	ofilec.close();
 #endif/*//endvimfold*/
-	ofiletest.close();
+	if (myrank==0) ofiletest.close();
 
 }/*//endvimfold*/
 void dmcsampler::sortWalkers(int &num_alive, int killsd, 
