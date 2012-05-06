@@ -23,4 +23,4 @@
 \contentsline {subsection}{\numberline {7.3}Numerical results}{9}
 \contentsline {subsection}{\numberline {7.4}Verification of the results (literature,articles)}{10}
 \contentsline {section}{\numberline {A}Pseudocode: The SGA algorithm.}{11}
-\contentsline {section}{\numberline {B}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{12}
+\contentsline {section}{\numberline {B}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{11}

@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <mpi.h>
 
 using std::cout;
 using std::endl;
@@ -39,6 +40,17 @@ double mean(double* res,int size_bs);
 
 int main (int argc, char *argv[])
 {
+	//
+	// XXX MUCH BETTER to use openMP with shared memory
+	//
+	// ************ MPI INIT **************
+	int myrank, nprocs;
+    MPI_Init(&argc, &argv);
+   	MPI_Status status;
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	// ************************************
+	
 	if (argc != 6)
 	{
 		cout << "Bad Usage: " << argv[0] << " " << endl;
@@ -61,7 +73,19 @@ int main (int argc, char *argv[])
 	ifilename = argv[5];
 	ofilename = ifilename;//argv[6];
 
+	double* arr_blc_res = new double[num_bs];
+	double* arr_mean = new double[num_bs];
+	int* arr_size_bs = new int[num_bs];
+
+	for (int i=0; i<num_bs; i++)
+	{
+		arr_blc_res[i]=0.;
+		arr_mean[i]=0.;
+		arr_size_bs[i]=0.;
+	}
+
 	//assuming that the infiles have the same size
+	//TODO NOT perfect when doing blocking on DMC
 	ost_t << ifilename << "0.dat" ;
 	if (stat((ost_t.str().c_str()),&result) == 0)
 	{
@@ -74,40 +98,58 @@ int main (int argc, char *argv[])
 	//for (int i=0+myrank; i<n_proc; i+=2)
 	{
 		ost << ifilename << i << ".dat";
-		cout<<"reading data from: "<<ost.str().c_str()<<endl;;
+		cout<<"proc "<<myrank<<" reading data from: "<<ost.str().c_str()<<endl;;
 		infile.open(ost.str().c_str(),ios::in|ios::binary);
 		infile.read((char*)&(indata[i*num_c]),result.st_size);
 		infile.close();
 		ost.clear(); ost.str("");
 	}
-	
 	//calculate and store results (in outfile)
 	res = new double[2];
-	ost << ofilename  << ".txt";
-	outfile.open(ost.str().c_str());
-	cout<<"writing blocking results to: "<<(ost.str().c_str())<<endl;
-	for (int i = 0; i<num_bs ; i++) 
+	for (int i = myrank; i<num_bs ; i+=nprocs) 
 	//for (int i = 0+myrank; i<num_bs ; i++) //WILL WORK IF MYRANK IS EVEN
 	{
 		size_bs = min_bs+i*int_bs;
 		blocking(indata, num_c * n_proc, size_bs, res);
-		fflush(stdout);
+		//write progress to screen
 		cout<<"\r"<<"                                        ";
 		cout<<"\rprocessing block "<<i+1<<" of "<<num_bs;
-		mean = res[0];
-		sigma = res[1];
-//MPI SAVE TO
-		outfile<<setw(16)<<setprecision(16)
-			<<size_bs<<"\t"<< mean << "\t"
-			<< sqrt(sigma / ((num_c*n_proc) / ((double)size_bs)-1.0))
-			<< endl;
-	}
-	cout<<"\n";
-	outfile.close();
-}	
-//	MPI_Reduce(&in, &out,
-//					1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+		fflush(stdout);
 
+		mean=res[0];
+		sigma=res[1];
+		//store results
+		arr_size_bs[i]=size_bs;
+		arr_blc_res[i]=sqrt(sigma / ((num_c*n_proc) / ((double)size_bs)-1.0));
+		arr_mean[i] = mean; 
+//MPI SAVE TO
+	}
+	
+	//USE TODO MPI_Reduce	
+	MPI_Allreduce(MPI_IN_PLACE, arr_size_bs, num_bs, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
+	MPI_Allreduce(MPI_IN_PLACE, arr_mean, num_bs, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	//NOT NECC TO WRITE TO FILE?
+	MPI_Allreduce(MPI_IN_PLACE, arr_blc_res ,num_bs, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+	//Write results to file
+	if (myrank==0)
+	{
+		ost << ofilename  << ".txt";
+		outfile.open(ost.str().c_str());
+		cout<<"\nwriting blocking results to: "<<(ost.str().c_str())<<endl;
+		for (int i = 0; i<num_bs; i++) 
+		{
+			cout<<num_bs<<" "<<arr_size_bs[i]<<" "<<arr_blc_res[i]<<" "<<i<<"\n";
+			outfile<<setw(16)<<setprecision(16)
+				<<arr_size_bs[i]<<"\t"<< arr_mean[i] 
+				<< "\t"<<arr_blc_res[i]<< endl;
+		}
+		cout<<"\n";
+		outfile.close();
+	}
+	MPI_Finalize();
+	
+}
 
 void blocking(double *indata, int size_indata, int size_bs, double *res)
 {

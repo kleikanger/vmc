@@ -20,8 +20,8 @@ plot_res=False
 def blca(datafile,numprocs): 
 	#run c++ blocking routine, saves txt data file with blocking data
 	os.system("make --silent")
-	os.system("./blocking.out 5000 100 20000 %i %s"%(numprocs,datafile))
-#os.system("./blocking.out 100 3000 2 %i %s"%(numprocs,datafile)) #vmc
+	os.system("mpirun -n %i blocking.out 100 3000 2 %i %s"%(nprocs,numprocs,datafile))#VMC
+#os.system("mpirun -n %i blocking.out 5000 100 20000 %i %s"%(nprocs,numprocs,datafile))#DMC
 	#read txt file and save plot
 	data = np.genfromtxt(fname=datafile+'.txt')
 	fig=plt.figure()
@@ -38,7 +38,7 @@ def blca(datafile,numprocs):
 
 #process all files starting with the imput string
 def blc_plus(ifname):
-	print('processing all datafiles %s*'%ifname[1][:-1])
+	print('processing all datafiles %s*'%ifname[:-1])
 	s=os.listdir('.')
 	#find names starting with imp[:-1]>
 	for nam in s:
@@ -54,11 +54,19 @@ def blc_plus(ifname):
 				blca(nam[:-5],nprc+1)
 
 #loop through all imput arguments
+#print argument
 for imp in sys.argv[1::]:
 	if imp[0:2]=='-p':
 		plot_res=True
+#number of procs, default value = 1
+nprocs=1
+for imp in sys.argv[1::]:
+	if imp[0:2]=='-n':
+		nprocs=np.int(imp[-1])
+#process all files starting with ...+
 for imp in sys.argv[1::]:
 	if imp[-1]=='+':
 		blc_plus(imp)
+
 
 
