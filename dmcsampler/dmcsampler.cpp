@@ -103,6 +103,10 @@ void dmcsampler::sampleDMC(
 		cout<<"writing blockingdata to file"<<(OFPATHB)<<"\n";
 #endif
 #if WRITEOFC
+	double *r_temp = new double[dimension];
+	//ostringstream ost;
+	//ost <<OFPATHC<<
+	//	"r"<<myrank<<".dat";
 	ofstream ofilec;
 	ofilec.open((OFPATHC));
 #endif/*//endvimfold*/
@@ -373,6 +377,24 @@ void dmcsampler::sampleDMC(
 				
 				//update energy if the walker survived
 				e_local_old[loop_p] = e_local_temp;
+#if WRITEOFC
+				//Write spd
+				if (loop_c%10==0)
+				//for (i=0;i<num_alive;i++)
+				{
+					if (occupancy[loop_p])
+					{
+						for (j=0;j<num_part;j++)
+						{
+							quantum_dot[loop_p]->getRi(j,r_temp);
+							for (k=0;k<dimension;k++)
+								ofilec<<r_temp[k]<<" ";
+							ofilec<<branching_factor;
+							ofilec<<"\n";
+						}
+					}
+				}
+#endif/*//endvimfold*/
 			}
 		//keeping track of the total number of samples
 		loop_c_cumulative+=loop_c;
@@ -443,6 +465,7 @@ void dmcsampler::sampleDMC(
 	//delete [] all_energies;
 #endif
 #if WRITEOFC
+	delete [] r_temp;
 	ofilec.close();
 #endif/*//endvimfold*/
 	if (myrank==0) ofiletest.close();

@@ -201,7 +201,7 @@ number_of_processors= 2
 import numpy as np
 omega 				= 1
 number_of_particles = 6
-run()
+#run()
 for omm in np.linspace(0.01,0.075,3):
 	omega 				= omm
 #run()
@@ -216,22 +216,28 @@ omega 				= 1
 conjugate_gradient 	= False
 sample_on_grid 		= False
 use_dmc_sampler 	= True
-number_of_processors= 2
+number_of_processors= 1
 number_of_walkers 	= 1000 #total number on all procs
 num_cycles_main_loop= 200
 num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
 num_c_equilibri_loop= 3000
 initial_e_trial 	= 3.0004
-min_alpha 			= .924
-min_beta 			= .556
+min_alpha 			= .8736
+min_beta 			= .3259
 omega 				= 1
 number_of_particles = 6
-omega 				= 1
+omega 				= .28
 #reproduces results ref to in LE's master
 delta_t=0.005
-#run()
-delta_t=0.001
-#run()
+write_opd 			= 'true'
+run()
+conjugate_gradient 	= False
+sample_on_grid 		= True
+use_dmc_sampler 	= False
+delta_t 			= 0.05
+sampling_cycles 	= 5e6
+run()
+write_opd 			= 'false'
 
 omega 				= .5
 delta_t 			= .05
