@@ -9,15 +9,15 @@ import sys
 from pylab import *
 
 
-dataf = sys.argv[1]
-n_bins = int(sys.argv[2])
+#dataf = sys.argv[2]
+n_bins = int(sys.argv[1])
 	
-#datafileVMC = 'spd_2012.5.3.181449.dat'
-#datafileNoJas = 'spd_2012.5.3.18432.dat'
+datafileVMC = 'spd_2012.5.3.181449.dat'
+datafileNoJas = 'spd_2012.5.3.18432.dat'
 #datafileDMC = 'spd_2012.5.6.163232.dat'
 
-datafileVMC = 'spd_2012.5.6.17513.dat'
-datafileDMC = 'spd_2012.5.6.18357.dat'
+#datafileVMC = 'spd_2012.5.6.17513.dat'
+#datafileDMC = 'spd_2012.5.6.18357.dat'
 
 def sortData(datafile):
 	#import sample points
@@ -41,8 +41,8 @@ def sortData(datafile):
 	return radial_bins, radial_values
 
 b1,v1 = sortData(datafileVMC)
-#b2,v2 = sortData(datafileNoJas)
-b3,v3 = sortData(datafileDMC)
+b2,v2 = sortData(datafileNoJas)
+#b3,v3 = sortData(datafileDMC)
 
 #fig = plt.figure(figsize=plt.figaspect(2.))
 #ax = fig.add_subplot(2, 1, 1)
@@ -59,11 +59,12 @@ b3,v3 = sortData(datafileDMC)
 #plt.show()
 
 fig = plt.figure()
-l1=plt.plot(b1[1::],v1[1::],'k')
+l1=plt.plot(b1[1::],v1[1::],'b--')
 #l2=plt.plot(b2[1::],v2[1::],'k')
-l3=plt.plot(b3[1::],v3[1::],'k')
+l2=plt.plot(b2[1::],v2[1::],'k')
 plt.ylabel(r'$|\Psi(|\mathbf{r}|)|^2$',fontsize=20)
 plt.xlabel(r'$|\mathbf{r}|$',fontsize=20)
+plt.legend((l1,l2),('with Jastrow','without Jastrow'))
 plt.show()
 
 
