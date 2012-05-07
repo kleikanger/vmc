@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  6 MAY 2012 19:34
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  6 MAY 2012 19:42
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -535,7 +535,7 @@ Type  H <return>  for immediate help.
  ...                                              
                                                   
 l.970 $ 2 
-           $ & $1.0$ 	& $0.025$ & $3.00036(2)$ & $0.0018346$ & $0.89163$ & $...
+           $ & $1.0$ 	& $0.025$ & $3.00036(2)$ & $0.0018346$ & $0.89163(29.7...
 
 ? 
 
@@ -600,6 +600,11 @@ l.1016 ... & $0.0023159$ & $0.09687$ & $1.9911$ 
                                                   & $4.1117$ & $93.49\%$\\
 ? 
 
+Overfull \hbox (57.17194pt too wide) in paragraph at lines 964--1021
+ [] 
+ []
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 1039--1048
 
  []
@@ -620,10 +625,10 @@ Overfull \hbox (7.74205pt too wide) in paragraph at lines 1124--1124
 Underfull \vbox (badness 8151) has occurred while \output is active []
 
  [11]
-Overfull \vbox (0.763pt too high) has occurred while \output is active []
+Overfull \vbox (1.763pt too high) has occurred while \output is active []
 
 
-Overfull \vbox (6.08536pt too high) has occurred while \output is active []
+Overfull \vbox (7.08536pt too high) has occurred while \output is active []
 
 
 [12]
@@ -655,10 +660,10 @@ LaTeX Warning: There were multiply-defined labels.
 Here is how much of TeX's memory you used:
  2080 strings out of 495062
  23280 string characters out of 1182644
- 113660 words of memory out of 3000000
+ 112660 words of memory out of 3000000
  5221 multiletter control sequences out of 15000+50000
  14504 words of font info for 56 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  32i,16n,23p,744b,477s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (14 pages, 89276 bytes).
+Output written on proj1.dvi (14 pages, 89304 bytes).

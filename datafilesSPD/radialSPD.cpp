@@ -1,14 +1,11 @@
 
 /*
 
-   Blocking analysis of vmc data.
-   ./<blockingAnalysis>.out min_bs num_bs int_bs n_proc infilename 
+   Write MC results to file
+   ./<blockingAnalysis>.out n_bins infilename 
    
-	min_bs 		- Blocksize of smallest block 	
-	num_bs 		- Number of blocks
-	int_bs 		- Increment in blocksize for each block
-	n_proc 		- Number of infiles
-	ifilename 	- infilename : ex: for blocking_<i>.dat write blocking 
+	n_bins 		- resolution of plot 	
+	ifilename 	- infilename : ex: for SPD0.dat write SPD
 	
 	Writes to outfile with the name
 	ofilename = <infilename>.txt
@@ -36,6 +33,8 @@ using std::ios;
 using std::setw;
 using std::setprecision;
 
+#define PI 3.1415926535897932
+
 int main (int argc, char *argv[])
 {
 	//
@@ -54,7 +53,7 @@ int main (int argc, char *argv[])
 		cout << "Bad Usage: " << argv[0] << " " << endl;
 	}
 	double *x, *y, *w, *r, *bins, *n;
-	double binsize, max_elem;
+	double binsize, max_elem, scale;
 	char *ifilename, *ofilename;
 	struct stat result;
 	int n_bins, i, j;
@@ -63,9 +62,9 @@ int main (int argc, char *argv[])
 	ofstream outfile;
 
 	//read variables from commandline
-	n_bins = atof(argv[1]);
+	n_bins = atoi(argv[1]);
 	ifilename = argv[2];
-	ofilename = ifilename;//argv[6];
+	ofilename = ifilename;
 
 	//infile size
 	ost_t << ifilename << "0.dat" ;
@@ -113,38 +112,38 @@ int main (int argc, char *argv[])
 	max_elem=r[i];
 	//bins: first from 0 to binsize, second from binsize to 2*binsize, ...
 	binsize=(double)i*max_elem/n_bins;
-	for (i=1;i<=bins;i++) //write this array to file for plotting
+	for (i=1;i<=bins;i++)
 		bins[i]=(double)i*binsize-binsize/2.;//take midfoint in bin
 	//find density
-	for (i=1;i<=num_c;i++)
+	for (i=0;i<n_bins;i++)
 		n[i]=0;
-	for (i=1;i<=num_c;i++)
+	for (i=0;i<n_bins;i++)
 	{
 		j=(int)r[i]/binsize;
 		n[j]+=w[j];
 	}
-#define pi 3.141592//......
-	//find density ac function of |r|
-	for (i=1;i<=num_c;i++)
-		n[j]=n[j]/(bins[j]*2.*PI)
-	//normalize
-	for (i=1;i<=num_c;i++)
-		n[j]=n_bins/(cblas_sum(n)*max_elem);
+	//find density ac function of |r|: divide by \pi(r_{i}^2-r_{i+1}^2)
+	for (i=0;i<n_bins;i++)
+		n[j]=n[j]/((double) PI*binsize*binsize*(2*i+1) );
+	//normalize 
+	scale=cblas_dasum(n_bins,r,1);
+	scale=n_bins/(scale*max_elem)
+	cblas_dscal(n_bins,scale,n,1)
+	
+	//MPI_Reduce(n)
+	//MPI_Reduce(bins)
 
 	//Write results to file
 	if (myrank==0)
 	{
 		ost << ofilename  << ".txt";
 		outfile.open(ost.str().c_str());
-		cout<<"\nwriting blocking results to: "<<(ost.str().c_str())<<endl;
+		cout<<"\nwriting SPD results to: "<<(ost.str().c_str())<<endl;
 		for (int i = 0; i<num_bs; i++) 
 		{
-			cout<<num_bs<<" "<<arr_size_bs[i]<<" "<<arr_blc_res[i]<<" "<<i<<"\n";
 			outfile<<setw(16)<<setprecision(16)
-				<<arr_size_bs[i]<<"\t"<< arr_mean[i] 
-				<< "\t"<<arr_blc_res[i]<< endl;
+				<<n[i]<<"\t"<< bins[i] << endl;
 		}
-		cout<<"\n";
 		outfile.close();
 	}
 	MPI_Finalize();

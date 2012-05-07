@@ -230,13 +230,17 @@ omega 				= .28
 #reproduces results ref to in LE's master
 delta_t=0.005
 write_opd 			= 'true'
+
 run()
+
 conjugate_gradient 	= False
 sample_on_grid 		= True
 use_dmc_sampler 	= False
 delta_t 			= 0.05
 sampling_cycles 	= 5e6
-run()
+
+#run()
+
 write_opd 			= 'false'
 
 omega 				= .5
@@ -353,7 +357,7 @@ number_of_particles = 2
 min_beta 			= 0.177
 min_alpha   		= 0.949
 #delta_t = 0.007
-run()
+#run()
 #delta_t = 0.005
 #run()
 delta_t = 0.003

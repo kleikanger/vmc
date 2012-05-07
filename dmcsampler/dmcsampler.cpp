@@ -81,35 +81,6 @@ void dmcsampler::sampleDMC(
 		)
 {/*//startvimfold*/
 	
-#if WRITEOFB/*//startvimfold*/
-	ofstream blockofile;
-  	//char *blockoutfilename;
-	ostringstream ost;
-	ost <<OFPATHB<<
-		//"p"<<num_part<<"a"<<var_par[1]<<"b"<<var_par[0]
-		//<<"w"<<var_par[2]<<
-		"r"<<myrank<<".dat";
-	blockofile.open(ost.str().c_str(), ios::out | ios::binary );
-	//blockofile.write((char*)(all_energies+1),n_all_e * sizeof (double));
-	//blockofile.close();
-	//delete [] all_energies;
-	//Only for rank 0 proc
-	//if (rank=0) ?
-	//if (num_cycles>1.1e7)
-    //ofile.open(OFPATHB);
-	//double* all_energies = new double[num_c_dmc_inner_loop*num_c_dmc_main_loop*num_part*initial_number_of_walkers*2 + 1]; //resize evt write directly to file
-	//int n_all_e=0;
-	if (myrank==0)
-		cout<<"writing blockingdata to file"<<(OFPATHB)<<"\n";
-#endif
-#if WRITEOFC
-	double *r_temp = new double[dimension];
-	//ostringstream ost;
-	//ost <<OFPATHC<<
-	//	"r"<<myrank<<".dat";
-	ofstream ofilec;
-	ofilec.open((OFPATHC));
-#endif/*//endvimfold*/
 
 	int idum_d=time(NULL)*(myrank+1);
 	RAN_UNI_SET(&idum_d,5);
@@ -130,6 +101,33 @@ void dmcsampler::sampleDMC(
 	long int total_loop_c_cumulative=0;
 	double e_ref=e_trial;
 	int loop_main, loop_c, killsd=0; 
+
+#if WRITEOFB/*//startvimfold*/
+	//Write blockingdata to file
+	ofstream blockofile;
+	ostringstream ost;
+	ost <<OFPATHB<<
+		"r"<<myrank<<".dat";
+	blockofile.open(ost.str().c_str(), ios::out | ios::binary );
+	if (myrank==0)
+		cout<<"writing blockingdata to file"<<(OFPATHB)<<"\n";
+#endif
+#if WRITEOFC
+	//Write single particle density to file
+	//for temporary storage of positions
+	double *r_temp = new double[dimension];
+	//spd elements counter
+	long int n_spd = 0;
+	//number of spd elements
+	long int spd_size = num_c_dmc_main_loop * num_part
+			* num_c_dmc_inner_loop * initial_number_of_walkers;
+	if (spd_size>1e8) spd_size=1e8; //max size?
+	cout<<spd_size<<"\n";
+	//for storing positions and weights
+	double **spd=new double*[dimension+1];//x,y,..,weights
+	for (i=0;i<dimension+1;i++)
+		spd[i]=new double[spd_size];
+#endif/*//endvimfold*/
 	
 	if (myrank==0)
 	cout<<"\nDMC simulation - \n"
@@ -345,12 +343,8 @@ void dmcsampler::sampleDMC(
 				e2_cumulative+=pow(branching_factor*e_local_temp,2);
 #if WRITEOFB
 		//blocking analysis data to file
-		//blockofile<<setiosflags(ios::binary);//showpoint | ios::uppercase );
-		//blockofile<<(char)branching_factor*e_local_temp<<"\n";
 		double eb_temp = branching_factor*e_local_temp;
 		blockofile.write((char*)&eb_temp, sizeof (double));
-		//all_energies[n_all_e]=branching_factor*e_local_temp;
-		//n_all_e++;
 #endif
 				//kill and resurrect walkers
 				num_new_walkers=(int)(branching_factor+RAN_UNI());
@@ -378,26 +372,18 @@ void dmcsampler::sampleDMC(
 				//update energy if the walker survived
 				e_local_old[loop_p] = e_local_temp;
 #if WRITEOFC
-				//Write spd
-				if (loop_c%10==0)
-				//for (i=0;i<num_alive;i++)
+				//store single particle density
+				if (n_spd<=spd_size) for (j=0;j<num_part;j++,++n_spd)
 				{
-					if (occupancy[loop_p])
-					{
-						for (j=0;j<num_part;j++)
-						{
-							quantum_dot[loop_p]->getRi(j,r_temp);
-							for (k=0;k<dimension;k++)
-								ofilec<<r_temp[k]<<" ";
-							ofilec<<branching_factor;
-							ofilec<<"\n";
-						}
-					}
+					quantum_dot[loop_p]->getRi(j,r_temp);
+					for (k=0;k<dimension;k++)
+						spd[k][n_spd]=r_temp[k];
+					spd[dimension][n_spd]=branching_factor;
 				}
-#endif/*//endvimfold*/
-			}
-		//keeping track of the total number of samples
-		loop_c_cumulative+=loop_c;
+#endif
+			}/*//endvimfold*/
+			//keeping track of the total number of samples
+			loop_c_cumulative+=loop_c;
 		}
 			
 		//collecting energy
@@ -453,22 +439,27 @@ void dmcsampler::sampleDMC(
 	}
 
 #if WRITEOFB/*//startvimfold*/
-	//ofstream blockofile;
-	//ostringstream ost;
-	//ost <<OFPATHB<<
-	//	//"p"<<num_part<<"a"<<var_par[1]<<"b"<<var_par[0]
-	//	//<<"w"<<var_par[2]<<
-	//	"r"<<myrank<<".dat";
-	//blockofile.open(ost.str().c_str(),ios::out|ios::binary);
-	//blockofile.write((char*)(all_energies+1),n_all_e * sizeof (double));
 	blockofile.close();
-	//delete [] all_energies;
 #endif
 #if WRITEOFC
+	//write single particle density to file
+	if (myrank==0)
+		cout<<"writing blockingdata to file"<<(OFPATHC)<<".<.>.dat\n";
+	for (i=0;i<dimension+1;i++)
+	{
+		ofstream spdofile;
+		ostringstream ostt;
+		ostt <<OFPATHC<<
+			"d"<<i<<"r"<<myrank<<".dat";
+		spdofile.open(ostt.str().c_str(), ios::out | ios::binary );
+		spdofile.write((char*)(spd[i]+1),n_spd * sizeof (double));
+		spdofile.close();
+	}
 	delete [] r_temp;
-	ofilec.close();
+	for (i=0;i<dimension+1;i++)
+		delete [] spd[i];
+	delete [] spd;
 #endif/*//endvimfold*/
-	if (myrank==0) ofiletest.close();
 
 }/*//endvimfold*/
 void dmcsampler::sortWalkers(int &num_alive, int killsd, 
