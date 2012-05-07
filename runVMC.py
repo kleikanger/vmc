@@ -200,8 +200,7 @@ use_dmc_sampler 	= False
 number_of_processors= 2
 import numpy as np
 omega 				= 1
-number_of_particles = 6
-#run()
+number_of_particles = 2
 for omm in np.linspace(0.01,0.075,3):
 	omega 				= omm
 #run()
@@ -221,7 +220,7 @@ number_of_walkers 	= 1000 #total number on all procs
 num_cycles_main_loop= 200
 num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
 num_c_equilibri_loop= 3000
-initial_e_trial 	= 3.0004
+initial_e_trial 	= 65.0004
 min_alpha 			= .8736
 min_beta 			= .3259
 omega 				= 1
@@ -232,23 +231,47 @@ delta_t=0.005
 
 min_alpha 			= .988
 min_beta 			= .399
-number_of_particles = 2
-omega 				= 1.0
+number_of_particles =  2
+omega 				= 1
+
+min_alpha 			= .9865
+min_beta 			= .7248
+number_of_particles =  2
+omega 				= 1
 
 #
-# 	******** Generate SPD' s
+# ******** Generate SPD' s
 #
-num_cycles_main_loop= 20
 write_opd 			= 'true'
 
+number_of_particles =  6
+delta_t=0.005
+min_alpha 			= .9245
+min_beta 			= .5561
+omega               = 1
+#run()
+
+min_alpha 			= .6141
+min_beta 			= .09327
+omega 				= .01
 run()
+	
 conjugate_gradient 	= False
 sample_on_grid 		= True
 use_dmc_sampler 	= False
 delta_t 			= 0.05
-sampling_cycles 	= 1e6
+sampling_cycles 	= 5e7
 
-run()
+min_alpha 			= .9245
+min_beta 			= .5561
+omega               = 1
+#run()
+
+min_alpha 			= .6141
+min_beta 			= .09327
+omega 				= .01
+#run()
+
 write_opd 			= 'false'
 
 omega 				= .5

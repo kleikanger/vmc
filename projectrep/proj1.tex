@@ -782,14 +782,16 @@ All of the analytical expressions above is derivated in appendix A.
 
 I have used the package \verb GNU  \verb gprof  to profile my program. 
 
-The time spent on running the code for $n_p=\{2$, $6$, $12$, $20\}$ particles is listed in table \ref{tab:scaletime}. 
-A curve fit to this data indicates that the algorithm scales as $\mathcal O(n_p^{2.5})$. 
+The cpu time spent on running the code for $n_p=\{2$, $6$, $12$, $20\}$ particles is listed in table \ref{tab:scaletime}. 
+A curve fit to this data indicates that the algorithm scales as $\mathcal O(n_p^{2.55})$. The theoretical limit is $\mathcal O(n_p^2)$
+if one ignores the evaluation of the orbitals and their derivatives.
 
 In table \ref{tab:scaletime} I have also listed the percentage of the total floating point operation spent on the three most expensive functions. 
 %For the $2$ and $6$ particle quantum dots, the evaluation of the gradients was the most time consuming part of the code. 
 %For the $6$ and $12$ particle quantum dots 
-The evaluation of the first derivatives of the single particle orbitals soon becomes the most time consuming part of the code.
-This part of the code scales bad since the mathematical expressions for the orbitals eq. (\ref{1pts}) gets more complex as the orbital energies increases.
+The evaluation of the first derivatives of the single particle orbitals soon becomes the most time consuming part of the code,
+%This part of the code scales bad 
+since the mathematical expressions for the orbitals eq. (\ref{1pts}) gets more complex as the orbital energies increases.
 % since Hermite polynomials of an higher order must be calculated.
 The problem is that half of these derivatives are calculated each time one particle is moved. 
 It is possible to store the values, reducing the number of analytical expressions that has to be calculated $n/2$ times (?).
@@ -854,7 +856,7 @@ Systematic time step error see HAMMOND (monte carlo methods in ab initio quantum
 		}}
 		\label{fig:ef}
 \vspace{.1cm}
-	\includegraphics[width=7.7cm]{../plots/spds.eps}
+	\includegraphics[width=7.9cm]{../plots/spds2pt.eps}
 \end{center}
 %\vspace{-1.2cm}
 \end{figure}
@@ -866,15 +868,15 @@ Systematic time step error see HAMMOND (monte carlo methods in ab initio quantum
 $N_{p}$ & cpu time & d1  & jasgrad  & slagrad  \\ 
 \hline
 \hline
- $2$  & $1.1s$ &4\% &10\% &6\%\\ 
- $6$  & $8.5s$ & 10\% &16\% &14\%\\ 
- $12$ & $37.8s$ & 20\% &14\% &13\%\\ 
- $20$ & $135.3s$ & 37\% &11\% &16\%\\ 
+ $2$  & $5.85s$ &4\% &10\% &6\%\\ 
+ $6$  & $54.7.s$ & 10\% &16\% &14\%\\ 
+ $12$ & $252s$ & 20\% &14\% &13\%\\ 
+ $20$ & $920s$ & 37\% &11\% &16\%\\ 
 \hline
 \end{tabular}
 \end{center}
 \caption{{\it 
-	Running time for $\omega=1$ quantum dots with $N_p$ particles and the optimal values for the variational parameters. All runs done on one $2.4 MHz$ processor with $10^6$ iterations.
+	Running time for $\omega=1$ quantum dots with $N_p$ particles and the optimal values for the variational parameters. All runs done on one $2.4 MHz$ processor with $10^7$ iterations.
 	The percentage of time consume of the most expensive functions are listed in the table. 
 	(d1) :evaluation of the first derivatives of the orbitals,
 	(jasgrad)  :evaluation of the gradient of the Jastrow factor,

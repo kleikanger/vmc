@@ -371,8 +371,8 @@ void dmcsampler::sampleDMC(
 				//update energy if the walker survived
 				e_local_old[loop_p] = e_local_temp;
 #if WRITEOFC
-				//store single particle density
-				if (n_spd<spd_size) for (j=0;j<num_part;j++)
+				//store single particle density //store every n=3 cycles in inner loop for less correlates samples
+				if ((n_spd<spd_size) && (loop_c%6==0)) for (j=0;j<num_part;j++)
 				{
 					if (n_spd>=spd_size) break;
 					quantum_dot[loop_p]->getRi(j,r_temp);
@@ -461,6 +461,7 @@ void dmcsampler::sampleDMC(
 		delete [] spd[i];
 	delete [] spd;
 #endif/*//endvimfold*/
+ofiletest.close();
 
 }/*//endvimfold*/
 void dmcsampler::sortWalkers(int &num_alive, int killsd, 
