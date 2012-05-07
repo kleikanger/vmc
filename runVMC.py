@@ -100,7 +100,7 @@ def gen_sampl_h():
 		use_cgm_minimization = 'false'
 	
 	f_name_B='"%s%s"'%(filepath_blck,time_now())
-	f_name_C='"%s%s.dat"'%(filepath_opd,time_now())
+	f_name_C='"%s%s"'%(filepath_opd,time_now())
 	os.system("echo '#define WRITEOFB %s'  > definitions/sampler_Def.h"%write_blocking_data)
 	os.system("echo '#define OFPATHB  %s' >> definitions/sampler_Def.h"%f_name_B)
 	os.system("echo '#define WRITEOFC %s' >> definitions/sampler_Def.h"%write_opd)
@@ -229,18 +229,26 @@ number_of_particles = 6
 omega 				= .28
 #reproduces results ref to in LE's master
 delta_t=0.005
+
+min_alpha 			= .988
+min_beta 			= .399
+number_of_particles = 2
+omega 				= 1.0
+
+#
+# 	******** Generate SPD' s
+#
+num_cycles_main_loop= 20
 write_opd 			= 'true'
 
 run()
-
 conjugate_gradient 	= False
 sample_on_grid 		= True
 use_dmc_sampler 	= False
 delta_t 			= 0.05
-sampling_cycles 	= 5e6
+sampling_cycles 	= 1e6
 
-#run()
-
+run()
 write_opd 			= 'false'
 
 omega 				= .5

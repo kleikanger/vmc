@@ -55,8 +55,19 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	double* all_energies = new double[num_cycles + 1];
 #endif
 #if WRITEOFC
-	ofstream ofilec;
-	ofilec.open((OFPATHC));
+	//Write single particle density to file
+	//for temporary storage of positions
+	double *r_temp = new double[dimension];
+	//spd elements counter
+	int n_spd = 0;
+	//number of spd elements
+	int spd_size =  num_cycles;
+	if (spd_size>1e8) spd_size=1e8; //max size?
+	//for storing positions and weights
+	double **spd=new double*[dimension+1];//x,y,..,weights
+	//XXX weights not necc for VMC, only DMC
+	for (int i=0;i<dimension+1;i++)
+		spd[i]=new double[spd_size];
 #endif/*//endvimfold*/
 	double e_local=0.0;
 	double e_local_squared=0.0;
@@ -98,19 +109,15 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		all_energies[loop_c-thermalization]=e_local_temp;
 #endif
 #if WRITEOFC // write to file : single particle density
-		if (myrank==0)
+		//store single particle density
+		if (n_spd<spd_size) for (j=0;j<num_part;j++)
 		{
-			double* x_v = new double[dimension];
-			quantum_dot->getRi(0,x_v);	
-			{
-				ofilec << setiosflags(ios::showpoint | ios::uppercase);
-				for (i=0;i<dimension;i++)
-				{
-					ofilec << setw(16) << setprecision(16) << x_v[i] <<"\t";
-				}
-				ofilec<<"\n";
-			}
-			delete [] x_v;
+			if (n_spd>=spd_size) break;
+			quantum_dot->getRi(j,r_temp);
+			for (k=0;k<dimension;k++)
+				spd[k][n_spd]=r_temp[k];
+			spd[dimension][n_spd]=1.;//TODO weights not necc to save for VMC
+			n_spd++;
 		}
 #endif
 	} //************************** END OF MC sampling **************************
@@ -137,8 +144,25 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	delete [] all_energies;
 #endif
 #if WRITEOFC
-	ofilec.close();
+	//write single particle density to file
+	if (myrank==0)
+		cout<<"writing blockingdata to file"<<(OFPATHC)<<"<.>.dat\n";
+	for (i=0;i<dimension+1;i++)
+	{
+		ofstream spdofile;
+		ostringstream ostt;
+		ostt <<OFPATHC<<
+			"r"<<myrank<<"i"<<i<<".dat";
+		spdofile.open(ostt.str().c_str(), ios::out | ios::binary );
+		spdofile.write((char*)(spd[i]+1),n_spd * sizeof (double));
+		spdofile.close();
+	}
+	delete [] r_temp;
+	for (i=0;i<dimension+1;i++)
+		delete [] spd[i];
+	delete [] spd;
 #endif
+
 
 }/*//endvimfold*/
 

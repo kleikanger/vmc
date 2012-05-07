@@ -122,7 +122,6 @@ void dmcsampler::sampleDMC(
 	long int spd_size = num_c_dmc_main_loop * num_part
 			* num_c_dmc_inner_loop * initial_number_of_walkers;
 	if (spd_size>1e8) spd_size=1e8; //max size?
-	cout<<spd_size<<"\n";
 	//for storing positions and weights
 	double **spd=new double*[dimension+1];//x,y,..,weights
 	for (i=0;i<dimension+1;i++)
@@ -373,12 +372,14 @@ void dmcsampler::sampleDMC(
 				e_local_old[loop_p] = e_local_temp;
 #if WRITEOFC
 				//store single particle density
-				if (n_spd<=spd_size) for (j=0;j<num_part;j++,++n_spd)
+				if (n_spd<spd_size) for (j=0;j<num_part;j++)
 				{
+					if (n_spd>=spd_size) break;
 					quantum_dot[loop_p]->getRi(j,r_temp);
 					for (k=0;k<dimension;k++)
 						spd[k][n_spd]=r_temp[k];
 					spd[dimension][n_spd]=branching_factor;
+					n_spd++;
 				}
 #endif
 			}/*//endvimfold*/
@@ -450,9 +451,9 @@ void dmcsampler::sampleDMC(
 		ofstream spdofile;
 		ostringstream ostt;
 		ostt <<OFPATHC<<
-			"d"<<i<<"r"<<myrank<<".dat";
+			"r"<<myrank<<"i"<<i<<".dat";
 		spdofile.open(ostt.str().c_str(), ios::out | ios::binary );
-		spdofile.write((char*)(spd[i]+1),n_spd * sizeof (double));
+		spdofile.write((char*)&(spd[i][0]),n_spd * sizeof (double));
 		spdofile.close();
 	}
 	delete [] r_temp;
