@@ -109,8 +109,8 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		all_energies[loop_c-thermalization]=e_local_temp;
 #endif
 #if WRITEOFC // write to file : single particle density
-		//store single particle density every n=5 loop for lower correlation 
-		if (n_spd<spd_size && loop_c%5==0) for (j=0;j<num_part;j++)
+		//store single particle density every n=10 loop for lower correlation 
+		if (n_spd<spd_size && loop_c%20==0) for (j=0;j<num_part;j++)
 		{
 			if (n_spd>=spd_size) break;
 			quantum_dot->getRi(j,r_temp);

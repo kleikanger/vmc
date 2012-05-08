@@ -166,7 +166,9 @@ void dmcsampler::sampleDMC(
 	//Initialize walkers, using VMC routine
 	initializeSys(initial_number_of_walkers, thermalization, corr_length, var_par, e_local_old);
 
-	
+	//********
+	double rej_len=0.0, acc_len=0.0;
+	//********
 	//************************** START equilibriation phase ******************
 	/*//startvimfold*/
 	loop_c=0; 
@@ -194,9 +196,15 @@ void dmcsampler::sampleDMC(
 					bool mh_test = (quantum_dot[loop_p]->tryRandomStep(active_part)); 
 					//reject walkers that has crossed node or that fails the mh_test
 					if (mh_test && !quantum_dot[loop_p]->nodeCrossed())
+					{
+						acc_len+=quantum_dot[loop_p]->getLenOfMoveSqrd();
 						quantum_dot[loop_p]->acceptStep(active_part);
-					else  
+					}
+					else
+					{ 
+						rej_len+=quantum_dot[loop_p]->getLenOfMoveSqrd();
 						quantum_dot[loop_p]->rejectStep(active_part);
+					}
 				}//All particles moved
 
 				//find local energy
@@ -232,7 +240,8 @@ void dmcsampler::sampleDMC(
 			}
 		//keeping track of the total number of samples
 		loop_c_cumulative+=loop_c;
-		}
+		}	
+
 		//sorting walkers, num_alive called by reference and reset
 		sortWalkers(num_alive, killsd, num_resurrected, occupancy, e_local_old);	
 		
@@ -268,6 +277,11 @@ void dmcsampler::sampleDMC(
 	//using different routine for equilibriation with fewer MPI_Calls
 	//MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	//e_cumulative/=(double)nprocs*loop_main;
+	
+	//************* TESTING *********************
+	double delta_t_eff=delta_t*acc_len/(acc_len+rej_len);
+	cout<<delta_t_eff<<" "<<acc_len/(acc_len+rej_len);
+	//*******************************************
 	
 	if (myrank==0)
 	{
@@ -335,7 +349,7 @@ void dmcsampler::sampleDMC(
 				//find local energy
 				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy();
 				//calculate new branching factor
-				branching_factor = exp(-delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_trial)); //e_trial is the (vmc) calculated mean
+				branching_factor = exp(-delta_t_eff*(0.5*(e_local_temp+e_local_old[loop_p])-e_trial)); //e_trial is the (vmc) calculated mean
 				
 				//collect energy weighted by the branching factor
 				e_local+=branching_factor*e_local_temp; //TODO use intermediate variable to calculate b_f*e_l_t
@@ -371,8 +385,9 @@ void dmcsampler::sampleDMC(
 				//update energy if the walker survived
 				e_local_old[loop_p] = e_local_temp;
 #if WRITEOFC
-				//store single particle density //store every n=3 cycles in inner loop for less correlates samples
-				if ((n_spd<spd_size) && (loop_c%6==0)) for (j=0;j<num_part;j++)
+				//store single particle density //store every e.g. n=numpart*2*n_procs 
+				//cycles in inner loop for less correlates samples and to save ram
+				if ((n_spd<spd_size) && (loop_c%24==0)) for (j=0;j<num_part;j++)
 				{
 					if (n_spd>=spd_size) break;
 					quantum_dot[loop_p]->getRi(j,r_temp);

@@ -876,7 +876,7 @@ This is not the error imposed by the discretization of the Langevin equation, si
 			Middle plot:
 			Blue line ($-+$): kinetic energy, red line ($-\times$) oscillator potential energy, black line ($-*$) electron-electron potential energy.
 			Percentage of total energy for each $\omega$ plotted.
-			Bottom plot: The Jastrow energy as a percentage of the total energy. ((...) - $\expec{E_L}$ ) / $\expec{E_L}$. 
+			Bottom plot: The Jastrow energy as a percentage of the total energy. 
 		}}
 		\label{figes}
 %\vspace{-.8cm}
@@ -900,18 +900,59 @@ This is not the error imposed by the discretization of the Langevin equation, si
 %\vspace{-1.2cm}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure*}[ht!]
 \begin{center}
+	\includegraphics[width=14cm]{../plots/spds612.eps}
 \caption{{\it%\small
-		The single particle densities for a six particle dot with $\omega=1$ (top plot) and $\omega=0.01$ (bottom plot). 
-		%Our Jastrow can no longer account for the important correlations 
+		The single particle densities A) 6 particle QD with $\omega=1$ B) 6 particle QD with $\omega=0.01$  C) 12 particle QD with $\omega=1$ D) 12 particle QD with $\omega=0.01$. 
+		The correlations gets more important for smaller $\omega$ or a higher number of particles. 		 
+		The DMC density is very almost identical to the VMC density for the $\omega=1$ plots (left), while the $\omega=0.01$ plots (right) 
+		showing strong correlations effects that can not be accounted for by the 2 particle Jastrow. 
 		}}
-		\label{fig:spd6}
+		\label{fig:spd612}
 \vspace{.1cm}
-	\includegraphics[width=8cm]{../plots/spds6pt.eps}
 \end{center}
 %\vspace{-1.2cm}
-\end{figure}
+\end{figure*}
+
+
+%\begin{figure}[h!]
+%\begin{center}
+%\caption{{\it%\small
+%		The single particle densities for a six particle dot with $\omega=1$ (top plot) and $\omega=0.01$ (bottom plot). 
+%		%Our Jastrow can no longer account for the important correlations 
+%		}}
+%		\label{fig:spd6}
+%\vspace{-.7cm}
+%	\includegraphics[width=8cm]{../plots/spds12pt.eps}
+%\end{center}
+%\vspace{-1.2cm}
+%\end{figure}
+
+%\begin{figure}[h!]
+%\begin{center}
+%\caption{{\it%\small
+%		The single particle densities for a six particle dot with $\omega=1$ (top plot) and $\omega=0.01$ (bottom plot). 
+%		%Our Jastrow can no longer account for the important correlations 
+%		}}
+%		\label{fig:spd6}
+%\vspace{-.7cm}
+%	\includegraphics[width=8cm]{../plots/spds12pt.eps}
+%\end{center}
+%\vspace{-1.2cm}
+%%\end{figure}
+%%\begin{figure}[h!]
+%\begin{center}
+%\caption{{\it%\small
+%		The single particle densities for a twelve particle dot with $\omega=1$ (top plot) and $\omega=0.01$ (bottom plot). 
+%		%Our Jastrow can no longer account for the important correlations 
+%		}}
+%		\label{fig:spd6}
+%\vspace{-1.cm}
+%	\includegraphics[width=8cm]{../plots/spds6pt.eps}
+%\end{center}
+%\vspace{-1.cm}
+%\end{figure}
 
 \begin{table}[h!]
 \begin{center}

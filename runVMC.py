@@ -215,7 +215,7 @@ omega 				= 1
 conjugate_gradient 	= False
 sample_on_grid 		= False
 use_dmc_sampler 	= True
-number_of_processors= 1
+number_of_processors= 2
 number_of_walkers 	= 1000 #total number on all procs
 num_cycles_main_loop= 200
 num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
@@ -229,48 +229,92 @@ omega 				= .28
 #reproduces results ref to in LE's master
 delta_t=0.005
 
-min_alpha 			= .988
-min_beta 			= .399
-number_of_particles =  2
-omega 				= 1
+min_alpha 			= .8775
+min_beta 			= .6574
+number_of_particles =  12
+omega 				=  1
+#run();
+#run();
+
+delta_t=0.01
+min_alpha 			= .8090
+min_beta 			= .3788
+omega 				= .28
+initial_e_trial 	= 25.0004
+#run();
+#run();
+
 
 min_alpha 			= .9865
 min_beta 			= .7248
 number_of_particles =  2
-omega 				= 1
+omega 				= .01
+
+delta_t = 0.01;
+#run();
+#run();
+
+
 
 #
 # ******** Generate SPD' s
 #
 write_opd 			= 'true'
 
-number_of_particles =  6
+initial_e_trial 	= 65
+number_of_particles =  12
 delta_t=0.005
-min_alpha 			= .9245
-min_beta 			= .5561
+min_alpha 			= .8775
+min_beta 			= .5674
 omega               = 1
 #run()
+initial_e_trial 	= 2.5
+min_alpha 			= .4935
+min_beta 			= .1128
+omega 				= .01
+#run()
 
-min_alpha 			= .6141
-min_beta 			= .09327
+initial_e_trial 	= 155
+number_of_particles =  20
+delta_t=0.005
+min_alpha 			= .8384
+min_beta 			= .7392
+omega               = 1
+run()
+initial_e_trial 	= 6.1
+min_alpha 			= .3958
+min_beta 			= .1418
 omega 				= .01
 run()
-	
+
 conjugate_gradient 	= False
 sample_on_grid 		= True
 use_dmc_sampler 	= False
 delta_t 			= 0.05
 sampling_cycles 	= 5e7
 
-min_alpha 			= .9245
-min_beta 			= .5561
+initial_e_trial 	= 155
+number_of_particles =  20
+delta_t=0.005
+min_alpha 			= .8384
+min_beta 			= .7392
 omega               = 1
-#run()
-
-min_alpha 			= .6141
-min_beta 			= .09327
+run()
+initial_e_trial 	= 6.1
+min_alpha 			= .3958
+min_beta 			= .1418
 omega 				= .01
-#run()
+run()
+
+min_alpha 			= .8775
+min_beta 			= .5674
+omega               = 1
+run()
+
+min_alpha 			= .4935
+min_beta 			= .1128
+omega 				= .01
+run()
 
 write_opd 			= 'false'
 

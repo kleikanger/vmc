@@ -81,13 +81,14 @@ class walker {
 		void rejectStep(int active_part);
 		/*
 		   Return local energy in the current position
+		   Overloaded function. The second variant returns 
+		   double* energies: add pot, osc and kin E to vector
 		 */
 		double calcLocalEnergy() const; 
 		double calcLocalEnergy(double* energies) const; 
 		/*
 		   Find a new random position for the given particle. Update position
 		   and calculate all new interparticle distances
-		   double* energies: add pot, osc and kin E to vector
 		   */
 		void getNewPos(const int &active_part, double* ipd_upd);
 		/*
@@ -104,8 +105,14 @@ class walker {
 		   if false: node not crossed
 		   */
 		bool nodeCrossed();
-	
+		/*
+		   Resets the variational parameters
+		   */
 		void wSetVarPar(double* varPar);
+		/*
+		   Returns the length of the last move
+		   */
+		double getLenOfMoveSqrd();
 	
 	friend class popControl;
 };

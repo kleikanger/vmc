@@ -385,6 +385,19 @@ void walker::getRi(int i_w, double* x)
 	}
 }/*//endvimfold*/
 
+double walker::getLenOfMoveSqrd()
+{/*//startvimfold*/
+	double l=0.0;
+	for (int i=0;i<dimension;i++)
+	{
+		for (int j=0; j<num_part;j++)
+		{
+			l+=pow(r_old[i][j]-r_new[i][j],2);
+		}
+	}
+	return l;
+}/*//endvimfold*/
+
 bool walker::nodeCrossed()
 {/*//startvimfold*/
 	if (wf_R<=0) // < ??
