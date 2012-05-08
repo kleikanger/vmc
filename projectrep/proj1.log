@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  7 MAY 2012 23:05
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  8 MAY 2012 13:49
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -367,11 +367,7 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@algorithm=\count104
 )
 \c@theorem=\count105
- (./proj1.aux
-
-LaTeX Warning: Label `fig:ef' multiply defined.
-
-)
+ (./proj1.aux)
 \openout1 = `proj1.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 47.
@@ -387,7 +383,8 @@ LaTeX Font Info:    ... okay on input line 47.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 47.
 LaTeX Font Info:    ... okay on input line 47.
 LaTeX Font Info:    Try loading font information for U+msa on input line 49.
- (/usr/share/texmf-texlive/tex/latex/amsfonts/umsa.fd
+
+(/usr/share/texmf-texlive/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
 LaTeX Font Info:    Try loading font information for U+msb on input line 49.
@@ -451,28 +448,28 @@ Overfull \hbox (4.81442pt too wide) in paragraph at lines 381--381
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [5]
-Underfull \hbox (badness 10000) in paragraph at lines 548--555
+Underfull \hbox (badness 10000) in paragraph at lines 547--554
 []\OT1/cmr/m/n/10 The ap-prox-i-mate value of the gra-di-ent
  []
 
 
-Underfull \hbox (badness 2119) in paragraph at lines 548--555
+Underfull \hbox (badness 2119) in paragraph at lines 547--554
 [] \OMS/cmsy/m/n/10 h[][]i[]$ \OT1/cmr/m/n/10 is ob-tained dur-ing a short MC
  []
 
 
-LaTeX Warning: Reference `minalg' on page 6 undefined on input line 556.
+LaTeX Warning: Reference `minalg' on page 6 undefined on input line 555.
 
 File: ../plots/minimization_2pt_omg1.eps Graphic file (type eps)
 <../plots/minimization_2pt_omg1.eps>
 File: ../plots/minimization_12pt_omg1.eps Graphic file (type eps)
  <../plots/minimization_12pt_omg1.eps>
-Overfull \hbox (0.93158pt too wide) in paragraph at lines 574--580
+Overfull \hbox (0.93158pt too wide) in paragraph at lines 573--579
  [] 
  []
 
 
-Overfull \hbox (0.93158pt too wide) in paragraph at lines 574--580
+Overfull \hbox (0.93158pt too wide) in paragraph at lines 573--579
  [] 
  []
 
@@ -480,34 +477,38 @@ Overfull \hbox (0.93158pt too wide) in paragraph at lines 574--580
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 2050) in paragraph at lines 635--635
+Underfull \hbox (badness 2050) in paragraph at lines 634--634
 []\OT1/cmr/bx/n/14.4 Implementation and op-ti-
  []
 
 
-Underfull \hbox (badness 4927) in paragraph at lines 643--645
+Underfull \hbox (badness 4927) in paragraph at lines 637--640
 \OT1/cmr/m/n/10 I have used the ran-dom num-ber gen-er-a-tor
  []
 
 
-Underfull \hbox (badness 5374) in paragraph at lines 643--645
+Underfull \hbox (badness 5374) in paragraph at lines 637--640
 []\OT1/cmtt/m/n/10 DRanNormalZig32 \OT1/cmr/m/n/10 for gen-er-at-ing nor-mal di
 s-
  []
 
-[6]
+
+Underfull \vbox (badness 3724) has occurred while \output is active []
+
+ [6]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [7]
 [8]
-File: ../plots/time_step_error_2ptomg1.eps Graphic file (type eps)
- <../plots/time_step_error_2ptomg1.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 827--828
- [] 
+Underfull \hbox (badness 3019) in paragraph at lines 830--830
+[]\OT1/cmr/bx/n/12 Convergence rate: DMC vs
  []
 
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
+File: ../plots/time_step_error_2ptomg1.eps Graphic file (type eps)
+<../plots/time_step_error_2ptomg1.eps>
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 847--848
+ [] 
+ []
 
 File: ../plots/energies2pt.eps Graphic file (type eps)
 <../plots/energies2pt.eps>
@@ -516,7 +517,16 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 File: ../plots/spds2pt.eps Graphic file (type eps)
 <../plots/spds2pt.eps>
-Overfull \hbox (3.7766pt too wide) in paragraph at lines 859--860
+Overfull \hbox (3.7766pt too wide) in paragraph at lines 880--881
+ [] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+File: ../plots/spds6pt.eps Graphic file (type eps)
+<../plots/spds6pt.eps>
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 893--894
  [] 
  []
 
@@ -526,148 +536,60 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-
-Underfull \vbox (badness 1383) has occurred while \output is active []
-
- [9]
+[9]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [10]
-
-! Package inputenc Error: Unicode char \u8:  not set up for use with LaTeX.
-
-See the inputenc package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.972 $ 2 
-           $ & $1.0$ 	& $0.025$ & $3.00036(2)$ & $0.0018346$ & $0.89163(29.7...
-
-? 
-
-! Package inputenc Error: Unicode char \u8:  not set up for use with LaTeX.
-
-See the inputenc package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1002 ...$ & $0.061213$ & $2.1864$ & $9.2893$ & 
-                                                  $14.223$ &$99.88\%$\\
-? 
-
-! Package inputenc Error: Unicode char \u8:  not set up for use with LaTeX.
-
-See the inputenc package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1014 ...)$ & $0.14986$ & $4.0912$ & $22.094$ & 
-                                                  $35.853$ & $98.66\%$\\
-? 
-
-! Package inputenc Error: Unicode char \u8:  not set up for use with LaTeX.
-
-See the inputenc package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1016 ...(6)$ & $0.15632$ & $4.0818$ & $22.085$ 
-                                                  & $35.872$ & $99.44$\\
-? 
-
-! Package inputenc Error: Unicode char \u8:  not set up for use with LaTeX.
-
-See the inputenc package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1016 ...$ & $0.15632$ & $4.0818$ & $22.085$ & 
-                                                  $35.872$ & $99.44$\\
-? 
-
-! Package inputenc Error: Unicode char \u8:  not set up for use with LaTeX.
-
-See the inputenc package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1018 ...6.1996(3)$ & $0.0023159$ & $0.09687$ & 
-                                                  $1.9911$ & $4.1117$ & $93...
-
-? 
-
-! Package inputenc Error: Unicode char \u8:  not set up for use with LaTeX.
-
-See the inputenc package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1018 ... & $0.0023159$ & $0.09687$ & $1.9911$ 
-                                                  & $4.1117$ & $93.49\%$\\
-? 
-
-Overfull \hbox (57.17194pt too wide) in paragraph at lines 966--1023
+Overfull \hbox (57.17194pt too wide) in paragraph at lines 1000--1058
  [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1041--1050
+Underfull \hbox (badness 10000) in paragraph at lines 1076--1085
 
- []
-
-! Missing \right. inserted.
-<inserted text> 
-                \right .
-l.1058 ...tial_\alpha},{\partial_\beta}) E_L ,E_L$
-                                                  , $({\partial_\alpha},{\pa...
-
-? 
-
-Overfull \hbox (7.74205pt too wide) in paragraph at lines 1126--1126
-[] 
  []
 
 [11]
-Overfull \vbox (1.763pt too high) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
-Overfull \vbox (7.08536pt too high) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-[12]
-Overfull \hbox (8.10329pt too wide) in paragraph at lines 1157--1157
+ [12]
+Overfull \hbox (7.74205pt too wide) in paragraph at lines 1161--1161
 [] 
  []
 
-(./proj1.bbl [13]
-Underfull \hbox (badness 1642) in paragraph at lines 42--46
+
+Underfull \vbox (badness 1442) has occurred while \output is active []
+
+
+Overfull \hbox (8.10329pt too wide) in paragraph at lines 1192--1192
+[] 
+ []
+
+
+Underfull \vbox (badness 3088) has occurred while \output is active []
+
+ [13]
+(./proj1.bbl
+Underfull \hbox (badness 1642) in paragraph at lines 47--51
 []\OT1/cmr/m/n/10 Anthony Sce-mama, Tony Leli^^Revre, Gabriel
  []
 
-
-Underfull \hbox (badness 1831) in paragraph at lines 42--46
-\OT1/cmr/m/n/10 carlo.  \OT1/cmr/m/it/10 The Jour-nal of Chem-i-cal Physics\OT1
-/cmr/m/n/10 ,
- []
-
-) [14
-
-] (./proj1.aux)
+) [14] (./proj1.aux)
 
 LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
  2080 strings out of 495062
- 23286 string characters out of 1182644
- 113660 words of memory out of 3000000
- 5221 multiletter control sequences out of 15000+50000
- 14504 words of font info for 56 fonts, out of 3000000 for 9000
+ 23303 string characters out of 1182644
+ 107660 words of memory out of 3000000
+ 5222 multiletter control sequences out of 15000+50000
+ 13883 words of font info for 54 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 32i,16n,23p,744b,477s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,16n,22p,744b,477s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (14 pages, 89420 bytes).
+Output written on proj1.dvi (14 pages, 91320 bytes).

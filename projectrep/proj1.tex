@@ -494,7 +494,6 @@ Shell& Electrons & One particle orbitals \\
 
 %}}}2
 
-
 %}}}1
 
 \section{Minimization of the wave functions}%{{{1
@@ -634,19 +633,37 @@ To obtain the energy with an error $\sim 10^{-5}$ Hartrees about $10^8$ MC-sampl
 
 \section{Implementation and optimization}%{{{1
 
-The simulator can be efficiently optimized by implementing some mathematical shortcuts. The optimalizations can only be done if we only change the position of one electron at the time.
-The metropolis-hastings test is performed each cycle, while the energy and other observables are updated when we have cycled through all electrons. It would also be possible to
-evaluate the energy every time a electron has been moved, but this would not be favorable for a system with many electrons since the correlation between the samples would be very high, 
-and the evaluation of the energy consumes too many flops. 
-
-\subsection{Random number generators}
+\subsection{Random number generators}%{{{2
 I have used the random number generator \verb DRanNormalZig32  for generating normal distributed random numbers and \verb DRan_MWC8222  for generating uniformly distributes random numbers. 
 The random number generators are programmed by Jurgen A. Doornik \cite{Doornik}. 
-
-\subsection{The update algorithm}%{{{2
 %}}}2
 
-\subsection{Optimalization of $\mathcal D^\alpha(\ts R)$} %{{{2
+%\subsection{Using the inverse $\mathcal D^{-1}$}%{{{2
+\subsection{Optimizing the Slater}%{{{2
+
+The slater ratio $\mathcal D(\ts R_{n+1})/\mathcal D(\ts R_n)$ can be calculated as an $\mathcal O(n)$ operation if we know the inverse matrix $\mathcal D^{-1}(\ts R_n)$.
+If only one row of the determinant is updated, the inverse can be updated in $\mathcal O(n^2)$ operations using the Sherman-Morrison formula \cite{hammond}
+\begin{align}
+D_{kj}^{-1}(\ts R_{n+1}) &= D_{kj}^{-1}(\ts R_{n}) - \frac1R D_{ki}^{-1}(\ts R_{n}) \notag\\
+								&\times\sum_{l=1} D_{il}(\ts R_{n+1}) D_{lj}^{-1}(\ts R_{n})
+\end{align}
+for $j\neq i$ and
+\begin{align}
+		D_{kj}^{-1}(\ts R_{n+1}) & = \frac1R D_{ki}^{-1}(\ts R_{n})
+\end{align}
+if  $j= i$. $R$ is the ratio between the old and the new determinant.
+Otherwise, calculating a determinant scales as $\mathcal O(n^3)$\footnote{The most commonly used methods: I.e. taking the determinant of the LUP-decomposed matrix.}. 
+As we will see, computing the gradient and the Laplacian of the determinant are also much faster when the inverse Slater matrix in known. 
+In particular, evaluating the gradient becomes $\mathcal O(n^2)$ instead of $\mathcal O(n^4)$
+%\footnote{When calculating the determinants directly in only has to be evaluated once each time all particles are moved.}.
+
+The metropolis-hastings test is performed each cycle, while the energy and other observables are updated when we have cycled through all electrons. 
+Evaluating the energy every time one electron has been moved would lead to a much higher correlation between the samples. Since the evaluation of the local energy
+is an expensive operation this strategy leads to a slower convergence in terms of cpu time.
+%
+%}}}2
+
+%\subsection{Optimalization of $\mathcal D^\alpha(\ts R)$} %{{{2
 
 The inverse $D^{-1}$ of a matric $D$ can be written as the cofactor matrix $C/|D|$. $C$ has the elements $C_{ij}=|S_{ij}|$ where $S_{ij}$ is a sub matrix of $D$ with the $i$'th row and the 
 $j$'th coloumn removed. The determinant $|D|$ can be expressed as 
@@ -661,10 +678,10 @@ Therefore,
 	&\sum_k D'_{kj} D'^{-1}_{jk} = \sum_k D'_{kj} D^{-1}_{jk} = \sum_k D'_{kj} \frac{C^{-1}_{jk}}{|D|}\notag\\ 
 	&\Rightarrow \sum_k D'_{kj} D'^{-1}_{jk} = \frac{|D'|}{|D|}\label{eqDet}
 \end{align}
-This operation scales much better than alternative ways of evaluation the determinant. For example ... 
-The problem is that we need to obtain an expression for the inverse matrix $D^{-1}$. By using ... (ref) formula for updating the inverse
-matrix, we only need to evaluate the inverse matrix once. Updating the matrix scales as ...
-
+%This operation scales much better than alternative ways of evaluation the determinant. For example ... 
+%The problem is that we need to obtain an expression for the inverse matrix $D^{-1}$. By using ... (ref) formula for updating the inverse
+%matrix, we only need to evaluate the inverse matrix once. Updating the matrix scales as ...
+%
 Eq. (\ref{eqDet}) can be used to calculate the ratios
 \begin{align}
 	&\frac{\mathcal D^\alpha(\ts R')}{D^\alpha(\ts R)}=\sum_{ij} (\mathcal D_{ij})\mathcal D^{-1}_{ji}\\
@@ -694,11 +711,13 @@ $\partial^2_{r_i}\mathcal D_{ij}$ is calculated by evaluating the analytical exp
 \end{align}
 The expressions is derived using the same strategy as we have used when $(\partial_\alpha)\psi_i(\ts r_j)$ is derived in appendix A.
 The full derivation is found in \cite{lars_eivind_thesis}.
-When only one particle is updated, only one of the determinants $\mathcal D_\downarrow$, $\mathcal D_\uparrow$ needs to be evaluated since ...
-Analytical vs. numerical derivatives.
+
+Note only one of the determinants $\mathcal D_\downarrow$, $\mathcal D_\uparrow$ needs to be evaluated when a single particle is moved.
 %}}}2
 
-\subsection{Optimalization of $\mathcal J^\beta(\ts R)$ and $r_{ij}$}%{{{2
+%\subsection{Optimalization of $\mathcal J^\beta(\ts R)$ and $r_{ij}$}%{{{2
+\subsection{Optimizing the Jastrow}%{{{2
+
 There are only $n(n-1)/2$ distinct values of $r_{ij}$. Therefore, all values can be stored in a lower tridiaginal matric with zeros on the diagonal.
 \begin{align}
 	P = 
@@ -725,12 +744,12 @@ when only the electron with coordinates $\ts r_k$ has been moved. This expressio
 	\exp\left(\sum_{i=k\text{ or }j=k}  j(r_{ij})  - j(r'_{ij}) \right)\notag\\
 	&j(r_{ij})=\frac {a_{ij}r_{ij}}{1+\beta r_{ij}}.
 \end{align}
-The laplacian and the gradient $..$ can be evaluated ...
+The Laplacian can be evaluated  and the gradient $..$ can be evaluated ...
 the gradient: subltract $n-1$ old values, add $n-1$ new values.
 
 %}}}2 
 
-\subsection{Optimalization of $(\partial_\alpha,\partial_\beta)\expec{E_L}$}%{{{2
+\subsection{Implementing $(\partial_\alpha,\partial_\beta)\expec{E_L}$}%{{{2
 The gradient are calculated using an analytical expression for the energy. 
 %In the cases where comparisons where performed, the analytical expressions gave better results then the numerical derivatives.
 %The gradient of the expectationvalue of the energy can be written 
@@ -773,7 +792,6 @@ The values 	$\partial_\alpha \psi_i(\ts r_j,\alpha)$ are already stored in the m
 All of the analytical expressions above is derivated in appendix A.
 %}}}2
 
-
 %}}}1
 
 \section{Results} %{{{1
@@ -795,7 +813,7 @@ since the mathematical expressions for the orbitals eq. (\ref{1pts}) gets more c
 % since Hermite polynomials of an higher order must be calculated.
 The problem is that half of these derivatives are calculated each time one particle is moved. 
 It is possible to store the values, reducing the number of analytical expressions that has to be calculated $n/2$ times (?).
-This did not pay off when I tried to implement it since the number of variables that has to be stored is too high ($1/2(n_p)^2$(*dim?) for our system).
+This did not pay off when I tried to implement it since the number of variables that has to be stored is too high ($1/2(n_p)^2$ for our system).
 The copying and accessing of the elements when accepting or rejecting a move is simply too expensive.
 %It does not pay off storing them since the number of derivatives is
 %$1/2(n_p)^2$(*dim?) for our system, and half of the derivatives would have to be updated every time a move is accepted and reset every time a move is rejected.
@@ -806,15 +824,17 @@ The copying and accessing of the elements when accepting or rejecting a move is 
 %The functions calculating the gradient of the jastrow function and the slater determinant consumes less than 15\% of the computational load each for all simulations. 
 %The function that updates the inverse slater matrix consumes even less.
 
-****
-This shows us how important it is to use the analytical derivatives to optimize the code. I did a test run with a two
-particle quantum with a total of $10^8$ sampling cycles. The cpu time spent calculating the first and second derivatives 
-of the orbitals increased from 2s to 47s when using numerical instead of analytical derivatives.
+This shows us how important it is to use the analytical derivatives to optimize the code. 
+For example, for a two particle quantum dot, the evaluation of the derivatives took about 23 times longer when using numerical instead of analytical derivatives.
+
+\subsection{Convergence rate: DMC vs VMC}
+
 
 
 \subsection{Systematic errors}
 
-Systematic time step error see HAMMOND (monte carlo methods in ab initio quantum chemistry)
+Systematic time step error see HAMMOND \cite{hammond} (monte carlo methods in ab initio quantum chemistry)
+This is not the error imposed by the discretization of the Langevin equation, since this is corrected by the Metropolis-Hastings algorithm. !!
 
 \begin{figure}[h!]
 \begin{center}
@@ -851,12 +871,26 @@ Systematic time step error see HAMMOND (monte carlo methods in ab initio quantum
 \begin{center}
 \caption{{\it%\small
 		The single particle densities for a two particle dot with $\omega=1$ (top plot) and $\omega=0.01$ (bottom plot). 
-		The single particle densities are calculated with and without the Jastrow function. These plots demonstrates that the correlation effects 
-		included in the Jastrow function are more important when $\omega$ gets small.
+		The single particle densities are calculated with and without the Jastrow function (VMC). The DMC density is very almost identical to the VMC density, showing that most 
+		correlations are accounted for by the Jastrow. These plots also demonstrates that the correlation effects 
+		included in the Jastrow function are more important when $\omega$ gets small. 
 		}}
-		\label{fig:ef}
+		\label{fig:spd2}
 \vspace{.1cm}
 	\includegraphics[width=7.9cm]{../plots/spds2pt.eps}
+\end{center}
+%\vspace{-1.2cm}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\caption{{\it%\small
+		The single particle densities for a six particle dot with $\omega=1$ (top plot) and $\omega=0.01$ (bottom plot). 
+		%Our Jastrow can no longer account for the important correlations 
+		}}
+		\label{fig:spd6}
+\vspace{.1cm}
+	\includegraphics[width=8cm]{../plots/spds6pt.eps}
 \end{center}
 %\vspace{-1.2cm}
 \end{figure}
@@ -969,7 +1003,7 @@ $N_{p}$ & $\omega$ & $\Delta t$ & $\expec{E_L}$ & $\sigma^2$ & $E_{kin}$ & $E_{o
 \hline
 \hline
   &  			& $0.05$  & $3.00040(1)$ & $0.0018334$ & $0.89220$ & $1.2930$ & $0.81522$ & $99.48\%$\\ 
-$ 2 $ & $1.0$ 	& $0.025$ & $3.00036(2)$ & $0.0018346$ & $0.89163(29.7\%)$ & $1.2937(43.3\%)$ & $0.81499(27.1\%)$ & $99.80\%$\\ 
+$ 2 $ & $1.0$& $0.025$ & $3.00036(2)$ & $0.0018346$ & $0.89163(29.7\%)$ & $1.2937(43.3\%)$ & $0.81499(27.1\%)$ & $99.80\%$\\ 
   & 		 	& $0.01$  & $3.00035(3)$ & $0.0018411$ & $0.88974$ & $1.2953$ & $0.81535$ & $99.95\%$\\ 
 \hline
   	& 	 		& $0.05$   & $1.02217(2)$ & $7.4875\times10^{-4}$ & $0.25246$ & $0.42332$ & $0.34639$ & $99.91\%$\\ 
@@ -977,7 +1011,7 @@ $2$ & $0.28$&  	$0.025$  & $1.02218(2)$ & $7.4943\times10^{-4}$ & $0.25223$ & $0
   	& 	 		& $0.01$   & $1.02213(3)$ & $7.5364\times10^{-4}$ & $0.25167$ & $0.42416$ & $0.34631$ & $99.99\%$\\ 
 \hline
   &  			& $0.05$   & $0.07407(1)$ & $9.9381\times10^{-6}$ & $0.0096259$ & $0.027842$ & $0.036601$ & $>99.99\%$\\ 
-  $2$&$0.01$ 	& $0.025$  & $0.07407(1)$ & $9.9323\times10^{-6}$ & $0.0095382$ & $0.028005$ & $0.036522$ & $>99.99\%$\\ 
+$2$&$0.01$ 	& $0.025$  & $0.07407(1)$ & $9.9323\times10^{-6}$ & $0.0095382$ & $0.028005$ & $0.036522$ & $>99.99\%$\\ 
   & 			& $0.01$   & $0.07406(2)$ & $9.8967\times10^{-6}$ & $0.0096257$ & $0.027882$ & $0.036552$ & $>99.99\%$\\ 
 \hline
 \hline
@@ -999,7 +1033,7 @@ $2$ & $0.28$&  	$0.025$  & $1.02218(2)$ & $7.4943\times10^{-4}$ & $0.25223$ & $0
  	 & 			& $0.01$  & $65.7912(5)$ & $0.44123$ & $8.7954$ & $24.875$ & $32.121$ & $99.76\%$\\ 
 \hline
  	 & 	 		& $0.05$  & $25.6991(2)$ & $0.060032$ & $2.1874$ & $9.2931$ & $14.219$ &$99.70\%$\\ 
- $12$& 	$0.28$	& $0.025$ & $25.6991(3)$ & $0.061213$ & $2.1864$ & $9.2893$ & $14.223$ &$99.88\%$\\ 
+ $12$& 	$0.28$	& $0.025$ & $25.6991(3)$ & $0.061213$ & $2.1864$ & $0.2893$ & $14.223$ &$99.88\%$\\ 
  	 & 			& $0.01$  & $25.6996(4)$ & $0.062310$ & $2.1846$ & $9.2890$ & $14.226$ &$99.96\%$\\ 
 \hline
  	  & 		& $0.05$  & $2.4980(2)$ & $9.0817\times10^{-4}$ & $0.058023$ & $0.83369$ & $1.6064$ & $>99.99\%$\\ 
@@ -1011,12 +1045,13 @@ $2$ & $0.28$&  	$0.025$  & $1.02218(2)$ & $7.4943\times10^{-4}$ & $0.25223$ & $0
 $20$& $1.0$	& $0.025$ & $155.9952(4)$ & $1.08273$ & $17.155$ & $57.735$ & $81.105$ &$97.41\%$\\ 
  	&  		& $0.01$  & $155.9946(6)$ & $1.13446$ & $17.130$ & $57.693$ & $81.172$ &$98.48\%$\\ 
 \hline
-	& 		& $0.05$   & $62.0391(3)$ & $0.14986$ & $4.0912$ & $22.094$ & $35.853$ & $98.66\%$\\ 
+	& 		& $0.05$   & $62.0391(3)$ & $0.14986$ & $4.0912$ & $22.094$ & $35.853$ & $98.66\%$\\
+
 $20$& $0.28$& $0.025$  & $62.0395(3)$ & $0.15339$ & $4.0844$ & $22.085$ & $35.870$ & $99.01\%$\\ 	
-	& 	 	& $0.01$   & $62.0398(6)$ & $0.15632$ & $4.0818$ & $22.085$ & $35.872$ & $99.44$\\ 
+	& 	 	& $0.01$   & $62.0398(6)$ & $0.15632$ & $4.0818$ & $22.085$ & $35.872$ & $99.44$\\
 \hline
-	& 	 	& $0.05$  & $6.1996(3)$ & $0.0023159$ & $0.09687$ & $1.9911$ & $4.1117$ & $93.49\%$\\ 
-$20$&$0.01$ & $0.025$ & $6.2002(4)$ & $0.0023496$ & $0.09687$ & $1.9903$ & $4.1131$ & $99.90\%$\\ 
+	& 		& $0.05$  & $6.1996(3)$ & $0.0023159$ & $0.09687$ & $1.9911$ & $4.1117$ & $93.49\%$\\
+$20$&$0.01$ & $0.025$ & $6.2002(4)$ & $0.0023496$ &$0.9687$ & $1.9903$ & $4.1131$ & $99.90\%$\\ 
 	&  		& $0.01$  & $6.2002()$ & $0.0029175$ & $0.09663$ & $1.9929$ & $4.1106$ & $99.93\%$\\ 
 \hline
 \end{tabular}
@@ -1035,9 +1070,9 @@ $20$&$0.01$ & $0.025$ & $6.2002(4)$ & $0.0023496$ & $0.09687$ & $1.9903$ & $4.11
 
 %}}}1
 
-\begin{appendix}
+\begin{appendix}%{{{1
 
-\section{Pseudocode: The SGA algorithm.}%{{{1
+\section{Pseudocode: The SGA algorithm.}%{{{2
 My implementation of the SGA. %All numbers are tunable parameters that can be changed.
 At $n=N_A/N_B$ start/stop collecting mean value of gradient. At $n=N_B$, $k,l$ is calculated.
 At $N_C$ the system should be thermalized and we start collecting data.
@@ -1055,7 +1090,7 @@ I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.01$, $d_{max}=0.1
 		\FOR{all walkers }
 			\STATE{propose new position for walker}
 			\STATE{accept/reject move (metropolis test)}
-			\STATE{sample $\left({\partial_\alpha},{\partial_\beta}) E_L ,E_L$, $({\partial_\alpha},{\partial_\beta}) E_L* E_L$}
+			\STATE{sample $\left({\partial_\alpha},{\partial_\beta}\right) E_L ,E_L$, $({\partial_\alpha},{\partial_\beta}) E_L* E_L$}
 		\ENDFOR{}
 		\STATE{$(\partial_\alpha,\partial_\beta)\expec{E_L}\gets$ use eq. (\ref{abgd})}
 		\FOR{$\nu=\{\alpha,\beta\}$}
@@ -1101,9 +1136,9 @@ I have used $m=30$, $N_A=50$, $N_B=120$, $N_C=200$, $v_{min}=0.01$, $d_{max}=0.1
 %}
 %\label{minalg}
 %\end{algorithm}
-%}}}1
+%}}}2
 
-\section{Derivation of the analytical expressions for $(\partial_\alpha,\partial_\beta)\expec{\hat H}$}%{{{1
+\section{Derivation of the analytical expressions for $(\partial_\alpha,\partial_\beta)\expec{\hat H}$}%{{{2
 
 The derivative of the jastrow factor can be written
 \begin{align}
@@ -1204,8 +1239,9 @@ We combine eq. (\ref{A1}), eq. (\ref{A2}) and eq. (\ref{A3})
 	\bigg)
 \end{align}
 
-%}}}1
-\end{appendix}
+%}}}2
+
+\end{appendix}%}}}1
 
 
 

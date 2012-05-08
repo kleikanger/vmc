@@ -314,6 +314,7 @@ double slaterMatrix::waveFunction(const int &i_upd) const
 			//sum+=orbital_[i].valueWF(dR)*inv_up_matr[i_upd][i];
 			//sum+=spin_up_matr[i_upd][i]*inv_up_backup[i_upd][i];
 		//}
+		//OBS TODO XXX Already calculated in the update algorithm
 		return cblas_ddot(iCutoff,spin_up_matr[i_upd],1,inv_up_backup[i_upd],1);
 		//Det down not changed: ratio =1;
 		//return sum;
