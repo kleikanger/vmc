@@ -274,12 +274,12 @@ min_beta 			= .1128
 omega 				= .01
 #run()
 
-initial_e_trial 	= 155
+initial_e_trial 	=  62
 number_of_particles =  20
-delta_t=0.005
-min_alpha 			= .8384
-min_beta 			= .7392
-omega               = 1
+delta_t 			= .002
+min_alpha 			= .7500
+min_beta 			= .4247
+omega               = .28
 run()
 initial_e_trial 	= 6.1
 min_alpha 			= .3958
@@ -309,12 +309,12 @@ run()
 min_alpha 			= .8775
 min_beta 			= .5674
 omega               = 1
-run()
+#run()
 
 min_alpha 			= .4935
 min_beta 			= .1128
 omega 				= .01
-run()
+#run()
 
 write_opd 			= 'false'
 

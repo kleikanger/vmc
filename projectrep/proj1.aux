@@ -61,34 +61,34 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Convergence rate: DMC vs VMC}{9}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Systematic errors}{9}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Numerical results}{9}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces {\it  The single particle densities A) 6 particle QD with $\omega =1$ B) 6 particle QD with $\omega =0.01$ C) 12 particle QD with $\omega =1$ D) 12 particle QD with $\omega =0.01$. The correlations gets more important for smaller $\omega $ or a higher number of particles. The DMC density is very almost identical to the VMC density for the $\omega =1$ plots (left), while the $\omega =0.01$ plots (right) showing strong correlations effects that can not be accounted for by the 2 particle Jastrow. }}}{10}}
-\newlabel{fig:spd612}{{6}{10}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces {\it  Energy as a function of $\Delta t$ for a $2$ particle quantum dot with $\alpha =0.988,\beta =0.399,\omega =1$. All energies are calculated using $10^7$ samples. The energy are plotted for 40 values of $\Delta t$ between $0.01$ and $0.4$. }}}{10}}
+\newlabel{fig:ef}{{3}{10}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.5}Verification of the results (literature,articles)}{10}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces {\it  Energy as a function of $\Delta t$ for a $2$ particle quantum dot with $\alpha =0.988,\beta =0.399,\omega =1$. All energies are calculated using $10^7$ samples. The energy are plotted for 40 values of $\Delta t$ between $0.01$ and $0.4$. }}}{11}}
-\newlabel{fig:ef}{{3}{11}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces {\it  Different quantities are plotted as a function of $\omega $ for a $2$ particle quantum dot with the optimal variational parameters. All energies are calculated using $10^7$ samples and $\Delta t = 0.05$. Top plot: The total energy. Middle plot: Blue line ($-+$): kinetic energy, red line ($-\times $) oscillator potential energy, black line ($-*$) electron-electron potential energy. Percentage of total energy for each $\omega $ plotted. Bottom plot: The Jastrow energy as a percentage of the total energy. }}}{10}}
+\newlabel{figes}{{4}{10}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces {\it  The single particle densities for a two particle dot with $\omega =1$ (top plot) and $\omega =0.01$ (bottom plot). The single particle densities are calculated with and without the Jastrow function (VMC). The DMC density is very almost identical to the VMC density, showing that most correlations are accounted for by the Jastrow. These plots also demonstrates that the correlation effects included in the Jastrow function are more important when $\omega $ gets small. }}}{11}}
+\newlabel{fig:spd2}{{5}{11}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Pseudocode: The SGA algorithm.}{11}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces {\it  Running time for $\omega =1$ quantum dots with $N_p$ particles and the optimal values for the variational parameters. All runs done on one $2.4 MHz$ processor with $10^7$ iterations. The percentage of time consume of the most expensive functions are listed in the table. (d1) :evaluation of the first derivatives of the orbitals, (jasgrad) :evaluation of the gradient of the Jastrow factor, (slagrad) :evaluation of the gradient of the Slater matrix (d1 not included). }}}{11}}
 \newlabel{tab:scaletime}{{2}{11}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces {\it  Different quantities are plotted as a function of $\omega $ for a $2$ particle quantum dot with the optimal variational parameters. All energies are calculated using $10^7$ samples and $\Delta t = 0.05$. Top plot: The total energy. Middle plot: Blue line ($-+$): kinetic energy, red line ($-\times $) oscillator potential energy, black line ($-*$) electron-electron potential energy. Percentage of total energy for each $\omega $ plotted. Bottom plot: The Jastrow energy as a percentage of the total energy. }}}{11}}
-\newlabel{figes}{{4}{11}}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Pseudocode: The SGA algorithm.}{11}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces {\it  Monte carlo results using the variational parameters in table (3\hbox {}). Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization. The thermalization is set to $5\times 10^5$. The error is estimated using blocking analysis of the data. ..... }}}{12}}
-\newlabel{tab2}{{4}{12}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces {\it  The single particle densities for a two particle dot with $\omega =1$ (top plot) and $\omega =0.01$ (bottom plot). The single particle densities are calculated with and without the Jastrow function (VMC). The DMC density is very almost identical to the VMC density, showing that most correlations are accounted for by the Jastrow. These plots also demonstrates that the correlation effects included in the Jastrow function are more important when $\omega $ gets small. }}}{13}}
-\newlabel{fig:spd2}{{5}{13}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces {\it  Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization. $\alpha _{min}$ and $\beta _{min}$ is the values of the variational parameters at the minima. We have used a $\Delta t=0.05$ and $10^5$ iterations in the SGA loop. }}}{13}}
-\newlabel{tab1}{{3}{13}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces {\it  Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization. $\alpha _{min}$ and $\beta _{min}$ is the values of the variational parameters at the minima. We have used a $\Delta t=0.05$ and $10^5$ iterations in the SGA loop. }}}{11}}
+\newlabel{tab1}{{3}{11}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{12}}
+\newlabel{A1}{{61}{12}}
 \bibstyle{plain}
 \bibdata{proj1}
 \bibcite{Doornik}{1}
 \bibcite{hammond}{2}
 \bibcite{harju_1997}{3}
-\@writefile{toc}{\contentsline {section}{\numberline {B}Derivation of the analytical expressions for $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{\mathaccentV {hat}05EH}\delimiter "526930B {}$}{14}}
-\newlabel{A1}{{61}{14}}
-\newlabel{A2}{{62}{14}}
-\newlabel{A3}{{63}{14}}
 \bibcite{harju_2005}{4}
 \bibcite{m.h-j}{5}
 \bibcite{lars_eivind_thesis}{6}
 \bibcite{lin_2000}{7}
 \bibcite{nissenbaum_2008}{8}
 \bibcite{scemama_2006}{9}
+\newlabel{A2}{{62}{13}}
+\newlabel{A3}{{63}{13}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces {\it  The single particle densities A) 6 particle QD with $\omega =1$ B) 6 particle QD with $\omega =0.01$ C) 12 particle QD with $\omega =1$ D) 12 particle QD with $\omega =0.01$. The correlations gets more important for smaller $\omega $ or a higher number of particles. The DMC density is very almost identical to the VMC density for the $\omega =1$ plots (left), while the $\omega =0.01$ plots (right) showing strong correlations effects that can not be accounted for by the 2 particle Jastrow. }}}{14}}
+\newlabel{fig:spd612}{{6}{14}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces {\it  VMC results using the variational parameters in table (3\hbox {}). Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization. All results are obtained using $10^8$ MC - cycles. The error is estimated using blocking analysis of the data. The oscillator energies are quite stable, but the ratio between $E_{kin}$ and $E_{e-e}$ varies with $\omega $. * * * Generally, the lower this ratio is, the more important are the correlations not included in the Jastrow. See plots. }}}{15}}
+\newlabel{tab2}{{4}{15}}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  8 MAY 2012 21:34
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  9 MAY 2012 00:12
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -534,55 +534,33 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 File: ../plots/spds612.eps Graphic file (type eps)
 <../plots/spds612.eps>
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
+LaTeX Warning: `h' float specifier changed to `ht'.
 
 [9]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[10]
-Overfull \hbox (57.17194pt too wide) in paragraph at lines 1059--1117
- [] 
- []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1135--1144
+Underfull \hbox (badness 10000) in paragraph at lines 1137--1146
 
  []
 
-
-Underfull \vbox (badness 1655) has occurred while \output is active []
-
- [11]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [12]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [13]
-Overfull \hbox (7.74205pt too wide) in paragraph at lines 1220--1220
+[10] [11]
+Overfull \hbox (7.74205pt too wide) in paragraph at lines 1222--1222
 [] 
  []
 
 
-Overfull \hbox (8.10329pt too wide) in paragraph at lines 1251--1251
+Overfull \hbox (8.10329pt too wide) in paragraph at lines 1253--1253
 [] 
  []
 
-(./proj1.bbl [14]
+[12] (./proj1.bbl
 Underfull \hbox (badness 1642) in paragraph at lines 47--51
 []\OT1/cmr/m/n/10 Anthony Sce-mama, Tony Leli^^Revre, Gabriel
  []
 
-) [15
-
-] (./proj1.aux)
+) [13] [14] [15] (./proj1.aux)
 
 LaTeX Warning: There were undefined references.
 
@@ -590,10 +568,10 @@ LaTeX Warning: There were undefined references.
 Here is how much of TeX's memory you used:
  2080 strings out of 495062
  23305 string characters out of 1182644
- 109660 words of memory out of 3000000
+ 119660 words of memory out of 3000000
  5222 multiletter control sequences out of 15000+50000
  13883 words of font info for 54 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 32i,16n,22p,626b,477s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,16n,22p,687b,477s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (15 pages, 93648 bytes).
+Output written on proj1.dvi (15 pages, 92980 bytes).

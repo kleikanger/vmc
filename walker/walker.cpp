@@ -385,15 +385,12 @@ void walker::getRi(int i_w, double* x)
 	}
 }/*//endvimfold*/
 
-double walker::getLenOfMoveSqrd()
+double walker::getLenOfMoveSqrd(const int &active_part) const
 {/*//startvimfold*/
 	double l=0.0;
 	for (int i=0;i<dimension;i++)
 	{
-		for (int j=0; j<num_part;j++)
-		{
-			l+=pow(r_old[i][j]-r_new[i][j],2);
-		}
+		l+=pow(r_old[active_part][i]-r_new[active_part][i],2);
 	}
 	return l;
 }/*//endvimfold*/

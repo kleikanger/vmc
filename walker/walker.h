@@ -112,7 +112,7 @@ class walker {
 		/*
 		   Returns the length of the last move
 		   */
-		double getLenOfMoveSqrd();
+		double getLenOfMoveSqrd(const int &j) const;
 	
 	friend class popControl;
 };

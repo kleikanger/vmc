@@ -168,6 +168,7 @@ void dmcsampler::sampleDMC(
 
 	//********
 	double rej_len=0.0, acc_len=0.0;
+	int rej=0, acc=0;
 	//********
 	//************************** START equilibriation phase ******************
 	/*//startvimfold*/
@@ -197,12 +198,14 @@ void dmcsampler::sampleDMC(
 					//reject walkers that has crossed node or that fails the mh_test
 					if (mh_test && !quantum_dot[loop_p]->nodeCrossed())
 					{
-						acc_len+=quantum_dot[loop_p]->getLenOfMoveSqrd();
+						acc_len+=quantum_dot[loop_p]->getLenOfMoveSqrd(active_part);
+						acc++;
 						quantum_dot[loop_p]->acceptStep(active_part);
 					}
 					else
 					{ 
-						rej_len+=quantum_dot[loop_p]->getLenOfMoveSqrd();
+						rej_len+=quantum_dot[loop_p]->getLenOfMoveSqrd(active_part);
+						rej++;
 						quantum_dot[loop_p]->rejectStep(active_part);
 					}
 				}//All particles moved
@@ -279,8 +282,11 @@ void dmcsampler::sampleDMC(
 	//e_cumulative/=(double)nprocs*loop_main;
 	
 	//************* TESTING *********************
-	double delta_t_eff=delta_t*acc_len/(acc_len+rej_len);
+	double delta_t_eff=delta_t*acc_len/(acc_len+rej_len)/(double)acc*((double)acc+rej);
+	MPI_Allreduce(MPI_IN_PLACE, &delta_t_eff, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	delta_t_eff/=nprocs;
 	cout<<delta_t_eff<<" "<<acc_len/(acc_len+rej_len);
+	//delta_t_eff=delta_t;
 	//*******************************************
 	
 	if (myrank==0)
