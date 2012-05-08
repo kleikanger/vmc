@@ -741,11 +741,29 @@ The electron-electron potential can be directly calculated by summing the $(n-1)
 when only the electron with coordinates $\ts r_k$ has been moved. This expression can be efficiently evaluated as the exponential of the sum of $2(n-1)$ elements
 \begin{align}
 	&\frac{\mathcal J^\beta(\ts R')}{\mathcal J^\beta(\ts R)}=
-	\exp\left(\sum_{i=k\text{ or }j=k}  j(r_{ij})  - j(r'_{ij}) \right)\notag\\
+	\exp\left(\sum_{i=k\text{ or }j=k}  j(r_{ij})  - j(r'_{ij}) \right)\\
 	&j(r_{ij})=\frac {a_{ij}r_{ij}}{1+\beta r_{ij}}.
 \end{align}
-The Laplacian can be evaluated  and the gradient $..$ can be evaluated ...
-the gradient: subltract $n-1$ old values, add $n-1$ new values.
+the gradient: subltract $n-1$ old values, add $n-1$ new values. Large optimization.
+Each element in the vector can be calculated using the formula
+\begin{align}
+	\frac{\partial_{x_i} \mathcal J^\beta}{\mathcal J^\beta}&=
+	\sum_{k=1}^{i-1}\frac{a_{ki}(x_i-x_k)}{r_{ki}(1+\beta r_{ik})^3}+
+	\sum_{k=i+1}^{n_p}\frac{a_{ik}(x_i-x_k)}{r_{ik}(1+\beta r_{ki})^3}
+\end{align}
+where $r_i=(x_i,y_i)$. The formula looks identical if $x\to y$.
+If one particle is moved, only $(n_p-1)$ distances $r_{ik}$ is changed. Therefore the gradient can be calculated by adding the 
+$n-1$ new elements and subtracting the corresponding old ones.
+
+The Laplacian are given by the formula
+\begin{align}
+	&\frac{\nabla^2 \mathcal J^\beta}{\mathcal J^\beta}=
+		\sum_{k=1}^{i-1}\frac{a_{ki}(1+\beta r_{ik})}{r_{ki}(1+\beta r_{ik})^3}\notag\\
+	&+	\sum_{i-1}^{n_p}\frac{a_{ik}(1+\beta r_{ik})}{r_{ik}(1+\beta r_{ki})^3}
+	+\left(\frac{\partial_{x_i} \mathcal J^\beta}{\mathcal J^\beta}\right)^2
+\end{align}
+Note that only half of the elements needs to be calculated since $r_{kj}=r_{jk}$
+A detailed derivation of these expressions is found in \cite{lars_eivind_thesis}
 
 %}}}2 
 

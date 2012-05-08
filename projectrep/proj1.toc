@@ -15,7 +15,7 @@
 \contentsline {subsection}{\numberline {6.1}Random number generators}{6}
 \contentsline {subsection}{\numberline {6.2}Optimizing the Slater}{6}
 \contentsline {subsection}{\numberline {6.3}Optimizing the Jastrow}{8}
-\contentsline {subsection}{\numberline {6.4}Implementing $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{E_L}\delimiter "526930B {}$}{8}
+\contentsline {subsection}{\numberline {6.4}Implementing $(\partial _\alpha ,\partial _\beta )\delimiter "426830A {}{E_L}\delimiter "526930B {}$}{9}
 \contentsline {section}{\numberline {7}Results}{9}
 \contentsline {subsection}{\numberline {7.1}Scaling and time consume}{9}
 \contentsline {subsection}{\numberline {7.2}Convergence rate: DMC vs VMC}{9}

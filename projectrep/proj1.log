@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  8 MAY 2012 13:49
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  8 MAY 2012 14:25
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -499,16 +499,23 @@ Underfull \vbox (badness 3724) has occurred while \output is active []
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [7]
+Overfull \hbox (1.0623pt too wide) in paragraph at lines 753--753
+[] 
+ []
+
 [8]
-Underfull \hbox (badness 3019) in paragraph at lines 830--830
+Underfull \hbox (badness 3019) in paragraph at lines 848--848
 []\OT1/cmr/bx/n/12 Convergence rate: DMC vs
  []
 
 File: ../plots/time_step_error_2ptomg1.eps Graphic file (type eps)
 <../plots/time_step_error_2ptomg1.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 847--848
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 865--866
  [] 
  []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 File: ../plots/energies2pt.eps Graphic file (type eps)
 <../plots/energies2pt.eps>
@@ -517,7 +524,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 File: ../plots/spds2pt.eps Graphic file (type eps)
 <../plots/spds2pt.eps>
-Overfull \hbox (3.7766pt too wide) in paragraph at lines 880--881
+Overfull \hbox (3.7766pt too wide) in paragraph at lines 898--899
  [] 
  []
 
@@ -526,7 +533,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 File: ../plots/spds6pt.eps Graphic file (type eps)
 <../plots/spds6pt.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 893--894
+Overfull \hbox (6.62204pt too wide) in paragraph at lines 911--912
  [] 
  []
 
@@ -541,12 +548,12 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [10]
-Overfull \hbox (57.17194pt too wide) in paragraph at lines 1000--1058
+Overfull \hbox (57.17194pt too wide) in paragraph at lines 1018--1076
  [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1076--1085
+Underfull \hbox (badness 10000) in paragraph at lines 1094--1103
 
  []
 
@@ -557,23 +564,19 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [12]
-Overfull \hbox (7.74205pt too wide) in paragraph at lines 1161--1161
+Underfull \vbox (badness 2326) has occurred while \output is active []
+
+
+Overfull \hbox (7.74205pt too wide) in paragraph at lines 1179--1179
 [] 
  []
 
 
-Underfull \vbox (badness 1442) has occurred while \output is active []
-
-
-Overfull \hbox (8.10329pt too wide) in paragraph at lines 1192--1192
+Overfull \hbox (8.10329pt too wide) in paragraph at lines 1210--1210
 [] 
  []
 
-
-Underfull \vbox (badness 3088) has occurred while \output is active []
-
- [13]
-(./proj1.bbl
+[13] (./proj1.bbl
 Underfull \hbox (badness 1642) in paragraph at lines 47--51
 []\OT1/cmr/m/n/10 Anthony Sce-mama, Tony Leli^^Revre, Gabriel
  []
@@ -582,14 +585,17 @@ Underfull \hbox (badness 1642) in paragraph at lines 47--51
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
  ) 
 Here is how much of TeX's memory you used:
  2080 strings out of 495062
  23303 string characters out of 1182644
- 107660 words of memory out of 3000000
+ 106660 words of memory out of 3000000
  5222 multiletter control sequences out of 15000+50000
  13883 words of font info for 54 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  32i,16n,22p,744b,477s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (14 pages, 91320 bytes).
+Output written on proj1.dvi (14 pages, 93216 bytes).
