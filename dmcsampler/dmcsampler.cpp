@@ -103,7 +103,7 @@ void dmcsampler::sampleDMC(
 	int loop_main, loop_c, killsd=0; 
 
 #if WRITEOFB/*//startvimfold*/
-	//Write blockingdata to file
+	//Open filestream : blockingdata to file
 	ofstream blockofile;
 	ostringstream ost;
 	ost <<OFPATHB<<
@@ -113,6 +113,7 @@ void dmcsampler::sampleDMC(
 		cout<<"writing blockingdata to file"<<(OFPATHB)<<"\n";
 #endif
 #if WRITEOFC
+	//open filestream spd data to file :
 	//Write single particle density to file
 	//for temporary storage of positions
 	double *r_temp = new double[dimension];
@@ -148,7 +149,7 @@ void dmcsampler::sampleDMC(
 	double* e_local_old = new double[initial_number_of_walkers*6];
 	
 	//********************************
-	//initializing walker objects
+	// START initializing walker objects
 	//********************************
 	quantum_dot[0] = new walker(num_part, spin_up_cutoff, dimension, num_of_var_par, myrank);
 	quantum_dot[0]->initWalker(var_par, delta_t);
@@ -165,6 +166,10 @@ void dmcsampler::sampleDMC(
 		occupancy[i] = false;
 	//Initialize walkers, using VMC routine
 	initializeSys(initial_number_of_walkers, thermalization, corr_length, var_par, e_local_old);
+	
+	//*****************************************
+	// START initializatoon of walkers finished
+	//*****************************************
 
 	
 	//************************** START equilibriation phase ******************
@@ -278,7 +283,7 @@ void dmcsampler::sampleDMC(
 	
 	//************************** END OF equilibriation phase *****************
 	//************************** START sampling phase ************************
-
+/*//startvimfold*/
 	ofstream ofiletest;
 	if (myrank==0)	
 	{
@@ -287,7 +292,7 @@ void dmcsampler::sampleDMC(
 	//XXX XXX test XXX XXX
 	double e_tot=0.0;
 
-	//reset variables/*//startvimfold*/
+	//reset variables
 	e_trial=e_cumulative;
 	total_loop_c_cumulative=0;
 	e_cumulative=0.0;
@@ -305,7 +310,7 @@ void dmcsampler::sampleDMC(
 			{
 				//move all particles, one at a time
 				for (int active_part=0; active_part<num_part; active_part++)
-				{/*//startvimfold*/
+				{
 					//metropolis-hastings test
 					bool mh_test = (quantum_dot[loop_p]->tryRandomStep(active_part)); 
 					//reject walkers that has crossed node or that fails the mh_test
@@ -329,7 +334,7 @@ void dmcsampler::sampleDMC(
 					else  
 					{
 						quantum_dot[loop_p]->rejectStep(active_part);
-					}/*//endvimfold*/
+					}
 				}//All particles moved
 
 				//find local energy
@@ -371,7 +376,8 @@ void dmcsampler::sampleDMC(
 				//update energy if the walker survived
 				e_local_old[loop_p] = e_local_temp;
 #if WRITEOFC
-				//store single particle density //store every n=numpart*2 cycles in inner loop for less correlates samples
+				//store single particle density //store f.ex. every n=numpart*2 cycles in inner 
+				//loop decreasing correlation between the stored samples
 				if ((n_spd<spd_size) && (loop_c%6==0)) for (j=0;j<num_part;j++)
 				{
 					if (n_spd>=spd_size) break;
@@ -382,7 +388,7 @@ void dmcsampler::sampleDMC(
 					n_spd++;
 				}
 #endif
-			}/*//endvimfold*/
+			}
 			//keeping track of the total number of samples
 			loop_c_cumulative+=loop_c;
 		}
@@ -420,11 +426,9 @@ void dmcsampler::sampleDMC(
 			//write to file
 			ofiletest<<setprecision(16)<<e_tot/(double)(loop_main+1)<<" "<<e_trial<<" "<<num_alive*2.<<"\n";
 		}/*//endvimfold*/
-
 	} //************************** END OF DMC sampling **************************
 
 	//collecting results	
-
 	//USE MPI_Reduce(MPI_IN_PLACE,...)	
 	MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
 	MPI_Allreduce(MPI_IN_PLACE, &e2_cumulative, 1, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
@@ -439,7 +443,7 @@ void dmcsampler::sampleDMC(
 		cout<<"variance"<<e2_cumulative-pow(e_cumulative,2)<<"\n";
 	}
 
-#if WRITEOFB/*//startvimfold*/
+#if WRITEOFB
 	blockofile.close();
 #endif
 #if WRITEOFC
@@ -460,7 +464,7 @@ void dmcsampler::sampleDMC(
 	for (i=0;i<dimension+1;i++)
 		delete [] spd[i];
 	delete [] spd;
-#endif/*//endvimfold*/
+#endif
 ofiletest.close();
 
 }/*//endvimfold*/

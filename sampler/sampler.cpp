@@ -30,10 +30,6 @@ sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var
 	this->dimension=dimension;
 	this->num_of_var_par=num_of_var_par;
 	quantum_dot = new walker(num_part, spin_up_cutoff, dimension, num_of_var_par, myrank);
-	
-	//OBS : OMEGA PART OF VARPAR TODO CHANGE 
-	// NUM OF VAR PAR = 3 : TODO set to 2
-//#if CONJGRAD
 	energy_gradient = new double[num_of_var_par];
 //#endif
 }/*//endvimfold*/
@@ -41,6 +37,7 @@ sampler::sampler(int num_part, int spin_up_cutoff, int dimension, int num_of_var
 sampler::~sampler()
 {/*//startvimfold*/
 	delete quantum_dot;
+	delete [] energy_gradient;
 }//End function /*//endvimfold*/
 
 //REMOVE XXX NOT NECC WHEN CGM REMOVED
@@ -122,11 +119,12 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 #endif
 	} //************************** END OF MC sampling **************************
 	//write to screen
-	cout<<setprecision(4)<< "(alpha,beta) = ("<<var_par[1]<<","<<var_par[0]<<"),";
-	cout<<setprecision(10)<< " kinE: "<<(energies[0]/(double)num_cycles);	
-	cout<<setprecision(10)<< ", pot(osc)E: "<<(energies[1]/(double)num_cycles);	
-	cout<<setprecision(10)<< ", pot(ee)E: "<<(energies[2]/(double)num_cycles);	
-	cout<<setprecision(5)<< ", Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
+	//MPI REDUCE
+	cout<<setprecision(4)<< "(alpha,beta) = ("<<var_par[1]<<","<<var_par[0]<<"),"
+		<<setprecision(10)<< " kinE: "<<(energies[0]/(double)num_cycles)
+		<<setprecision(10)<< ", pot(osc)E: "<<(energies[1]/(double)num_cycles)
+		<<setprecision(10)<< ", pot(ee)E: "<<(energies[2]/(double)num_cycles)	
+		<<setprecision(5)<< ", Acc.rate: "<<accepted/(double)(num_cycles*num_part)<<"\n";
 	//return values
 	result[0] = (e_local/(double)num_cycles);
 	result[1] = (e_local_squared-e_local*e_local/(double)num_cycles)/(double)num_cycles;
@@ -146,7 +144,7 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 #if WRITEOFC
 	//write single particle density to file
 	if (myrank==0)
-		cout<<"writing blockingdata to file"<<(OFPATHC)<<"<.>.dat\n";
+		cout<<"writing spddata to file"<<(OFPATHC)<<"<.>.dat\n";
 	for (i=0;i<dimension+1;i++)
 	{
 		ofstream spdofile;
