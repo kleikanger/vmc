@@ -103,6 +103,8 @@ int main (int argc, char *argv[])
 
 	//calculate and store results (in outfile)
 	//calculate |r| vector (x<-sqrt(x^2+y^2))
+
+#if 0
 	for (i=0;i<num_c;i++)
 		x[i]=x[i]*x[i];
 	for (i=0;i<num_c;i++)
@@ -110,6 +112,9 @@ int main (int argc, char *argv[])
 	for (i=0;i<num_c;i++)
 		x[i]=sqrt(x[i]);
 
+	//*********************
+	// FIND RADIAL DENSITY
+	//*********************
 	//rename wectors for a tidyer code, save memory by reusing the allocated memory
 	r = x;
 	//XXX w[j] = 1 for all j if VMC, if DMC weights are stored during simulation
@@ -139,14 +144,6 @@ int main (int argc, char *argv[])
 	scale=cblas_dasum(n_bins,n,1);
 	scale=n_bins/(scale*max_elem);
 	cblas_dscal(n_bins,scale,n,1);
-	
-	//MPI_Reduce(n)
-	//MPI_Reduce(bins)
-	//Write results to file
-	//if (myrank==0)
-	//writeToFile(ofilename, n_bins, n, bins); 
-	//MPI_Finalize();
-
 	//Write to file
 	for (i = 0; i<n_bins; i++) 
 	{
@@ -154,6 +151,97 @@ int main (int argc, char *argv[])
 			<<n[i]<<"\t"<< bins[i] << "\n";
 	}
 	ofile.close();
+#endif
+
+	//*************************
+	// FIND DENSITY IN X,Y
+	//*************************
+#if 1
+	w = new double[num_c];
+	readFromFile(2, ifilename, w, 0 ,result);
+	//find min,max elem
+	/*
+	i=cblas_idamax(num_c,x,1);
+	double x_max=x[i];
+	//cout<<x_max;
+	//i=cblas_idamin(num_c,x,1);
+	//double x_min=x[i];
+	double x_min=x_max;
+	i=cblas_idamax(num_c,y,1);
+	double y_max=y[i];
+	//cout<<y_max;
+	//i=cblas_idamin(num_c,y,1);
+	//double y_min=y[i];
+	double y_min=y_max;
+*/
+
+	double x_max,y_max,x_min,y_min;
+	x_max=y_max=x_min=y_min=57;
+	//find bin intervals in x and y coords
+	double x_binsize = (fabs(x_min)+fabs(x_max))/(double)n_bins;
+	double y_binsize = (fabs(y_min)+fabs(y_max))/(double)n_bins;
+
+	//initialize axis and grid
+	double x_axis[n_bins];
+	double y_axis[n_bins];
+	double grid[n_bins][n_bins];
+	for (i=0;i<n_bins;i++)
+		x_axis[i]=(double)(i+1)*x_binsize-x_binsize/2.-fabs(x_min);//take midpoint in bin
+	for (i=0;i<n_bins;i++)
+		y_axis[i]=(double)(i+1)*y_binsize-y_binsize/2.-fabs(y_min);//take midpoint in bin
+	for (i=0;i<n_bins;i++)
+		for (j=0;j<n_bins;j++)
+		{
+			grid[i][j]=0.0;
+		}
+	//sort data
+	for (int k=0;k<num_c;k++)
+	{
+		i=(int)((x[k]+fabs(x_min))/x_binsize);
+		j=(int)((y[k]+fabs(y_min))/y_binsize);
+		grid[i][j]+=w[k];
+	}
+	//normalize
+	scale=0.0;
+	for (i=0;i<n_bins;i++)
+		for (j=0;j<n_bins;j++)
+		{
+			scale+=grid[i][j];
+		}
+	for (i=0;i<n_bins;i++)
+		for (j=0;j<n_bins;j++)
+		{
+			grid[i][j]/=scale;
+		}
+	
+	//Write to file
+	for (i = 0; i<n_bins; i++) 
+		ofile<<x_axis[i]<<"\t";
+//		ofile<<"\n";
+	for (i = 0; i<n_bins; i++) 
+//		ofile<<y_axis[i]<<"\t";
+//		ofile<<"\n";
+	for (i = 0; i<n_bins; i++) 
+	{
+		for (j=0;j<n_bins;j++)
+		{
+			if (grid[i][j]<.001)
+			ofile<<setw(16)<<setprecision(16)
+				//<<x_axis[i]<<"\t"<<y_axis[j]<<"\t"
+				<<grid[i][j]<<"\t";
+		}
+		ofile<<"\n";
+	}
+	ofile.close();
+
+#endif
+	//MPI_Reduce(n)
+	//MPI_Reduce(bins)
+	//Write results to file
+	//if (myrank==0)
+	//writeToFile(ofilename, n_bins, n, bins); 
+	//MPI_Finalize();
+
 	delete [] x;
 	delete [] y;
 	//delete [] w;

@@ -1,4 +1,5 @@
-\documentclass[a4paper,10pt,twocolumn]{article} %{{{1
+
+\documentclass[a4paper,9pt,twocolumn]{revtex4} %{{{1
 %\documentclass[a4paper,10pt]{article} 
 \usepackage[utf8]{inputenc}
 
@@ -41,23 +42,27 @@
       \hskip1.5em plus0em minus0.5em \fi \nobreak
       \vrule height0.75em width0.5em depth0.25em\fi} %}}}1
 
-\title{ Project 1, Fys 4411 \\ }
-\author{Karl R. Leikanger}
 
 \begin{document}
 
+\begin{abstract}%{{{1
+ff sadf sadf sd gfdsf gsd fg fdsg dsg dsg ds gds g dsfg dsg dsf g dsfg dssg dblablabl s sgddsf g dsg dsgds gs gdsa
+\end{abstract}%}}}1
+
+\title{ Project 1, Fys 4411}
+\author{Karl R. Leikanger}
+\affiliation{University of Oslo, UIO}
+
 \maketitle
 \tableofcontents
-
-\begin{abstract}%{{{1
-blablabla
-\end{abstract}%}}}1
 
 \section{Quantum dots}% {{{1
 
 Our system of choice 
 
 %}}}1
+
+\section{theory}
 
 \section{The Monte Carlo method}%{{{1
 
@@ -89,7 +94,7 @@ give accurate results. By choosing a smart $P(\ts r)$ that is large in the regio
 more samples will be drawn from the important regions, often leading to a more rapid convergence.  
 %}}}2
 
-\subsection{Markov Chain Monte Carlo}%{{{2
+\subsubsection{Markov Chain Monte Carlo}%{{{2
 
 Markov Chain Monte Carlo (MCMC) provides us with a method for drawing the correct samples from $P$. 
 Instead of drawing uncorrelated random samples we use a markow chain to generate a sequence $\{\ts r_n\}$ of vectors.
@@ -267,12 +272,14 @@ The suggestion density becomes \cite{lars_eivind_thesis}
 	\label{sugdeis}
 \end{align}
 where $D$ is the diffusion constant originating from the Fokker-Planck equation and $K$ is a normalization constant. 
-Samples from this density are generated using the Langevin equation on the form (ref HAMMOND) (exact ? or is this where the dt dependent error enters)
+This is simply a normal distribution with a shift $\ts r_n+D\Delta t \frac{\nabla P(\ts r_n)}{P(\ts r_n)}$
+Samples from this density are generated using the %Langevin 
+equation %on the form (ref HAMMOND) (exact ? or is this where the dt dependent error enters)
 \begin{align}
-	\ts r_{n+1}=\ts r_n+D\Delta t \frac{\nabla P(\ts r_n)}{P(\ts r_n)} + \sqrt{\Delta t}\mathcal N(\ts r_{n+1}-\ts r_{n}),	
+	\ts r_{n+1}=\ts r_n+D\Delta t \frac{\nabla P(\ts r_n)}{P(\ts r_n)} + \sqrt{\Delta t}2D\mathcal N,	
 	\label{rp1}
 \end{align}
-where $\mathcal N$ is a normal distribution with the variance $2D$.
+where $\mathcal N$ is a random normal distributed vector.
 From this equation it is evident that a small $\Delta t$ will lead to a small average step length $|\ts r_{n+1}-\ts r_n|$. This might slow down the 
 convergence of the system even though the acceptance rate will increase. %(Since the random walkers in $\mathcal D$ will be very slow + high correlation between samples). 
 In practice one has to experiment to find the optimal values for $\Delta t$ that gives a ((small time step error)) and a rapid convergence. 
@@ -302,12 +309,12 @@ close to $\pm10^{-5}$ Hartrees. The time between two practically uncorrelated sa
 
 \begin{figure}[h!]
 \begin{center}
+%\vspace{-.8cm}
+	\includegraphics[width=8.cm]{../plots/blc_6pt_omg1_dt05.eps}
 \caption{{\it%\small
 		Blocking results for a $6$ particle quantum dot with $\omega=1$ and $\Delta t = 0.05$. A total of $10^8$ samples has been used in the simulation. From the plot we can see that
 		the statistical error is close to $\pm10^{-5}$ Hartrees, and that the correlation length is of the order $\mathcal O(10^3)$.}} 
 		\label{fig:timesteperror}
-%\vspace{-.8cm}
-	\includegraphics[width=8.cm]{../plots/blc_6pt_omg1_dt05.eps}
 \end{center}
 %\vspace{-1.2cm}
 \end{figure}
@@ -564,20 +571,20 @@ To obtain the energy with an error $\sim 10^{-5}$ Hartrees about $10^8$ MC-sampl
 
 \begin{figure}[h!]
 \begin{center}
-\caption{{\it%\small 
-	Minimization of a $6$ particle (top) and a $12$ particle (bottom) quantum dot using an $\omega = 1$ and a $\delta t=0.05$. $N_C$ is the total number of MC-samples. 
-	The red line shows the $\alpha$ and $\beta$ values at $N_C$, while the black line shows the accumulated mean.
-	The means are quickly converging towards the optimal results ($\beta=0.399$, $\alpha=0.988$) (top) and ($\beta=0.877$, $\alpha=0.657$) (bottom), 
-	only using a total of total of $6\times10^5$ samples. }}
-\vspace{-.3cm}
+%\vspace{-.3cm}
 	\includegraphics[width=7.8cm]{../plots/minimization_2pt_omg1.eps}
 %\end{center}
 %\end{figure}
 %\begin{figure}[h]
 %\begin{center}
 	\includegraphics[width=7.8cm]{../plots/minimization_12pt_omg1.eps}
+\caption{{\it%\small 
+	Minimization of a $6$ particle (top) and a $12$ particle (bottom) quantum dot using an $\omega = 1$ and a $\delta t=0.05$. $N_C$ is the total number of MC-samples. 
+	The red line shows the $\alpha$ and $\beta$ values at $N_C$, while the black line shows the accumulated mean.
+	The means are quickly converging towards the optimal results ($\beta=0.399$, $\alpha=0.988$) (top) and ($\beta=0.877$, $\alpha=0.657$) (bottom), 
+	only using a total of total of $6\times10^5$ samples. }}
 \end{center}
-\vspace{-.8cm}
+%\vspace{-.8cm}
 \end{figure}
 
 
@@ -856,19 +863,21 @@ This is not the error imposed by the discretization of the Langevin equation, si
 
 \begin{figure}[h!]
 \begin{center}
+%\vspace{-.8cm}
+	\includegraphics[width=8.cm]{../plots/time_step_error_2ptomg1.eps}
 \caption{{\it%\small
 			Energy as a function of $\Delta t$ for a $2$ particle quantum dot with $\alpha=0.988,\beta=0.399,\omega=1$. All energies are calculated using $10^7$ samples.
 			The energy are plotted for 40 values of $\Delta t$ between $0.01$ and $0.4$. 
 		}}
 		\label{fig:ef}
-%\vspace{-.8cm}
-	\includegraphics[width=8.cm]{../plots/time_step_error_2ptomg1.eps}
 \end{center}
 %\vspace{-1.2cm}
 \end{figure}
 
 \begin{figure}[h!]
 \begin{center}
+%\vspace{-.8cm}
+	\includegraphics[width=6.5cm]{../plots/energies2pt.eps}
 \caption{{\it%\small
 			Different quantities are plotted as a function of $\omega$ for a $2$ particle quantum dot with the optimal variational parameters. 
 			All energies are calculated using $10^7$ samples and $\Delta t = 0.05$.
@@ -879,14 +888,14 @@ This is not the error imposed by the discretization of the Langevin equation, si
 			Bottom plot: The Jastrow energy as a percentage of the total energy. 
 		}}
 		\label{figes}
-%\vspace{-.8cm}
-	\includegraphics[width=6.5cm]{../plots/energies2pt.eps}
 \end{center}
 %\vspace{-1.2cm}
 \end{figure}
 
 \begin{figure}[h!]
 \begin{center}
+%\vspace{.1cm}
+	\includegraphics[width=7.9cm]{../plots/spds2pt.eps}
 \caption{{\it%\small
 		The single particle densities for a two particle dot with $\omega=1$ (top plot) and $\omega=0.01$ (bottom plot). 
 		The single particle densities are calculated with and without the Jastrow function (VMC). The DMC density is very almost identical to the VMC density, showing that most 
@@ -894,15 +903,13 @@ This is not the error imposed by the discretization of the Langevin equation, si
 		included in the Jastrow function are more important when $\omega$ gets small. 
 		}}
 		\label{fig:spd2}
-\vspace{.1cm}
-	\includegraphics[width=7.9cm]{../plots/spds2pt.eps}
 \end{center}
 %\vspace{-1.2cm}
 \end{figure}
 
 \begin{figure*}[h!]
 \begin{center}
-	\includegraphics[width=15.5cm]{../plots/spds612.eps}
+	\includegraphics[width=13.5cm]{../plots/spds612.eps}
 \caption{{\it%\small
 		The single particle densities A) 6 particle QD with $\omega=1$ B) 6 particle QD with $\omega=0.01$  C) 12 particle QD with $\omega=1$ D) 12 particle QD with $\omega=0.01$. 
 		The correlations gets more important for smaller $\omega$ or a higher number of particles. 		 
@@ -910,7 +917,7 @@ This is not the error imposed by the discretization of the Langevin equation, si
 		showing strong correlations effects that can not be accounted for by the 2 particle Jastrow. %Note that the curves for $\omega =0.01$ and $1$ have the same shape... 
 		}}
 		\label{fig:spd612}
-\vspace{.1cm}
+%\vspace{.1cm}
 \end{center}
 %\vspace{-1.2cm}
 \end{figure*}
@@ -1002,7 +1009,7 @@ time to equilibriate after random fluctiations away from equilibrium (eg. if a s
 %For low $\omega$, the 
 
 \subsection{Verification of the results (literature,articles)}
-
+\cite{lohne}
 
 
  can see that the timestep error   a 
@@ -1043,6 +1050,48 @@ $N_{p}$ & $\omega$ & $\alpha_{min}$ & $\beta_{min}$ \\
 %\hspace{50mm}
 \end{table}
 
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+$N_{p}$ & $\omega$ & $\Delta_t$ &$\expec{E_L}$ \\ 
+\hline
+\hline
+ $2$  & $1.0$ 	& $0.007$ & $3.00001(2)$ \\ 
+ $2$  & $1$  & $0.005$ & $3.00000(2)$ \\ 
+ $2$  & $1$  & $0.001$ & $3.00001(3)$ \\ 	 
+\hline
+ $2$  & $0.28$ 	& $0.007$ & $1.02167()$ \\ 
+ $2$  & $0.28$  & $0.005$ & $1.02166()$ \\ 
+ $2$  & $0.28$  & $0.001$ & $1.20167()$ \\ 	 
+\hline
+ $2$  & $0.01$ 	& $0.007$ & $0.07385()$ \\ 
+ $2$  & $0.01$  & $0.005$ & $0.07386()$ \\ 
+ $2$  & $0.01$  & $0.001$ & $0.07386()$ \\ 	 
+\hline
+ $6$  & $1.0$ 	& $0.9245$ & $0.5561$ \\ 
+ $6$  & $0.28$  & $0.8736$ & $0.3259$ \\ 
+ $6$  & $0.01$  & $0.6141$ & $0.09327$ \\ 
+\hline
+ $12$ & $1.0$ 	& $0.8775$ & $0.6574$ \\ 
+ $12$ & $0.28$  & $0.8090$ & $0.3788$ \\ 
+ $12$ & $0.01$  & $0.4935$ & $0.1128$ \\ 
+\hline
+ $20$ & $1.0 $ 	& $0.8384$ & $0.7392$ \\ 
+ $20$ & $0.28$  & $0.7500$ & $0.4274$ \\ 
+ $20$ & $0.01$  & $0.3958$ & $0.1418$ \\ 
+\hline
+\end{tabular}
+\end{center}
+\caption{{\it 
+	Minimization results. $N_p$ is the number of particles and $N_s$ is the number of cycles used to obtain the energies and the gradient during the minimization.
+	$\alpha_{min}$ and $\beta_{min}$ is the values of the variational parameters at the minima. 
+	%The variable \verb gtol  which sets the convergence criteria
+	We have used a $\Delta t=0.05$ and $10^5$ iterations in the SGA loop. 
+}}
+\label{tab1}
+%\hspace{50mm}
+\end{table}
 
 The SGA algorithm works well. First of all, it seems as the algorithm is working for different systems. Some parameter tuning seems inevitable for any new system. This can be solved by implementing
 some sort of line search along the gradient $\partial ...$. One possibility is to implement a Newtonian approach to estimate the minima for each iteration. The hessian matrix can be evaluated 
@@ -1335,9 +1384,10 @@ We combine eq. (\ref{A1}), eq. (\ref{A2}) and eq. (\ref{A3})
 %\caption{{\it\small Normalized density plot for 12 pt. $\alpha=0.87$, $\omega=0.68$, $\delta t=0.05$. $10^6$ cycles. }}
 %\end{figure}
 
+
+
 \bibliographystyle{plain}	% (uses file "plain.bst")
 \bibliography{proj1}		% expects file "proj1.bib"
 \end{document}
 
 % vim:foldmethod=marker
-

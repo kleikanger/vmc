@@ -32,6 +32,10 @@ using std::ostringstream;
 
 #include "../definitions/sampler_Def.h"
 
+#ifndef WRITE_SGADATA
+#define WRITE_SGADATA true
+#endif
+
 sga::sga(int num_part, int spin_up_cutoff, int dimension, int num_of_var_par, int myrank, int nprocs, MPI_Status status)
 {/*//startvimfold*/
 	this->myrank=myrank;
@@ -87,9 +91,11 @@ void sga::SGAMin(
 	m_sga_inc[0]=m_sga_inc[1]=1.0;
 	m_v_sga[0]=m_v_sga[1]=1.0;
 
+#if WRITE_SGADATA
 	//Open file stream
-	ofstream ofilecga;
-	ofilecga.open("cgadata/test.txt");
+	ofstream ofilesga;
+	ofilesga.open("sgadata/test.txt");
+#endif
 
 	//write to screen
 	if (myrank==0)
@@ -160,7 +166,7 @@ void sga::SGAMin(
 		//	<<e_grad_cum[1][1]<<" "
 		//	<<e_mean<<"\n";
 
-		//****collect and broadcast. MPI only optimized for 1 computer, too much communication!!
+		//****collect and broadcast. XXX MPI only optimized for 1 computer, too much communication
 		MPI_Allreduce(MPI_IN_PLACE, e_grad_cum[0], 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(MPI_IN_PLACE, e_grad_cum[1], 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(MPI_IN_PLACE, &e_mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -175,7 +181,8 @@ void sga::SGAMin(
 		e_mean /= (double)sga_upd;
 		energy_gradient[0] = 2*(e_grad_cum[1][0]-e_grad_cum[0][0]*e_mean)/(double)sga_upd;
 		energy_gradient[1] = 2*(e_grad_cum[1][1]-e_grad_cum[0][1]*e_mean)/(double)sga_upd;
-
+		
+		//Loop over dimensions
 		for (i=0;i<2;i++)
 		{
 			//Calculate m_v_sga and m_sga_inc
@@ -191,7 +198,7 @@ void sga::SGAMin(
 				}
 			temp = energy_gradient[i]*pow(m_v_sga[i],-.8);
 			//setting max length to move (each dim) to .01.
-			if (fabs(temp)>.01) //.01??
+			if (fabs(temp)>.01)
 				temp*=0.01/fabs(temp);
 			//m++ if the gradient changed its sign
 			if (energy_gradient[i]/energy_gradient_old[i]<0) 
@@ -236,23 +243,28 @@ void sga::SGAMin(
 					fflush(stdout);
 			}
 		}
+#if WRITE_SGADATA
 		//Write to file	
 		if (myrank==0)
 		{
-			ofilecga << setiosflags(ios::showpoint | ios::uppercase);
+			ofilesga << setiosflags(ios::showpoint | ios::uppercase);
 			for (i=0;i<dimension;i++)
 			{
-				ofilecga << setw(16) << setprecision(16) 
+				ofilesga << setw(16) << setprecision(16) 
 					<< n_sga*sga_upd*nprocs << " " 						//loops
 					<< var_par[0] << " " 								//alpha
 					<< var_par_cum[0]/(double)(n_sga-sga_out_upd) <<" " //alpha mean
 					<< var_par[1] << " " 								//beta
 					<< var_par_cum[1]/(double)(n_sga-sga_out_upd) <<" ";//beta mean
 			}
-			ofilecga<<"\n";
+			ofilesga<<"\n";
 		}
+#endif
 		n_sga++;
 	}
+#if WRITE_SGADATA
+	ofilesga.close();
+#endif
 
 	//Collect results
 	MPI_Allreduce(MPI_IN_PLACE, var_par_cum, 2, MPI_DOUBLE, MPI_SUM,  MPI_COMM_WORLD);
@@ -306,7 +318,7 @@ void sga::initWalkers(int initial_number_of_walkers, int thermalization, int cor
 			//print to screen
 			if (myrank==0&&num_init%((initial_number_of_walkers)/200+1)==0)
 			{
-				cout<<"\r"<<"                                            ";
+				cout<<"\r                                                    ";
 				cout<<"\rinitializing walkers: "<<setprecision(3)
 					<<(num_init)/(double)initial_number_of_walkers*100<<"%";
 				fflush(stdout);

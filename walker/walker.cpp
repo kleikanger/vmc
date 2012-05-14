@@ -142,7 +142,8 @@ bool walker::tryRandomStep(int active_part)
 	double* ipd_upd = new double[num_part];
 	int i,j;
 
-	//update r_i (r_new) and r_{ij} (ipd_upd) for the active particle
+	//Suggest new position. Update  r_i (r_new) and 
+	//r_{ij} (ipd_upd) for the active particle
 	getNewPos(active_part, ipd_upd);
 
 	//add log of old jastrow ratio  		
@@ -352,7 +353,6 @@ void walker::getNewPos(int const &active_part, double* ipd_upd)
 		r_new[active_part][k] += dt_x_D * q_force_old[active_part][k] 
 					+ RAN_NORM() * sq_delta_t;
 	}
-
 	//New ipd : calculating new lengths betw particles.
 	//only iterating over changed lengths.
 	for (i=0; i<active_part; i++)
@@ -383,16 +383,6 @@ void walker::getRi(int i_w, double* x)
 	{
 		x[i]=r_old[i_w][i];
 	}
-}/*//endvimfold*/
-
-double walker::getLenOfMoveSqrd(const int &active_part) const
-{/*//startvimfold*/
-	double l=0.0;
-	for (int i=0;i<dimension;i++)
-	{
-		l+=pow(r_old[active_part][i]-r_new[active_part][i],2);
-	}
-	return l;
 }/*//endvimfold*/
 
 bool walker::nodeCrossed()

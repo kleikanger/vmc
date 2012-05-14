@@ -109,10 +109,6 @@ class walker {
 		   Resets the variational parameters
 		   */
 		void wSetVarPar(double* varPar);
-		/*
-		   Returns the length of the last move
-		   */
-		double getLenOfMoveSqrd(const int &j) const;
 	
 	friend class popControl;
 };

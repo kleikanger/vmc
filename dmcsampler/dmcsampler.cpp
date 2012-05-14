@@ -166,10 +166,7 @@ void dmcsampler::sampleDMC(
 	//Initialize walkers, using VMC routine
 	initializeSys(initial_number_of_walkers, thermalization, corr_length, var_par, e_local_old);
 
-	//********
-	double rej_len=0.0, acc_len=0.0;
-	int rej=0, acc=0;
-	//********
+	
 	//************************** START equilibriation phase ******************
 	/*//startvimfold*/
 	loop_c=0; 
@@ -193,21 +190,13 @@ void dmcsampler::sampleDMC(
 				//move all particles, one at a time
 				for (int active_part=0; active_part<num_part; active_part++)
 				{
-					//metropolis-hastings test
-					bool mh_test = (quantum_dot[loop_p]->tryRandomStep(active_part)); 
+					//metropolis-hastings test &&
 					//reject walkers that has crossed node or that fails the mh_test
-					if (mh_test && !quantum_dot[loop_p]->nodeCrossed())
-					{
-						acc_len+=quantum_dot[loop_p]->getLenOfMoveSqrd(active_part);
-						acc++;
+					if ( quantum_dot[loop_p]->tryRandomStep(active_part)
+							&& !quantum_dot[loop_p]->nodeCrossed())
 						quantum_dot[loop_p]->acceptStep(active_part);
-					}
-					else
-					{ 
-						rej_len+=quantum_dot[loop_p]->getLenOfMoveSqrd(active_part);
-						rej++;
+					else  
 						quantum_dot[loop_p]->rejectStep(active_part);
-					}
 				}//All particles moved
 
 				//find local energy
@@ -243,8 +232,7 @@ void dmcsampler::sampleDMC(
 			}
 		//keeping track of the total number of samples
 		loop_c_cumulative+=loop_c;
-		}	
-
+		}
 		//sorting walkers, num_alive called by reference and reset
 		sortWalkers(num_alive, killsd, num_resurrected, occupancy, e_local_old);	
 		
@@ -281,14 +269,6 @@ void dmcsampler::sampleDMC(
 	//MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	//e_cumulative/=(double)nprocs*loop_main;
 	
-	//************* TESTING *********************
-	double delta_t_eff=delta_t*acc_len/(acc_len+rej_len)/(double)acc*((double)acc+rej);
-	MPI_Allreduce(MPI_IN_PLACE, &delta_t_eff, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-	delta_t_eff/=nprocs;
-	cout<<delta_t_eff<<" "<<acc_len/(acc_len+rej_len);
-	//delta_t_eff=delta_t;
-	//*******************************************
-	
 	if (myrank==0)
 	{
 		cout<<"\nequilibriation energy: "
@@ -302,7 +282,7 @@ void dmcsampler::sampleDMC(
 	ofstream ofiletest;
 	if (myrank==0)	
 	{
-		ofiletest.open("dmctest.dat");
+		ofiletest.open("/home/karleik/Dropbox/MASTER/Program/vmc/dmctest.dat");
 	}
 	//XXX XXX test XXX XXX
 	double e_tot=0.0;
@@ -343,7 +323,7 @@ void dmcsampler::sampleDMC(
 							//not adding to loop_c. loop_c has value from previous loop
 							//which is correct since the last local_energy was collected then.
 						}*/	
-					quantum_dot[loop_p]->acceptStep(active_part);
+						quantum_dot[loop_p]->acceptStep(active_part);
 					//if (loop_c>thermalization) { accepted++; } 
 					}
 					else  
@@ -355,7 +335,7 @@ void dmcsampler::sampleDMC(
 				//find local energy
 				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy();
 				//calculate new branching factor
-				branching_factor = exp(-delta_t_eff*(0.5*(e_local_temp+e_local_old[loop_p])-e_trial)); //e_trial is the (vmc) calculated mean
+				branching_factor = exp(-delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_trial));
 				
 				//collect energy weighted by the branching factor
 				e_local+=branching_factor*e_local_temp; //TODO use intermediate variable to calculate b_f*e_l_t
@@ -391,9 +371,8 @@ void dmcsampler::sampleDMC(
 				//update energy if the walker survived
 				e_local_old[loop_p] = e_local_temp;
 #if WRITEOFC
-				//store single particle density //store every e.g. n=numpart*2*n_procs 
-				//cycles in inner loop for less correlates samples and to save ram
-				if ((n_spd<spd_size) && (loop_c%24==0)) for (j=0;j<num_part;j++)
+				//store single particle density //store every n=numpart*2 cycles in inner loop for less correlates samples
+				if ((n_spd<spd_size) && (loop_c%6==0)) for (j=0;j<num_part;j++)
 				{
 					if (n_spd>=spd_size) break;
 					quantum_dot[loop_p]->getRi(j,r_temp);
@@ -528,6 +507,7 @@ void dmcsampler::redistributeWalkers(int myrank, int nprocs, int &num_alive, boo
 		rank[i]=i;
 	nalive[myrank]=num_alive;
 
+	//collect num_alive fron all procs
 	for (i=0;i<nprocs;i++)
 		MPI_Bcast(&nalive[i], 1, MPI_INT, i, MPI_COMM_WORLD);
 	MPI_Barrier(MPI_COMM_WORLD);//XXX necc? (feels safe)
@@ -581,7 +561,7 @@ void dmcsampler::redistributeWalkers(int myrank, int nprocs, int &num_alive, boo
 				if ( (nalive[i]<mean) != (nalive[nprocs-i-1]<mean) )	
 			{  
 				//transfer walkers till one of the nodes has a number eq to the mean
-				//if one is eq to mean: ntransfer=0, resorting and new proposal
+				//if one is eq to mean: ntransfer=0, resort and new proposal
 				ntransfer = ( (mean-nalive[i]) >= (nalive[nprocs-i-1]-mean)) ? 
 					nalive[nprocs-i-1]-mean : mean-nalive[i];
 				if  ((myrank==rank[i]) || (myrank==rank[nprocs-i-1]))
@@ -608,10 +588,11 @@ void dmcsampler::redistributeWalkers(int myrank, int nprocs, int &num_alive, boo
 //					if (myrank==rank[i])
 //						cout<<rank[nprocs-i-1]<<"to"<<rank[i]<<" number  "<<ntransfer<<"\n"; 
 				}
+				//change nalive vectors on all procs before sorting
 				nalive[i]+=ntransfer;
 				nalive[nprocs-i-1]-=ntransfer;
 			
-				//last run if all 
+				//last iteration if
 				if (abs(nalive[nprocs-i-1]-mean)>=lefto) cont_iter=true;
 				if (abs(nalive[i]-mean)>=lefto) cont_iter=true;
 			}

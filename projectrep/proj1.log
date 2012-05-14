@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  9 MAY 2012 00:12
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2011.11.5)  9 MAY 2012 21:48
 entering extended mode
  %&-line parsing enabled.
 **proj1.tex
@@ -6,27 +6,79 @@ entering extended mode
 LaTeX2e <2009/09/24>
 Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
 yphenation, loaded.
-(/usr/share/texmf-texlive/tex/latex/base/article.cls
-Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
-(/usr/share/texmf-texlive/tex/latex/base/size10.clo
-File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+(/usr/share/texmf-texlive/tex/latex/revtex4/revtex4.cls
+Document Class: revtex4 2001/08/02 v4.0 (http://publish.aps.org/revtex4/ for do
+cumentation)
+ Copyright (c) 2001 The American Physical Society.
+ mailto:revtex@aps.org
+ Licensed under the LPPL:
+http://www.ctan.org/tex-archive/macros/latex/base/lppl.txt
+ Arthur Ogawa <ogawa@teleport.com>
+ Based on work by David Carlisle <david@dcarlisle.demon.co.uk>.
+ltxutil: portions licensed from W. E. Baxter (web@superscript.com)
+Class revtex4 Info: Repairing broken LateX \@sect on input line 596.
+\intertabularlinepenalty=\count79
+\@tbpen=\count80
+\@arstrutbox@hline=\box26
+Class revtex4 Info: Repairing broken LaTeX \@xbitor on input line 1610.
+ltxgrid: portions licensed from W. E. Baxter (web@superscript.com)
+\c@linecount=\count81
+\output=\toks14
+\@protection@box=\box27
+\@topmark@saved=\toks15
+\footins@saved=\box28
+\pagesofar=\box29
+\footbox=\box30
+\pagegrid@col=\count82
+Class revtex4 Info: Incorporating package {textcase}  [1998/11/12 v0.06 Text on
+ly upper/lower case changing (DPC)]. on input line 3682.
+(/usr/share/texmf-texlive/tex/latex/ltxmisc/url.sty
+\Urlmuskip=\muskip10
+Package: url 2006/04/12  ver 3.3  Verb mode for urls, etc.
 )
-\c@part=\count79
-\c@section=\count80
-\c@subsection=\count81
-\c@subsubsection=\count82
-\c@paragraph=\count83
-\c@subparagraph=\count84
-\c@figure=\count85
-\c@table=\count86
+\c@affil=\count83
+\absbox=\box31
+\c@part=\count84
+\c@section=\count85
+\c@subsection=\count86
+\c@subsubsection=\count87
+\c@paragraph=\count88
+\c@subparagraph=\count89
 \abovecaptionskip=\skip41
 \belowcaptionskip=\skip42
-\bibindent=\dimen102
+\c@figure=\count90
+\c@table=\count91
+
+(/usr/share/texmf-texlive/tex/latex/natbib/natbib.sty
+Package: natbib 2009/07/16 8.31 (PWD, AO)
+\bibhang=\skip43
+\bibsep=\skip44
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count92
+)
+\widetext@top=\box32
+\widetext@bot=\box33
+
+(/usr/share/texmf-texlive/tex/latex/revtex4/revsymb.sty
+Package: revsymb 2001/08/02 v4.0 (http://publish.aps.org/revtex4/ for documenta
+tion)
+LaTeX Info: Redefining \REV@mathfrak on input line 118.
+))
+
+Class revtex4 Warning: No Society specified, using generic APS style.
+
+(/usr/share/texmf-texlive/tex/latex/revtex4/aps.rtx
+File: aps.rtx 2001/08/02 v4.0 (http://publish.aps.org/revtex4/ for documentatio
+n)
+)
+(/usr/share/texmf-texlive/tex/latex/revtex4/10pt.rtx
+File: 10pt.rtx 2001/08/02 v4.0 (http://publish.aps.org/revtex4/ for documentati
+on)
 )
 (/usr/share/texmf-texlive/tex/latex/base/inputenc.sty
 Package: inputenc 2008/03/30 v1.1d Input encoding file
-\inpenc@prehook=\toks14
-\inpenc@posthook=\toks15
+\inpenc@prehook=\toks16
+\inpenc@posthook=\toks17
 
 (/usr/share/texmf-texlive/tex/latex/base/utf8.def
 File: utf8.def 2008/04/05 v1.1m UTF-8 support for inputenc
@@ -242,7 +294,7 @@ Now handling font encoding U ...
 ))
 (/usr/share/texmf-texlive/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2000/07/18 v2.13 AMS math features
-\@mathmargin=\skip43
+\@mathmargin=\skip45
 
 For additional information on amsmath, use the `?' option.
 (/usr/share/texmf-texlive/tex/latex/amsmath/amstext.sty
@@ -250,51 +302,51 @@ Package: amstext 2000/06/29 v2.01
 
 (/usr/share/texmf-texlive/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0
-\@emptytoks=\toks16
-\ex@=\dimen103
+\@emptytoks=\toks18
+\ex@=\dimen102
 ))
 (/usr/share/texmf-texlive/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d
-\pmbraise@=\dimen104
+\pmbraise@=\dimen103
 )
 (/usr/share/texmf-texlive/tex/latex/amsmath/amsopn.sty
 Package: amsopn 1999/12/14 v2.01 operator names
 )
-\inf@bad=\count87
+\inf@bad=\count93
 LaTeX Info: Redefining \frac on input line 211.
-\uproot@=\count88
-\leftroot@=\count89
+\uproot@=\count94
+\leftroot@=\count95
 LaTeX Info: Redefining \overline on input line 307.
-\classnum@=\count90
-\DOTSCASE@=\count91
+\classnum@=\count96
+\DOTSCASE@=\count97
 LaTeX Info: Redefining \ldots on input line 379.
 LaTeX Info: Redefining \dots on input line 382.
 LaTeX Info: Redefining \cdots on input line 467.
-\Mathstrutbox@=\box26
-\strutbox@=\box27
-\big@size=\dimen105
+\Mathstrutbox@=\box34
+\strutbox@=\box35
+\big@size=\dimen104
 LaTeX Font Info:    Redeclaring font encoding OML on input line 567.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 568.
-\macc@depth=\count92
-\c@MaxMatrixCols=\count93
-\dotsspace@=\muskip10
-\c@parentequation=\count94
-\dspbrk@lvl=\count95
-\tag@help=\toks17
-\row@=\count96
-\column@=\count97
-\maxfields@=\count98
-\andhelp@=\toks18
-\eqnshift@=\dimen106
-\alignsep@=\dimen107
-\tagshift@=\dimen108
-\tagwidth@=\dimen109
-\totwidth@=\dimen110
-\lineht@=\dimen111
-\@envbody=\toks19
-\multlinegap=\skip44
-\multlinetaggap=\skip45
-\mathdisplay@stack=\toks20
+\macc@depth=\count98
+\c@MaxMatrixCols=\count99
+\dotsspace@=\muskip11
+\c@parentequation=\count100
+\dspbrk@lvl=\count101
+\tag@help=\toks19
+\row@=\count102
+\column@=\count103
+\maxfields@=\count104
+\andhelp@=\toks20
+\eqnshift@=\dimen105
+\alignsep@=\dimen106
+\tagshift@=\dimen107
+\tagwidth@=\dimen108
+\totwidth@=\dimen109
+\lineht@=\dimen110
+\@envbody=\toks21
+\multlinegap=\skip46
+\multlinetaggap=\skip47
+\mathdisplay@stack=\toks22
 LaTeX Info: Redefining \[ on input line 2666.
 LaTeX Info: Redefining \] on input line 2667.
 )
@@ -304,6 +356,8 @@ Package: amsfonts 2009/06/22 v3.00 Basic AMSFonts support
 \symAMSb=\mathgroup5
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 96.
+LaTeX Info: Redefining \frak on input line 99.
+LaTeX Info: Redefining \Bbb on input line 101.
 )
 (/usr/share/texmf-texlive/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2009/06/22 v3.00
@@ -316,7 +370,7 @@ Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
 
 (/usr/share/texmf-texlive/tex/latex/graphics/keyval.sty
 Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
-\KV@toks@=\toks21
+\KV@toks@=\toks23
 )
 (/usr/share/texmf-texlive/tex/latex/graphics/graphics.sty
 Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
@@ -332,11 +386,11 @@ Package graphics Info: Driver file: dvips.def on input line 91.
 (/usr/share/texmf-texlive/tex/latex/graphics/dvips.def
 File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
 ))
-\Gin@req@height=\dimen112
-\Gin@req@width=\dimen113
+\Gin@req@height=\dimen111
+\Gin@req@width=\dimen112
 )
-\epsfxsize=\dimen114
-\epsfysize=\dimen115
+\epsfxsize=\dimen113
+\epsfysize=\dimen114
 )
 (/usr/share/texmf-texlive/tex/latex/algorithms/algorithmic.sty
 Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
@@ -344,12 +398,12 @@ Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
 (/usr/share/texmf-texlive/tex/latex/base/ifthen.sty
 Package: ifthen 2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
 )
-\c@ALC@unique=\count99
-\c@ALC@line=\count100
-\c@ALC@rem=\count101
-\c@ALC@depth=\count102
-\ALC@tlm=\skip46
-\algorithmicindent=\skip47
+\c@ALC@unique=\count105
+\c@ALC@line=\count106
+\c@ALC@rem=\count107
+\c@ALC@depth=\count108
+\ALC@tlm=\skip48
+\algorithmicindent=\skip49
 )
 (/usr/share/texmf-texlive/tex/latex/algorithms/algorithm.sty
 Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating enviro
@@ -357,221 +411,204 @@ nment
 
 (/usr/share/texmf-texlive/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count103
-\float@exts=\toks22
-\float@box=\box28
-\@float@everytoks=\toks23
-\@floatcapt=\box29
+\c@float@type=\count109
+\float@exts=\toks24
+\float@box=\box36
+\@float@everytoks=\toks25
+\@floatcapt=\box37
 )
-\@float@every@algorithm=\toks24
-\c@algorithm=\count104
+\@float@every@algorithm=\toks26
+\c@algorithm=\count110
 )
-\c@theorem=\count105
- (./proj1.aux)
+\c@theorem=\count111
+ (./proj1.aux
+
+LaTeX Warning: Label `tab1' multiply defined.
+
+)
 \openout1 = `proj1.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Try loading font information for U+msa on input line 49.
-
-(/usr/share/texmf-texlive/tex/latex/amsfonts/umsa.fd
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+Class revtex4 Info: Patching LaTeX tabular. on input line 45.
+Class revtex4 Info: cite was not loaded (OK!) on input line 45.
+Class revtex4 Info: multicol was not loaded (OK!) on input line 45.
+ (./proj1.toc
+LaTeX Font Info:    Try loading font information for U+msa on input line 21.
+ (/usr/share/texmf-texlive/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 49.
+LaTeX Font Info:    Try loading font information for U+msb on input line 21.
 
 (/usr/share/texmf-texlive/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
-) (./proj1.toc)
+)
+Overfull \hbox (5.00003pt too wide) detected at line 29
+ \OT1/cmr/m/n/10 10
+ []
+
+
+Overfull \hbox (5.00003pt too wide) detected at line 30
+ \OT1/cmr/m/n/10 10
+ []
+
+
+Overfull \hbox (5.00003pt too wide) detected at line 31
+ \OT1/cmr/m/n/10 11
+ []
+
+)
 \tf@toc=\write3
 \openout3 = `proj1.toc'.
 
- [1
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 107.
 
-
-]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 104.
-
-
-(/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
+ (/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 104.
-
-Underfull \hbox (badness 1668) in paragraph at lines 178--188
-\OT1/cmr/m/n/10 These equa-tions are im-ple-mented in the well
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 107.
+ [1]
+Underfull \hbox (badness 3179) in paragraph at lines 229--232
+[]\OT1/cmr/m/n/10 One pos-si-bil-ity us to use a sug-ges-tion den-sity
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 178--188
-
- []
+Package amsmath Warning: Cannot use `split' here;
+(amsmath)                trying to recover with `aligned' on input line 250.
 
 [2]
 
-Package amsmath Warning: Cannot use `split' here;
-(amsmath)                trying to recover with `aligned' on input line 247.
-
-
-Underfull \hbox (badness 1275) in paragraph at lines 284--284
-[]\OT1/cmr/bx/n/14.4 Statistical anal-y-sis of the
- []
-
-
-LaTeX Warning: Reference `figblc' on page 3 undefined on input line 300.
+LaTeX Warning: Reference `figblc' on page 3 undefined on input line 305.
 
 File: ../plots/blc_6pt_omg1_dt05.eps Graphic file (type eps)
 <../plots/blc_6pt_omg1_dt05.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 310--311
- [] 
- []
-
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[3]
-Overfull \hbox (4.81442pt too wide) in paragraph at lines 381--381
-[] 
- []
+[3] [4]
 
-[4]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [5]
-Underfull \hbox (badness 10000) in paragraph at lines 547--554
-[]\OT1/cmr/m/n/10 The ap-prox-i-mate value of the gra-di-ent
- []
+LaTeX Warning: A float is stuck (cannot be placed); try class option [floatfix]
+ on input line 513.
 
 
-Underfull \hbox (badness 2119) in paragraph at lines 547--554
-[] \OMS/cmsy/m/n/10 h[][]i[]$ \OT1/cmr/m/n/10 is ob-tained dur-ing a short MC
- []
-
-
-LaTeX Warning: Reference `minalg' on page 6 undefined on input line 555.
+LaTeX Warning: Reference `minalg' on page 5 undefined on input line 560.
 
 File: ../plots/minimization_2pt_omg1.eps Graphic file (type eps)
 <../plots/minimization_2pt_omg1.eps>
 File: ../plots/minimization_12pt_omg1.eps Graphic file (type eps)
  <../plots/minimization_12pt_omg1.eps>
-Overfull \hbox (0.93158pt too wide) in paragraph at lines 573--579
- [] 
- []
-
-
-Overfull \hbox (0.93158pt too wide) in paragraph at lines 573--579
- [] 
- []
-
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 2050) in paragraph at lines 634--634
-[]\OT1/cmr/bx/n/14.4 Implementation and op-ti-
+Underfull \hbox (badness 10000) in paragraph at lines 642--645
+[]\OT1/cmr/m/n/10 I have used the ran-dom num-ber gen-er-a-tor
  []
 
 
-Underfull \hbox (badness 4927) in paragraph at lines 637--640
-\OT1/cmr/m/n/10 I have used the ran-dom num-ber gen-er-a-tor
- []
-
-
-Underfull \hbox (badness 5374) in paragraph at lines 637--640
+Underfull \hbox (badness 1939) in paragraph at lines 642--645
 []\OT1/cmtt/m/n/10 DRanNormalZig32 \OT1/cmr/m/n/10 for gen-er-at-ing nor-mal di
-s-
+s-tributed
  []
 
 
-Underfull \vbox (badness 3724) has occurred while \output is active []
-
- [6]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [7]
-Overfull \hbox (1.0623pt too wide) in paragraph at lines 753--753
-[] 
+Underfull \hbox (badness 1902) in paragraph at lines 642--645
+\OT1/cmr/m/n/10 ran-dom num-bers and []\OT1/cmtt/m/n/10 DRan_MWC8222 \OT1/cmr/m
+/n/10 for gen-er-at-ing
  []
 
-[8]
-Underfull \hbox (badness 3019) in paragraph at lines 848--848
-[]\OT1/cmr/bx/n/12 Convergence rate: DMC vs
+
+Underfull \hbox (badness 2418) in paragraph at lines 642--645
+\OT1/cmr/m/n/10 num-ber gen-er-a-tors are pro-grammed by Ju-r-gen A.
  []
 
+\@endnoteout=\write4
+\openout4 = `proj1.end'.
+
+[5]
+
+LaTeX Warning: A float is stuck (cannot be placed); try class option [floatfix]
+ on input line 670.
+
+[6] [7]
 File: ../plots/time_step_error_2ptomg1.eps Graphic file (type eps)
-<../plots/time_step_error_2ptomg1.eps>
-Overfull \hbox (6.62204pt too wide) in paragraph at lines 865--866
- [] 
- []
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
+ <../plots/time_step_error_2ptomg1.eps>
 File: ../plots/energies2pt.eps Graphic file (type eps)
-<../plots/energies2pt.eps>
+ <../plots/energies2pt.eps>
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 File: ../plots/spds2pt.eps Graphic file (type eps)
 <../plots/spds2pt.eps>
-Overfull \hbox (3.7766pt too wide) in paragraph at lines 898--899
- [] 
- []
-
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 File: ../plots/spds612.eps Graphic file (type eps)
 <../plots/spds612.eps>
 
+Class revtex4 Warning: Float cannot be placed.
+
+
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[9]
+
+Package natbib Warning: Citation `lohne' on page 8 undefined on input line 1010
+.
+
+[8]
+
+LaTeX Warning: A float is stuck (cannot be placed); try class option [floatfix]
+ on input line 1013.
+
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1137--1146
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
- []
+[9]
 
-[10] [11]
-Overfull \hbox (7.74205pt too wide) in paragraph at lines 1222--1222
-[] 
- []
+LaTeX Warning: A float is stuck (cannot be placed); try class option [floatfix]
+ on input line 1098.
 
 
-Overfull \hbox (8.10329pt too wide) in paragraph at lines 1253--1253
-[] 
- []
+Class revtex4 Warning: Float cannot be placed.
 
-[12] (./proj1.bbl
-Underfull \hbox (badness 1642) in paragraph at lines 47--51
-[]\OT1/cmr/m/n/10 Anthony Sce-mama, Tony Leli^^Revre, Gabriel
- []
+[10]
 
-) [13] [14] [15] (./proj1.aux)
+LaTeX Warning: A float is stuck (cannot be placed); try class option [floatfix]
+ on input line 1324.
+
+(./proj1.bbl (./proj1.end))
+
+Package natbib Warning: There were undefined citations.
+
+[11] [12] [13] (./proj1.aux)
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: There were multiply-defined labels.
+
  ) 
 Here is how much of TeX's memory you used:
- 2080 strings out of 495062
- 23305 string characters out of 1182644
- 119660 words of memory out of 3000000
- 5222 multiletter control sequences out of 15000+50000
- 13883 words of font info for 54 fonts, out of 3000000 for 9000
+ 3662 strings out of 495062
+ 43253 string characters out of 1182644
+ 160158 words of memory out of 3000000
+ 6786 multiletter control sequences out of 15000+50000
+ 10794 words of font info for 42 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 32i,16n,22p,687b,477s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 32i,16n,24p,696b,482s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on proj1.dvi (15 pages, 92980 bytes).
+Output written on proj1.dvi (13 pages, 94656 bytes).

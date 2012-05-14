@@ -40,12 +40,7 @@ inline double h2(double &x, double omg_alp)
 }
 inline double h3(double &x, double sq_omg_alp)
 {
-	return 8.*pow(x*sq_omg_alp,3) - 12.; 
-}
-inline double h4(double &x, double omg_alp)
-{
-	return 16.*pow(x,4)*pow(omg_alp,2) - 
-		48.*pow(x,2)*omg_alp + 12.;
+	return 8.*pow(x*sq_omg_alp,3) - 12.*x*sq_omg_alp; 
 }
 inline void orbital::updOmgAlp(double alphaARG, double omegaARG)
 {
@@ -300,7 +295,7 @@ double orbital::D2(double* dR) const
 }
 //endvimfold
 double orbital::valuedPdA(double* dR) 
-{
+{/*//startvimfold*/
 #if 0
 	//Not working, change getdPdAoveA in slatermatrix 
 
@@ -347,16 +342,20 @@ double orbital::valuedPdA(double* dR)
 				-0.5*omega*r_sqrd)*valueWF(dR);
 		case 8: //x2 y1
 				return
+				(
 				sqrt_omg_ove_alp*
-				( dR[0]*2.*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)
-				+dR[1]/h1(dR[1],sq_omg_alp) 
-				-0.5*omega*r_sqrd)*valueWF(dR);
+					( dR[0]*2.*h1(dR[0],sq_omg_alp)/h2(dR[0],omg_alp)
+					+dR[1]/h1(dR[1],sq_omg_alp)) 
+				-0.5*omega*r_sqrd
+				)*valueWF(dR);
 		case 9: //x1 y2
 				return
+				(
 				sqrt_omg_ove_alp*
-				( dR[1]*2.*h1(dR[1],sq_omg_alp)/h2(dR[1],omg_alp)
-				+dR[0]/h1(dR[0],sq_omg_alp) 
-				-0.5*omega*r_sqrd)*valueWF(dR);
+					( dR[1]*2.*h1(dR[1],sq_omg_alp)/h2(dR[1],omg_alp)
+					+dR[0]/h1(dR[0],sq_omg_alp)) 
+				-0.5*omega*r_sqrd
+				)*valueWF(dR);
 		case 10: //x0 y3
 				return
 				(dR[1]*3.*sqrt_omg_ove_alp*h2(dR[1],omg_alp)/h3(dR[1],sq_omg_alp)
@@ -367,7 +366,7 @@ double orbital::valuedPdA(double* dR)
 				exit(1);
 	}
 #endif	
-}
+}/*//endvimfold*/
 int orbital::angularMomentum() const {
 //startvimfold
 	return angular_momentum;
