@@ -16,7 +16,7 @@ import time
 #####################
 
 #choose only one should be true for a fast code
-conjugate_gradient 	= False
+sga_minimize 		= False
 sample_on_grid 		= False
 use_dmc_sampler 	= False
 
@@ -94,7 +94,7 @@ os.system("echo '#define RAN_UNI_SET %s' >> definitions/randomNumberGenerators.h
 use_cgm_minimization = ''
 def gen_sampl_h():
 	#use conjugate gradient method minimization
-	if conjugate_gradient:
+	if sga_minimize:
 		use_cgm_minimization = 'false'
 	else: 
 		use_cgm_minimization = 'false'
@@ -143,7 +143,7 @@ def all_param():
 		number_of_particles,\
 		sampling_cycles / number_of_processors,#cyc
 		thermal_cycles,\
-		int(conjugate_gradient),\
+		int(sga_minimize),\
 		int(sample_on_grid),\
 		initial_e_trial,
 		num_cycles_main_loop,

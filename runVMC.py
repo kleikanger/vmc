@@ -177,14 +177,18 @@ conjugate_gradient 	= True
 sample_on_grid 		= False
 use_dmc_sampler 	= False
 number_of_particles = 2
-num_cycles_main_loop= 80000
-number_of_walkers 	= 100 #total number on all procs
-num_c_ET_upd_loop 	= 100 #O(100)-O(1000)
+num_cycles_main_loop= 60000
+number_of_walkers 	= 30 #total number on all procs
+num_c_ET_upd_loop 	= 1 #O(100)-O(1000)
 thermal_cycles 		= 5e4
 
+
+import numpy as np
 omega 				= 1
-number_of_particles = 20
-#run()
+number_of_particles = 6
+for dt in [0.001,0.003,0.005,0.007,0.01,.03,.05,.07,.1]:
+	delta_t=dt
+	run()
 
 conjugate_gradient 	= True
 sample_on_grid 		= True

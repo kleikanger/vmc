@@ -1,5 +1,5 @@
 LFLAGS=-llapack -lcblas 
-CFLAGS=-O3  -I/opt/intel/mkl/include/ -I/usr/include/i386-linux-gnu/# -pg -g2 # -L/opt/intel/mkl/lib/32
+CFLAGS=-O3 -Wall -I/opt/intel/mkl/include/ -I/usr/include/i386-linux-gnu/# -pg -g2 # -L/opt/intel/mkl/lib/32
 DEBUG=-Wall -g
 PAT=/home/karleik/masterProgging/vmc
 NPROC=-n 2
@@ -9,18 +9,18 @@ GPROFOUT=gprof_testres.txt
 
 vmcmain.out: all
 	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o sga.o\
-		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o mcongrid.o dmcsampler.o\
+		zignor.o zigrandom.o newmatrix.o mcongrid.o dmcsampler.o\
 		popControl.o -o runVMC.out $(LFLAGS)
 
 all: vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o zignor.o zigrandom.o\
-	   	newmatrix.o cgm.o mcongrid.o dmcsampler.o popControl.o sga.o
+	   	newmatrix.o mcongrid.o dmcsampler.o popControl.o sga.o
 
 run: vmcmain.out
 	$(EXEC) $(NPROC) runVMC.out
 
 profile: all
 	$(CC) $(CFLAGS) vmcmain.o sampler.o walker.o slaterMatrix.o orbital.o ipdist.o sga.o\
-		zignor.o zigrandom.o newmatrix.o cgm.o vectormatrixclass.o mcongrid.o dmcsampler.o\
+		zignor.o zigrandom.o newmatrix.o mcongrid.o dmcsampler.o\
 		popControl.o -o runVMC.out $(LFLAGS)
 #$(EXEC) $(NPROC) vmcmain_gprof.out 
 #python runVMC.py
@@ -38,7 +38,7 @@ dmcsampler.o: $(PAT)/dmcsampler/dmcsampler.h $(PAT)/dmcsampler/dmcsampler.cpp wa
 	$(CC) $(CFLAGS) -c $(PAT)/dmcsampler/dmcsampler.h $(PAT)/dmcsampler/dmcsampler.cpp
 
 sga.o: $(PAT)/sga/sga.h $(PAT)/sga/sga.cpp walker.o newmatrix.o\
-	   	$(PAT)/definitions/sampler_Def.h zigrandom.o zignor.o popControl.o
+	   	$(PAT)/definitions/sampler_Def.h popControl.o
 	$(CC) $(CFLAGS) -c $(PAT)/sga/sga.h $(PAT)/sga/sga.cpp
 
 walker.o: $(PAT)/walker/walker.h $(PAT)/walker/walker.cpp $(PAT)/definitions/randomNumberGenerators.h\
@@ -63,17 +63,11 @@ zigrandom.o: $(PAT)/ziggurat/zigrandom.h $(PAT)/ziggurat/zigrandom.c
 newmatrix.o: $(PAT)/newmatrix/newmatrix.h $(PAT)/newmatrix/newmatrix.cpp
 	$(CC) $(CFLAGS) -c $(PAT)/newmatrix/newmatrix.h $(PAT)/newmatrix/newmatrix.cpp
 
-cgm.o: $(PAT)/cgm/cgm.h $(PAT)/cgm/cgm.cpp vectormatrixclass.o sampler.o 
-	$(CC) $(CFLAGS) -c $(PAT)/cgm/cgm.h $(PAT)/cgm/cgm.cpp 
-
 mcongrid.o: $(PAT)/mcongrid/mcongrid.h $(PAT)/mcongrid/mcongrid.cpp $(PAT)/definitions/mcongrid_Def.h sampler.o 
 	$(CC) $(CFLAGS) -c $(PAT)/mcongrid/mcongrid.h $(PAT)/mcongrid/mcongrid.cpp 
 
 popControl.o: $(PAT)/popControl/popControl.h $(PAT)/popControl/popControl.cpp $(PAT) walker.o slaterMatrix.o ipdist.o
 	$(CC) $(CFLAGS) -c $(PAT)/popControl/popControl.h $(PAT)/popControl/popControl.cpp
-
-vectormatrixclass.o: $(PAT)/cgm/vectormatrixclass.h $(PAT)/cgm/vectormatrixclass.cpp
-	$(CC) $(CFLAGS) -c $(PAT)/cgm/vectormatrixclass.h $(PAT)/cgm/vectormatrixclass.cpp  
 
 clear:
 	rm *.out *.o

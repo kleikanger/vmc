@@ -86,11 +86,10 @@ void dmcsampler::sampleDMC(
 	RAN_UNI_SET(&idum_d,5);
 	double e_local=0.0;
 	double redist_threshh=.01; //if particles deviates mean*redist_threshh from mean, redistribute particles
-	double e_local_squared=0.0;
 	double e_local_temp=0.0;
 	int corr_length = 3000; //number of steps between init of particles
-	int i,j,k,active_part;
-	int accepted=0;
+	int i,j;
+	//int accepted=0;
 	int num_alive = initial_number_of_walkers;
 	double branching_factor;
 	int num_new_walkers;
@@ -421,7 +420,8 @@ void dmcsampler::sampleDMC(
 		if (myrank==0)
 		{
 			cout<<"\rcycles in main loop: "<<loop_main+1<<" of "
-				<<num_c_dmc_main_loop<<" e_trial<"<<e_trial<<" e_tot approx:"<< e_tot/(double)(loop_main+1);
+				<<num_c_dmc_main_loop<<" e_trial<"<<e_trial<<" e_tot approx:"
+				<< e_tot/(double)(loop_main+1)<<" num_alive:~"<<num_alive*nprocs<<" -";
 			fflush(stdout);
 			//write to file
 			ofiletest<<setprecision(16)<<e_tot/(double)(loop_main+1)<<" "<<e_trial<<" "<<num_alive*2.<<"\n";

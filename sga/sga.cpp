@@ -7,18 +7,7 @@
 #include <sstream>
 #include "sga.h"
 #include "../newmatrix/newmatrix.h"
-
-//ref: Jurgen A. Doornik 2005
-#include "../ziggurat/zigrandom.h"
-#include "../ziggurat/zignor.h"
-//Defining random number generators RAN_NORM,RAN_NORM_SET,RAN_UNI,RAN_UNI_SET
-//File automatically generated in python script and looks approx like this:
-//
-// #define RAN_NORM DRanNormalZig32
-// #define RAN_NORM_SET RanNormalSetSeedZig32
-// #define RAN_UNI DRan_MWC8222
-// #define RAN_UNI_SET RanSetSeed_MWC8222
-#include "../definitions/randomNumberGenerators.h"
+#include "../definitions/sampler_Def.h"
 
 using std::cout;
 using std::cerr;
@@ -30,7 +19,6 @@ using std::setw;
 using std::ios;
 using std::ostringstream;
 
-#include "../definitions/sampler_Def.h"
 
 #ifndef WRITE_SGADATA
 #define WRITE_SGADATA true
@@ -64,26 +52,24 @@ void sga::SGAMin(
 		)
 {/*//startvimfold*/
 	
-	//init random number generators
-	int idum_d=time(NULL)*(myrank+1);
-	RAN_UNI_SET(&idum_d,5);	
-	
-	int corr_length = 3000; //number of steps between init of particles
+	int corr_length = 3000; //number of steps between init of particles 
 	int sga_out_upd = 200; //Start collecting data after 100 cycles (therm..)
 	
 	int i, n_sga=0;
 	int sga_upd=initial_number_of_walkers*num_c_dmc_inner_loop;
-	double e_local_temp, temp, e_mean, len_energy_gradient;
+	double e_local_temp, temp, e_mean;
 	double **e_grad_cum = (double**)matrix(2,2,sizeof(double));
 	double energy_gradient[2], energy_gradient_old[2];
 	double var_par_cum[2], var_par_cum2[2], m_sga_inc[2];
-	double e_local_sga=0., len_energy_gradient_cum[2];
+	double len_energy_gradient_cum[2];
 	double m_v_sga[2], e_grad_temp[2];;  
 	bool sga_init[2] = {true,true};
 
 	//array of walkers	
 	quantum_dot = new walker*[initial_number_of_walkers]; 
 	
+	var_par_cum2[0]=var_par_cum2[1]=0.;
+	var_par_cum[0]=var_par_cum[1]=0.;
 	e_grad_cum[0][0] = e_grad_cum[1][0] 
 	= e_grad_cum[0][1] = e_grad_cum[1][1] = 0.0;
 	len_energy_gradient_cum[0]=len_energy_gradient_cum[1]=0.;
@@ -160,13 +146,8 @@ void sga::SGAMin(
 			}
 		}
 
-		//cout<<e_grad_cum[0][0]<<" "
-		//	<<e_grad_cum[0][1]<<" "
-		//	<<e_grad_cum[1][0]<<" "
-		//	<<e_grad_cum[1][1]<<" "
-		//	<<e_mean<<"\n";
-
 		//****collect and broadcast. XXX MPI only optimized for 1 computer, too much communication
+		// OpenMP better?
 		MPI_Allreduce(MPI_IN_PLACE, e_grad_cum[0], 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(MPI_IN_PLACE, e_grad_cum[1], 2, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(MPI_IN_PLACE, &e_mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -186,7 +167,9 @@ void sga::SGAMin(
 		for (i=0;i<2;i++)
 		{
 			//Calculate m_v_sga and m_sga_inc
+			//XXX tunable parameters. include in top of file XXX
 			if (sga_init[i]) //initially set to true
+			{
 				if (n_sga>=50&&n_sga<120)
 					len_energy_gradient_cum[i]+=fabs(energy_gradient[i]);
 				else if (n_sga==120)
@@ -196,6 +179,7 @@ void sga::SGAMin(
 					m_sga_inc[i]=m_v_sga[i]/20.;
 					sga_init[i]=false;
 				}
+			}
 			temp = energy_gradient[i]*pow(m_v_sga[i],-.8);
 			//setting max length to move (each dim) to .01.
 			if (fabs(temp)>.01)

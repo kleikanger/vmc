@@ -73,7 +73,6 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	double energies[3];
 	for (int i=0;i<3;i++) energies[i] = 0.0;
 
-	int i,j,k,active_part;
 	int accepted=0;
 
 	//init walker object
@@ -107,11 +106,11 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 #endif
 #if WRITEOFC // write to file : single particle density
 		//store single particle density every n=10 loop for lower correlation 
-		if (n_spd<spd_size && loop_c%20==0) for (j=0;j<num_part;j++)
+		if (n_spd<spd_size && loop_c%20==0) for (int j=0;j<num_part;j++)
 		{
 			if (n_spd>=spd_size) break;
 			quantum_dot->getRi(j,r_temp);
-			for (k=0;k<dimension;k++)
+			for (int k=0;k<dimension;k++)
 				spd[k][n_spd]=r_temp[k];
 			spd[dimension][n_spd]=1.;//TODO weights not necc to save for VMC
 			n_spd++;
@@ -145,7 +144,7 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 	//write single particle density to file
 	if (myrank==0)
 		cout<<"writing spddata to file"<<(OFPATHC)<<"<.>.dat\n";
-	for (i=0;i<dimension+1;i++)
+	for (int i=0;i<dimension+1;i++)
 	{
 		ofstream spdofile;
 		ostringstream ostt;
@@ -156,7 +155,7 @@ void sampler::sample(int num_cycles, int thermalization, double* var_par, double
 		spdofile.close();
 	}
 	delete [] r_temp;
-	for (i=0;i<dimension+1;i++)
+	for (int i=0;i<dimension+1;i++)
 		delete [] spd[i];
 	delete [] spd;
 #endif
