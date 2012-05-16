@@ -170,20 +170,17 @@ bool walker::tryRandomStep(int active_part)
 	{
 		q_force_new[i][j] = 2.*(jas_grad[i][j]+sla_grad[i][j]);
 	}
-	double qf_sc;
-	for (i=0; i<num_part; i++)
-	{
-		//qf_sc = cblas_ddot(dimension,q_force_new[i],1,q_force_new[i],1);
-		//qf_sc = (-2.+2.*sqrt(1.+1.*qf_sc*dt_x_D))/(1.*dt_x_D*qf_sc);
-		//cblas_dscal(2,qf_sc,q_force_new[i],1);
-
-		for (j=0; j<dimension; j++)
-		{
-			qf_sc = q_force_new[i][j];
-			qf_sc = (-2.+2.*sqrt(1.+1.*qf_sc*qf_sc*dt_x_D))/(1.*dt_x_D*qf_sc*qf_sc)*qf_sc;
-			q_force_new[i][j]=qf_sc;
-		}
-	}
+	//remove divergences at nodes //TESTING
+//	double qf_sc;
+//	for (i=0; i<num_part; i++)
+//	{
+//		for (j=0; j<dimension; j++)
+//		{
+//			qf_sc = pow(q_force_new[i][j],2);
+//			q_force_new[i][j] *= (-1.+sqrt(1.+2.*.1*qf_sc*delta_t))
+//				/ (.1*qf_sc*delta_t);
+//		}
+//	}
 
 	//calculate log of greens ratio
 	greens_f=0.0;
@@ -405,6 +402,16 @@ bool walker::nodeCrossed()
 		return true;
 	else
 		return false;
+}/*//endvimfold*/
+
+double walker::lastMoveSqared(const int &active_part) const
+{/*//startvimfold*/
+	double l=0.0;
+	for (int j=0; j<dimension; j++)
+	{
+		l += pow(r_old[active_part][j]-r_new[active_part][j],2);
+	}
+	return l;
 }/*//endvimfold*/
 
 void walker::getVarParGrad(double* grad_var_par) const

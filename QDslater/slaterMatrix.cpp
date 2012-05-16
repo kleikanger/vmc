@@ -304,33 +304,15 @@ void slaterMatrix::accept(int i_upd)
 double slaterMatrix::waveFunction(const int &i_upd) const
 {	//startvimfold
 	//returns ratio between new and old determinant when one particle moved.
-	int i;
-	
 	//double sum=0;
 	if (i_upd<iCutoff)
 	{
-		//for (i=0;i<iCutoff;i++)
-		//{
-			//sum+=orbital_[i].valueWF(dR)*inv_up_matr[i_upd][i];
-			//sum+=spin_up_matr[i_upd][i]*inv_up_backup[i_upd][i];
-		//}
-		//OBS TODO XXX Already calculated in the update algorithm
 		return cblas_ddot(iCutoff,spin_up_matr[i_upd],1,inv_up_backup[i_upd],1);
-		//Det down not changed: ratio =1;
-		//return sum;
 	} 
 	else 
 	{
-		//for (i=iCutoff;i<iNumPart;i++)
-		//{
-			//sum+=orbital_[i].valueWF(dR)*inv_down_matr[i_upd-iCutoff][i-iCutoff];
-			//sum+=spin_down_matr[i_upd-iCutoff][i-iCutoff]*inv_down_backup[i_upd-iCutoff][i-iCutoff];
-		//}
 		return cblas_ddot(iCutoff,spin_down_matr[i_upd-iCutoff],1,inv_down_backup[i_upd-iCutoff],1);
-		//Det up not changed: ratio =1;
-		//return sum;
 	}
-
 }
 //endvimfold
 void slaterMatrix::grad(double** ret_vec, double** dR, const int &active_part) const//, int axis, int i_upd)

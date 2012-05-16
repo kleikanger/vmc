@@ -173,7 +173,11 @@ void dmcsampler::sampleDMC(
 	
 	//************************** START equilibriation phase ******************
 	/*//startvimfold*/
-	loop_c=0; 
+	loop_c=0;
+   	double l_acc_sqrd=0.0;	
+	int n_acc_sqrd=0;
+   	double l_rej_sqrd=0.0;	
+	int n_rej_sqrd=0;
 	//TODO while not equilibriated :: find some criteria
 	for (loop_main=0; loop_main<num_c_dmc_equilibriation_loop; loop_main++)
 	{
@@ -196,10 +200,16 @@ void dmcsampler::sampleDMC(
 				{
 					//metropolis-hastings test &&
 					//reject walkers that has crossed node or that fails the mh_test
-					if ( quantum_dot[loop_p]->tryRandomStep(active_part)
-							&& !quantum_dot[loop_p]->nodeCrossed())
+					if ( (quantum_dot[loop_p]->tryRandomStep(active_part))
+								&& (!quantum_dot[loop_p]->nodeCrossed()) )
+					{
+						l_acc_sqrd+=quantum_dot[loop_p]->lastMoveSqared(active_part);
+						//n_acc_sqrd++;
 						quantum_dot[loop_p]->acceptStep(active_part);
+					}
 					else  
+						l_rej_sqrd+=quantum_dot[loop_p]->lastMoveSqared(active_part);
+						//n_rej_sqrd++;
 						quantum_dot[loop_p]->rejectStep(active_part);
 				}//All particles moved
 
@@ -264,7 +274,16 @@ void dmcsampler::sampleDMC(
 		cout<<"\requilibriatinon of walkers finished";
 		cout<<"\n";
 	}
-	
+	l_rej_sqrd+=l_acc_sqrd;
+	//l_acc_sqrd/=(double)n_acc_sqrd;
+	//l_rej_sqrd/=(double)(n_rej_sqrd+n_acc_sqrd);
+	//Set efficient time step
+	delta_t*=l_acc_sqrd/l_rej_sqrd;
+	MPI_Allreduce(MPI_IN_PLACE, &delta_t, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	delta_t/=nprocs;
+	if (myrank==0)
+		cout<<"\n teff*="<<l_acc_sqrd/l_rej_sqrd<<"\n";
+
 	MPI_Allreduce(MPI_IN_PLACE, &e_cumulative, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	MPI_Allreduce(MPI_IN_PLACE, &total_loop_c_cumulative, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
 	e_cumulative/=(double)total_loop_c_cumulative;
@@ -339,7 +358,7 @@ void dmcsampler::sampleDMC(
 				//find local energy
 				e_local_temp = quantum_dot[loop_p]->calcLocalEnergy();
 				//calculate new branching factor
-				branching_factor = exp(-delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_trial));
+				branching_factor = exp(-.999*delta_t*(0.5*(e_local_temp+e_local_old[loop_p])-e_trial));
 				
 				//collect energy weighted by the branching factor
 				e_local+=branching_factor*e_local_temp; //TODO use intermediate variable to calculate b_f*e_l_t

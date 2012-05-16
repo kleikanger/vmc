@@ -109,6 +109,10 @@ class walker {
 		   Resets the variational parameters
 		   */
 		void wSetVarPar(double* varPar);
+		/*
+
+		   */
+		double lastMoveSqared(const int &active_part) const;
 	
 	friend class popControl;
 };

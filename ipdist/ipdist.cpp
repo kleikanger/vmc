@@ -255,7 +255,7 @@ double ipdist::jasLapl(double** r) const
 		}
 #endif
 	}
-  //	return sum;
+	//return sum;
 #if 1
 	//will give same results if we do not sum the particle twice
 	return 2.*sum;
@@ -274,7 +274,7 @@ double ipdist::logJasR(const int &i_upd) const
 	for (i=0;i<i_upd;i++)
 	{
 		r_12=ip_len[i_upd_mo][i];
-		if (i_upd_spin_up==i<iCutoff) //? a=con : a=1.0; 
+		if ((i_upd_spin_up)==(i<iCutoff)) //? a=con : a=1.0; 
 		//if (i_upd_spin_up==(i<iCutoff))  a=con; else a=1.0; 
 		{
 			sum+=A*r_12/(1.0 + beta*r_12);
@@ -302,7 +302,7 @@ double ipdist::logJasR(const int &i_upd) const
 }/*//endvimfold*/
 double ipdist::getdPdA() const
 {/*//startvimfold*/
-	int i,j,l;
+	int i,j;
 	double sum=0.0, fac;
 	bool i_spin_up;
 	

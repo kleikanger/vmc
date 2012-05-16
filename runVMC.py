@@ -188,7 +188,7 @@ omega 				= 1
 number_of_particles = 6
 for dt in [0.001,0.003,0.005,0.007,0.01,.03,.05,.07,.1]:
 	delta_t=dt
-	run()
+	#run()
 
 conjugate_gradient 	= True
 sample_on_grid 		= True
@@ -227,7 +227,7 @@ sample_on_grid 		= False
 use_dmc_sampler 	= True
 number_of_processors= 2
 number_of_walkers 	= 1000 #total number on all procs
-num_cycles_main_loop= 200
+num_cycles_main_loop= 2000
 num_c_ET_upd_loop 	= 200 #O(100)-O(1000)
 num_c_equilibri_loop= 3000
 initial_e_trial 	= 65.0004
@@ -243,7 +243,7 @@ min_alpha 			= .8775
 min_beta 			= .6574
 number_of_particles =  6
 omega 				=  1
-#run();
+run();
 
 initial_e_trial 	= 62.000
 min_alpha 			= .843#39#40
